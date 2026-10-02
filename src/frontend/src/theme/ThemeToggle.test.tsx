@@ -87,6 +87,23 @@ describe("the theme toggle", () => {
     await waitForTheme("day");
   });
 
+  it("applies an OS change that happened before it listened", async () => {
+    // The OS turns dark after the mount drew day, while the store attaches its listener: no change event reaches it.
+    let night = false;
+    vi.stubGlobal("matchMedia", () => ({
+      get matches() {
+        return night;
+      },
+      addEventListener: () => {
+        night = true;
+      },
+      removeEventListener: () => undefined,
+    }));
+    const toggle = await renderToggle();
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    await waitForTheme("night");
+  });
+
   it("lets a stored override win over the OS", async () => {
     emulateOsNight(true);
     localStorage.setItem(THEME_STORAGE_KEY, "day");

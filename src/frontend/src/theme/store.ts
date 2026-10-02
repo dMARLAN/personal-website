@@ -98,6 +98,11 @@ function subscribe(listener: () => void): () => void {
   };
   query.addEventListener("change", publish);
   window.addEventListener("storage", onStorage);
+  // The mount applied the theme in a layout effect, and React subscribes later, in a passive effect. An OS change in
+  // between fired no listener, so read the theme again now that one is attached.
+  if (document.documentElement.dataset.theme !== snapshot()) {
+    publish();
+  }
   return () => {
     listeners.delete(listener);
     query.removeEventListener("change", publish);
