@@ -1,0 +1,27 @@
+/* The stroke model from docs/design.md section 6.2. Widths are in CSS px through --k (px per DI). */
+.ddi-core,
+.ddi-halo {
+  fill: none;
+  stroke: #1e8c00;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ddi-core {
+  stroke-width: max(1px, calc(1.45 * var(--k)));
+}
+
+.ddi-halo {
+  stroke-width: calc(max(1px, calc(1.45 * var(--k))) + max(0.6px, calc(0.91 * var(--k))));
+  opacity: var(--ddi-halo);
+}
+
+@media (forced-colors: active) {
+  .ddi-core {
+    stroke: CanvasText;
+  }
+
+  .ddi-halo {
+    display: none;
+  }
+}

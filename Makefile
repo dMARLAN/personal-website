@@ -4,7 +4,10 @@
 	format_diff format_diff-api format_diff-frontend \
 	validate validate-api validate-frontend \
 	ci ci-api ci-frontend \
-	bootstrap system-deps local-cluster tilt-up tilt-down tilt-reset
+	bootstrap system-deps local-cluster tilt-up tilt-down tilt-reset \
+	dcs-assets
+
+DCS_ROOT ?= /mnt/f/Program Files/Eagle Dynamics/DCS World
 
 
 install-api:
@@ -79,3 +82,7 @@ tilt-down: local-cluster
 	tilt down
 
 tilt-reset: tilt-down tilt-up
+
+# Regenerates the stroke font and symbols from a local DCS install. CI never runs this.
+dcs-assets:
+	DCS_ROOT="$(DCS_ROOT)" uv run --no-project scripts/extract_dcs_assets.py
