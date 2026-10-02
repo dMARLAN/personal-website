@@ -760,7 +760,8 @@ Because in-section state has no URL, the semantic layer of each section lists th
   layout holds the pre-paint script, the frame CSS and the corner buttons. Neither loads the other's CSS or
   scripts, so moving between them is a full page load. Section and showcase URLs are unchanged.
 - **(ours) Admin and API routes.** `/admin` is the admin console (section 13.8), in `app/(admin)` with its own root
-  layout. It is `noindex, nofollow` and not in the sitemap. `/api/*` is rewritten to FastAPI (section 13.6), and
+  layout. It is `noindex, nofollow` and not in the sitemap. `/admin/preview/enable` and `/admin/preview/disable` are
+  the route handlers that enter and leave draft-mode preview (section 13.9). `/api/*` is rewritten to FastAPI (section 13.6), and
   `POST /revalidate` is the route the API calls after a save (section 13.5).
 - `SITE_NAME` and `SITE_URL` (`https://chad.hambley.org`) stay the only identity constants, in
   `src/lib/site.ts`. The DDI renders the name from `SITE_NAME`. A test fails if the surname literal appears
@@ -1200,8 +1201,9 @@ Tailwind v4 with shadcn/ui (zinc tokens in `src/admin/admin.css`), Geist and Gei
 Links, Résumé PDF) and "DDI showcase" (BIT, FUEL, FCS, CHKLST, ENG / server, Radar, MUMI), with an amber dot on each
 section with unsaved edits and a `DRAFT` tag on each with a stored draft. The open section is in the URL hash
 (`/admin#links`). The section pane has a sticky action bar (title, badges, the last publish's status, "Advanced:
-JSON", "View live", Discard draft, Discard changes, Save draft, Publish) over a resizable split: the editor on the
-left, the preview slot on the right.
+JSON", "View live", Discard draft, Discard changes, Save draft, Publish) over a resizable split (54/46 by default):
+the editor on the left, the live preview on the right. "View live" opens `/admin/preview/disable?path=/about`, which
+leaves draft mode before it redirects, so it shows the page as the public sees it, not the drafts.
 
 **The form engine (`src/admin/schema/`, `src/admin/form/`).** Every section is edited through a form generated from
 its JSON Schema; no section has a hand-written form.
@@ -1245,7 +1247,16 @@ its JSON Schema; no section has a hand-written form.
 
 - The console loads every section and `GET /api/admin/drafts` at sign-in. A section with a draft opens the draft,
   badged "Draft — not published", with "Discard draft" (`DELETE`, back to the live copy).
-- **Save draft** (Ctrl/Cmd+S) puts the document to `PUT /api/admin/drafts/{section}`. **Publish** (Ctrl/Cmd+Enter)
+- **Autosave.** About 600 ms after the last edit, a document that differs from the stored one and passes the client
+  check is put to `PUT /api/admin/drafts/{section}`, quietly: no toast; the preview header shows "Saving draft…",
+  then "Draft saved 15:04:05", or "Autosave failed" (the reason in its tooltip). A 422 shows as field messages, as
+  for a manual save. Autosave clears "Unsaved changes": the document is stored, as a draft, so the amber dot and the
+  stash are only for edits the API does not have yet (inside the delay, failing the client check, or refused).
+  Discard changes therefore returns to the last autosaved draft; Discard draft returns to the live copy. Autosave
+  skips a section with an open 412 dialog, waits while another request for the section is in flight, retries a
+  failure only on the next edit, and never saves restored stash edits until they are edited again.
+- **Save draft** (Ctrl/Cmd+S) saves now, with a toast, instead of waiting for autosave; it is enabled only while
+  the editor holds unsaved changes. **Publish** (Ctrl/Cmd+Enter)
   puts it to `PUT /api/admin/content/{section}` with `If-Match`; the API deletes the draft. The status line then
   shows the time and `Revalidation: done` (or `failed`, "publish again to retry"); toasts report success and
   failure. **Discard changes** returns to the draft, or the live copy.
@@ -1257,11 +1268,31 @@ its JSON Schema; no section has a hand-written form.
 - **Résumé PDF.** A drop zone (or file picker) uploads to `PUT /api/admin/resume`; the panel shows the served file's
   size and last-modified time and links to it.
 
-**The preview slot.** The split's right pane renders `<PreviewPanel section draft valid livePath />`
-(`src/admin/preview/PreviewPanel.tsx`), today a placeholder. `section` is the `SectionId`; `draft` is the document as
-it stands in the editor, saved or not, on every keystroke, typed as JSON because the JSON editor can produce any
-shape; `valid` is true when it passes the client check; `livePath` is the public page (`/about`). The live preview
-replaces the component's body and keeps these props.
+**Live preview (`src/admin/preview/`).** The right pane shows the real page in a same-origin iframe, rendered by the
+Next server in draft mode from the stored drafts (section 13.9). It previews only what autosave stored, so it always
+matches what Publish would publish.
+
+- **Pages.** `previewTargets` maps a section to the pages it changes: its DDI page, plus the homepage `/` for the
+  site content (About, Resume, Work, Projects, Contact, Links), which shows all of them. A "DDI page | Homepage"
+  toggle in the panel header switches between the two.
+- **Size.** A select offers Fit to pane, 1920 × 1080, 1440 × 900 (the default) and 390 × 844. Fit sizes the page to
+  the pane; the others render the page at that size and scale it down to fit (`fitFrame`, never up), with the scale
+  shown beside the select. The choice is kept in `localStorage` (`admin:preview-viewport`).
+- **Updates.** Each stored change (an autosave, Save draft, Publish, Discard draft) bumps the section's `revision`.
+  The panel then re-arms draft mode (`POST /admin/preview/enable`) and posts a refresh message to the page in the
+  frame, whose `PreviewRefresher` calls `router.refresh()`: the server renders the page again with the new draft and
+  React keeps the client state, so an open sublevel, a STEP, an employer tab and the scroll position survive. The
+  page reports each render back ("Updating…" until then). A page that has not reported yet, or does not report within
+  6 s, is reloaded instead (scroll kept, in-section state reset).
+- **Paused.** While the editor has problems (client or a 422), nothing is saved, the frame keeps the last valid
+  draft, and the header shows "Preview paused: fix errors".
+- **States.** When the frame loads, the panel reads the page's `<meta name="pw-preview">`: `draft` shows the page;
+  `signed-out` covers it with "Sign in to preview" and a Sign in button (the console's sign-in form), so published
+  content is never shown as a draft; `error`, or no marker (Next's error page, or a link that left the site),
+  covers it with "The preview could not render" and Retry. Reload and "open in a new tab" buttons sit in the header.
+- **Tutorial.** The frame shares the admin's `localStorage`, so the panel stores the first-visit tutorial as done
+  (section 5.6): Chad has seen it, and it would cover the DDI page.
+- Sign-out also leaves draft mode (`POST /admin/preview/disable`).
 
 ### 13.9 Drafts and preview (ours)
 
@@ -1269,21 +1300,41 @@ Chad saves an edit as a draft and sees the real page render it before he publish
 (section 13.3); preview is Next.js draft mode, rendered on the server from the draft content.
 
 **Mechanism: the session cookie at `Path=/`, forwarded by the Next server.** The browser sends `pw_admin_session`
-with every request to the site, page requests included. The Next server forwards it, as a `Cookie` header, to the
-API at `API_INTERNAL_URL` (the cluster network, not the ingress, so the ingress's `/api/admin` block does not apply).
-The contract for the frontend:
+with every request to the site, page requests included. The Next server forwards only that cookie, as a `Cookie`
+header, to the API at `API_INTERNAL_URL` (the cluster network, not the ingress, so the ingress's `/api/admin` block
+does not apply). It never logs it. The admin's side is in section 13.8; the server's (`src/preview/`,
+`src/content/source.ts`):
 
-1. **Enter preview.** A Next route handler under `/admin` (Tailscale-only), for example
-   `GET /admin/preview?path=/about`, calls `GET $API_INTERNAL_URL/api/admin/session` with
-   `Cookie: pw_admin_session=<value from the request>`. On 200 it calls `draftMode().enable()` and redirects to
-   `path`, which must be a site path (starts with `/`, not `//`). On 401 it sends the browser to `/admin` to sign in.
-2. **Render.** When `draftMode().isEnabled`, the content loader also fetches `GET $API_INTERNAL_URL/api/admin/drafts`
-   with the forwarded cookie and `cache: "no-store"`, and uses each returned section's `content` in place of the
-   published one from `GET /api/content`. On 401 (no session, or it expired) it renders the published content. It
-   never fetches drafts outside draft mode, so a draft never reaches Next's page cache: draft-mode renders are
-   dynamic and uncached.
-3. **Leave preview.** A route handler calls `draftMode().disable()`. Publishing deletes the section's draft, so the
+1. **Enter preview.** `GET /admin/preview/enable?path=/about` (`app/(admin)/admin/preview/enable/route.ts`, so it
+   is Tailscale-only like the rest of `/admin`). `path` must equal one of the registry's routes (`isPreviewPath`):
+   anything else, `//host`, a full URL or a query string included, answers 400, so it is not an open redirect. It
+   then calls `GET /api/admin/session` with the forwarded cookie. On 200 it calls `draftMode().enable()` and
+   redirects (307) to `path`. On 401 it answers a small "Sign in to preview" page (401), and when the API does not
+   answer, an error page (503); it does not redirect to `/admin`, which would open the console inside the frame.
+   Both pages carry `<meta name="pw-preview" content="signed-out|error">` for the admin to read.
+   `POST /admin/preview/enable` does the same check and answers 204: the admin re-arms draft mode before each
+   refresh, because the cookie is the whole browser's and "View live" or another tab may have cleared it.
+2. **Render.** The content accessors read one `load()` per render (React `cache`). Outside draft mode it is exactly
+   section 13.7: no draft code runs, `draftMode()` does not make a page dynamic, and public pages stay static. In
+   draft mode it fetches `GET /api/content` and `GET /api/admin/drafts` (the forwarded cookie), both
+   `cache: "no-store"`, and `withDrafts` puts each returned section's `content` in place of the published one. The
+   drafts call is the session check, on every draft-mode render: a missing or expired session (401) renders the
+   published content and reports `signed-out`, so the bypass cookie alone never shows a draft. Draft mode has no
+   fallback: if the API fails, the render fails, and the admin shows its error state. Both root layouts render
+   `PreviewBridge` (`src/preview/`), which outside draft mode renders nothing; in draft mode it adds the
+   `pw-preview` meta (`draft` or `signed-out`) and the `PreviewRefresher` client component, which answers the
+   admin's refresh message (same origin, from the parent window only) with `router.refresh()` and posts each render
+   back.
+3. **Leave preview.** `GET /admin/preview/disable?path=/about` calls `draftMode().disable()` and redirects ("View
+   live"); `POST` answers 204 (sign-out). Neither needs a session. Publishing deletes the section's draft, so the
    preview then shows the published document.
+4. **Never cached.** Next keeps draft-mode requests out of its page (ISR) cache, its fetch cache and
+   `unstable_cache`, and answers them `Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate`; the
+   drafts fetches are `no-store` as well, and the "last fetched" fallback only ever holds published content.
+   `/revalidate` is called by the API with no cookies, so it never runs in draft mode. Verified by e2e: a draft-mode
+   `/about` is `no-store`, and a visitor's `/about` shows the published bio.
+5. **Framing.** The preview frames the site from `/admin`, same origin. If the ingress ever sets
+   `X-Frame-Options` or a CSP `frame-ancestors`, it must allow the same origin (`SAMEORIGIN` / `'self'`).
 
 Why not a server-to-server endpoint with a shared secret (like `REVALIDATE_SECRET`):
 
@@ -1296,8 +1347,9 @@ Why not a server-to-server endpoint with a shared secret (like `REVALIDATE_SECRE
 - **What `Path=/` costs.** The token now travels with page requests, so the Next server sees it. It is our own
   same-origin server, which already proxies every `/api/admin` call; it must not log `Cookie` headers. The cookie
   stays `HttpOnly` (no page script reads it), `Secure` and `SameSite=Strict` (no cross-site request carries it).
-  Writes still need `X-CSRF-Token`, which the Next server never holds, so a forwarded cookie can read drafts and
-  the session but cannot change anything.
+  Writes still need `X-CSRF-Token`. The Next server sees the session's token only in the enable route's
+  `GET /api/admin/session` answer, which it discards; it sends no writes, so a forwarded cookie reads drafts and the
+  session but changes nothing.
 - **Public host.** The ingress blocks `/admin` and `/api/admin` publicly, so nobody can sign in or enter preview
   there. A public page render forwards no valid session, so the drafts call answers 401 and the page shows published
   content.
@@ -1340,7 +1392,12 @@ Unit tests (Vitest):
   kind maps from its schema (and `x-` key); the counters' tones; the glyph, wrap, combined-length, unique and
   options checks; a 422 `loc` lands on its field; the form renders, adds, duplicates, moves and removes items within
   the limits; the JSON editor and the form stay in step both ways; the console state through draft, publish,
-  conflict and discard.
+  conflict and discard, and the preview's revision and autosave failure.
+- **Preview:** `isPreviewPath` allows every registry route and refuses `//host`, full URLs, query strings, `/admin`
+  and look-alikes; each section maps to its pages (`previewTargets`) and every one passes `isPreviewPath`;
+  `fitFrame` scales down only and centres; the accessors read the published content (cached, no drafts call)
+  outside draft mode, and in draft mode the drafts with only the session cookie and `no-store`, the published
+  content as `signed-out` on a 401 or no cookie, and fail on an API error.
 - **Content adapter and revalidation:** `adapt.ts` unwraps the API's list sections and rejects a station, BIT key
   or host reading the pages cannot draw. `POST /revalidate` answers 401 to a wrong or missing token, 400 to a bad
   body, and revalidates each path and the `(home)` group with the right one.
@@ -1389,7 +1446,11 @@ temporary SQLite database with a test password hash, wired as in the cluster (`p
   publish over a newer one shows the conflict dialog and reloads; on Links an added item starts from
   `x-ui-new-item`, moves up, drags into place and publishes in that order; the JSON editor round-trips with the
   form and marks a schema error; an expired session keeps the edits and restores them after sign-in; a PDF upload
-  replaces what `/api/resume.pdf` serves; sign-out ends the session; axe passes on the sign-in form, a form, a
+  replaces what `/api/resume.pdf` serves; sign-out ends the session; typing the About bio updates the preview's
+  `/about` in place (the frame's document survives) without publishing, the draft-mode page is `no-store`, and a
+  visitor's context still gets the published bio; the Homepage toggle previews `/` with the draft; an invalid
+  field pauses the preview on the last valid draft and saves nothing; the enable route answers 401 without a
+  session (no bypass cookie) and 400 to a path outside the registry, and 307 with the cookie otherwise; axe passes on the sign-in form, a form, a
   nested array and the JSON editor, in both themes; `/admin` is `noindex` and not in the sitemap.
 
 Extraction script (pytest): it parses a small hand-made fixture SVG with the same transform structure. The ED

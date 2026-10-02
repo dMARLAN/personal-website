@@ -20,7 +20,13 @@ controls, TAC/SUPT menus) is built; `make e2e` runs the Playwright + axe suite.
 - Admin forms are generated from the API's JSON Schema (`src/lib/api/openapi-schemas.json`, written by
   `npm run openapi:gen` beside `schema.ts`): `src/admin/schema/` maps schema → field model and validates (Ajv plus
   the `x-` keys), `src/admin/form/` renders it. Change a field's form by changing the API's schema, not by writing a
-  form. The preview slot is `src/admin/preview/PreviewPanel.tsx`.
+  form.
+- The admin's live preview (design sections 13.8 and 13.9) is the real page in an iframe, in Next draft mode:
+  `/admin/preview/enable?path=` checks the session and enters it; the content accessors then read the stored drafts
+  (`src/content/source.ts`, uncached, forwarding only `pw_admin_session`). Outside draft mode they must behave exactly
+  as before, so keep draft-only code behind `draftMode().isEnabled` and never fetch drafts with a cache. `src/preview/`
+  holds the path allowlist and the bridge both root layouts render; `src/admin/preview/` the panel. The editor
+  autosaves drafts (`useConsole.ts`) and the frame refreshes in place.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
