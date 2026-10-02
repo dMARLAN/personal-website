@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CONTROLS_STORAGE_KEY } from "../controls/state";
 import { menuScreens } from "../pages/menus";
+import { menuLegends } from "../pages/registry";
 import { FullViewportFrame } from "./FullViewportFrame";
 
 const push = vi.fn();
@@ -24,13 +25,16 @@ describe("the OSBs", () => {
     expect(buttons).toHaveLength(1);
     expect(buttons[0]).toHaveAccessibleName("Support menu");
     expect(buttons[0]).toHaveAttribute("data-pb", "18");
-    expect(within(nav).queryAllByRole("link")).toHaveLength(0);
+    // Every other TAC legend opens a shipped page.
+    expect(within(nav).queryAllByRole("link")).toHaveLength(
+      menuLegends("TAC").length - 1,
+    );
   });
 
   it("hide blank OSBs from assistive technology and the tab order", () => {
     const container = renderTac();
     const blank = container.querySelectorAll(".ddi-osb[aria-hidden='true']");
-    expect(blank).toHaveLength(19);
+    expect(blank).toHaveLength(20 - menuLegends("TAC").length);
     for (const button of blank) {
       expect(button.tagName).toBe("BUTTON");
       expect(button).toHaveAttribute("tabindex", "-1");

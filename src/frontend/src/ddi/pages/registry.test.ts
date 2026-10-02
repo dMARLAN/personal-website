@@ -91,17 +91,28 @@ describe("the page registry", () => {
     }
   });
 
-  it("shows only shipped pages: in Phase 1 the menus have MENU alone", () => {
+  it("shows only shipped pages, plus MENU", () => {
     for (const menu of MENUS) {
+      const shipped = ALL_PAGES.filter(
+        (page) => page.available && page.menu?.on === menu,
+      ).map((page) => [page.menu?.pb, page.menu?.legend]);
       expect(menuLegends(menu).map(({ pb, lines }) => [pb, lines])).toEqual([
+        ...shipped,
         [18, ["MENU"]],
       ]);
     }
   });
 
   it("toggles TAC and SUPT in place with PB18: in-section state, not a URL", () => {
-    const [tacMenu] = menuLegends("TAC");
-    const [suptMenu] = menuLegends("SUPT");
+    const pb18 = (menu: MenuName): ReturnType<typeof menuLegends>[number] => {
+      const legend = menuLegends(menu).find(({ pb }) => pb === MENU_PB);
+      if (legend === undefined) {
+        throw new Error(`${menu} has no PB18 legend`);
+      }
+      return legend;
+    };
+    const tacMenu = pb18("TAC");
+    const suptMenu = pb18("SUPT");
     expect(tacMenu.action).toEqual({ kind: "state", state: "SUPT" });
     expect(suptMenu.action).toEqual({ kind: "state", state: "TAC" });
     expect([tacMenu.label, suptMenu.label]).toEqual([
@@ -116,7 +127,11 @@ describe("the page registry", () => {
     expect(ALL_PAGES.some((page) => page.path === "/supt")).toBe(false);
   });
 
-  it("lists only / in the sitemap: SUPT has no URL of its own", () => {
-    expect(sitemap()).toEqual([{ url: `${SITE_URL}/` }]);
+  it("lists / and each shipped section in the sitemap: SUPT has no URL of its own", () => {
+    const shipped = ALL_PAGES.filter((page) => page.available).map((page) => ({
+      url: new URL(page.path, SITE_URL).toString(),
+    }));
+    expect(sitemap()).toEqual(shipped);
+    expect(shipped).toContainEqual({ url: `${SITE_URL}/` });
   });
 });

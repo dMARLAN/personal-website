@@ -216,6 +216,14 @@ html:not([data-view="plain"]) body {
     0 0 0 calc(1.5 * var(--k)) rgb(0 0 0 / 0.3);
 }
 
+/* A page island's OSB (section 12) fills its slot. The slot carries the placement and the press direction. */
+.ddi-osb-island > .ddi-osb {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
 .ddi-osb[aria-disabled="true"] {
   cursor: default;
 }
@@ -441,6 +449,13 @@ html[data-view="plain"] .ddi-osbs {
   gap: 8px 20px;
   padding-top: 16px;
   padding-bottom: 32px;
+}
+
+html[data-view="plain"] .ddi-osb-island {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
 }
 
 html[data-view="plain"] .ddi-osb {

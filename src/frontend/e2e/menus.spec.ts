@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { ALL_PAGES, menuLegends } from "../src/ddi/pages/registry";
 
 test("PB18 toggles TAC and SUPT in place on press, and the URL stays /", async ({
   page,
@@ -35,11 +36,14 @@ test("the page opens on TAC every time, including after a reload", async ({
   ).toBeVisible();
 });
 
-test("the menus show only MENU until pages ship", async ({ page }) => {
+test("TAC shows MENU and one legend per shipped page", async ({ page }) => {
   await page.goto("/");
+  const shown = menuLegends("TAC").length;
   const legends = page.locator(".ddi-osb:not([aria-hidden='true'])");
-  await expect(legends).toHaveCount(1);
-  await expect(page.locator(".ddi-osb[aria-hidden='true']")).toHaveCount(19);
+  await expect(legends).toHaveCount(shown);
+  await expect(page.locator(".ddi-osb[aria-hidden='true']")).toHaveCount(
+    20 - shown,
+  );
 });
 
 test("/supt no longer exists", async ({ request }) => {
@@ -72,9 +76,15 @@ test("the plain view lists both menus and hides the state OSB", async ({
   await expect(page.locator(".ddi-osb[data-pb='18']")).toBeHidden();
 });
 
-test("lists only / in the sitemap", async ({ request }) => {
+test("lists / and every shipped section in the sitemap", async ({
+  request,
+}) => {
   const sitemap = await (await request.get("/sitemap.xml")).text();
-  expect(sitemap).toContain("<loc>https://chad.hambley.org/</loc>");
+  for (const page of ALL_PAGES.filter((candidate) => candidate.available)) {
+    expect(sitemap).toContain(
+      `<loc>https://chad.hambley.org${page.path}</loc>`,
+    );
+  }
   expect(sitemap).not.toContain("/supt");
   const robots = await (await request.get("/robots.txt")).text();
   expect(robots).toContain("Sitemap: https://chad.hambley.org/sitemap.xml");

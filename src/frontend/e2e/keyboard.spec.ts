@@ -1,12 +1,18 @@
 import { expect, test } from "@playwright/test";
+import { menuLegends } from "../src/ddi/pages/registry";
 
 test("the keyboard reaches the skip link, the OSBs, the knobs, then the theme toggle", async ({
   page,
 }) => {
   await page.goto("/");
+  // The OSBs come in PB order: TAC's legends for shipped pages and PB18.
+  const osbs = menuLegends("TAC")
+    .map((legend) => legend.pb)
+    .sort((a, b) => a - b)
+    .map((pb) => page.locator(`.ddi-osb[data-pb='${pb}']`));
   const order = [
     page.getByRole("link", { name: "Text view" }),
-    page.getByRole("button", { name: "Support menu" }),
+    ...osbs,
     page.getByRole("slider", { name: "Brightness" }),
     page.getByRole("slider", { name: "Contrast" }),
     page.getByRole("button", { name: "Night mode" }),
