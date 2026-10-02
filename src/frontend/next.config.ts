@@ -14,8 +14,8 @@ const nextConfig: NextConfig = {
   // Only pages drawn from fallback content are ISR pages (src/content/source.ts). Past this age the next request
   // renders them again before answering, so a visitor never gets a build-time snapshot older than this.
   expireTime: 60,
-  // The browser reaches FastAPI at the site's own origin, which the admin session cookie (SameSite=Strict,
-  // Path=/api/admin) and CSRF rely on (docs/design.md section 13.6). `next build` bakes the destination in.
+  // The browser reaches FastAPI at the site's own origin, which the admin session cookie (SameSite=Strict, Path=/)
+  // and CSRF rely on (docs/design.md section 13.6). `next build` bakes the destination in.
   async rewrites() {
     return [
       {
