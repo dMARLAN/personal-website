@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 import { CORNER_VARIABLES } from "@/theme/corner";
 import { KNOB_COLLAR_RADIUS, OSB_ART } from "../constants";
 import { plainViewRequested } from "../controls/store";
@@ -72,8 +72,12 @@ function closeTutorial(): void {
  * a knob, the theme toggle or the homepage link, by pointer, keyboard or the wheel on a knob. Escape and "Got it"
  * close it too. A press anywhere else, on the glass or the dimmed bezel, does nothing. The listeners only observe, in
  * the capture phase, so the press that closes the overlay also does its normal job.
+ *
+ * The pre-paint script shows the overlay before this hydrates, when nothing can close it yet. It returns whether the
+ * listeners are attached.
  */
-function useFirstVisit(): void {
+function useFirstVisit(): boolean {
+  const [listening, setListening] = useState(false);
   useLayoutEffect(() => {
     if (plainViewRequested() || !tutorialPending()) {
       return;
@@ -99,8 +103,12 @@ function useFirstVisit(): void {
       closeWhen((event: WheelEvent) => within(event.target, KNOBS)),
       options,
     );
+    // Attaching the listeners is the external system: the state records that it happened, once per mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setListening(true);
     return () => controller.abort();
   }, []);
+  return listening;
 }
 
 type Target = "osb" | "menu" | "brt" | "cont" | "home" | "theme";
@@ -135,7 +143,7 @@ function Callout({ target, children }: CalloutProps): React.JSX.Element {
  * `<html data-tutorial="open">` is set.
  */
 export function TutorialOverlay(): React.JSX.Element {
-  useFirstVisit();
+  const listening = useFirstVisit();
   return (
     <div
       className="ddi-tutorial"
@@ -164,9 +172,11 @@ export function TutorialOverlay(): React.JSX.Element {
       <div className="ddi-tutorial-panel">
         <h2 id="ddi-tutorial-title">Quick start</h2>
         <p>Press any button to begin.</p>
+        {/* Disabled until the close listeners are attached, since before then neither it nor Escape works. */}
         <button
           type="button"
           className="ddi-tutorial-close"
+          aria-disabled={!listening}
           onClick={closeTutorial}
         >
           Got it

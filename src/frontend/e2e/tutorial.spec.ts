@@ -13,6 +13,16 @@ function tutorial(page: Page): ReturnType<Page["getByRole"]> {
   return page.getByRole("dialog", { name: "Quick start" });
 }
 
+/**
+ * Opens the menu as a first-time visitor, once the tutorial can close. The pre-paint script shows it before the app
+ * hydrates, and "Got it" stays aria-disabled until the close listeners are attached.
+ */
+async function openTutorial(page: Page): Promise<void> {
+  await page.goto(MENU);
+  await expect(tutorial(page)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Got it" })).toBeEnabled();
+}
+
 async function storedFlag(page: Page): Promise<string | null> {
   return page.evaluate(
     (key) => localStorage.getItem(key),
@@ -43,8 +53,7 @@ test("never shows on the standard homepage, only in the DDI", async ({
 test("a press on the glass, the dimmed backdrop or empty bezel leaves it open", async ({
   page,
 }) => {
-  await page.goto(MENU);
-  await expect(tutorial(page)).toBeVisible();
+  await openTutorial(page);
   // The glass left of the panel, the dimmed bezel between PB8 and PB9, and a corner of the backdrop over the glass.
   for (const [x, y] of [
     [600, 700],
@@ -63,8 +72,7 @@ test("pressing an OSB that is not highlighted closes it and also does the OSB's 
   page,
 }) => {
   expect(PAGES.about.menu?.pb).not.toBe(TUTORIAL_OSB);
-  await page.goto(MENU);
-  await expect(tutorial(page)).toBeVisible();
+  await openTutorial(page);
   await page
     .getByRole("navigation", { name: "Display pushbuttons" })
     .getByRole("link", { name: PAGES.about.label })
@@ -77,7 +85,7 @@ test("pressing an OSB that is not highlighted closes it and also does the OSB's 
 test("Enter on a focused OSB closes it and also does the OSB's job", async ({
   page,
 }) => {
-  await page.goto(MENU);
+  await openTutorial(page);
   await page
     .getByRole("navigation", { name: "Display pushbuttons" })
     .getByRole("link", { name: PAGES.work.label })
@@ -88,7 +96,7 @@ test("Enter on a focused OSB closes it and also does the OSB's job", async ({
 });
 
 test("pressing a knob closes it and also turns the knob", async ({ page }) => {
-  await page.goto(MENU);
+  await openTutorial(page);
   const brightness = page.getByRole("slider", { name: "Brightness" });
   await brightness.click({ position: { x: 2, y: 10 } });
   await expect(tutorial(page)).toBeHidden();
@@ -96,7 +104,7 @@ test("pressing a knob closes it and also turns the knob", async ({ page }) => {
 });
 
 test("dragging a knob closes it and also turns the knob", async ({ page }) => {
-  await page.goto(MENU);
+  await openTutorial(page);
   const contrast = page.getByRole("slider", { name: "Contrast" });
   const box = await contrast.boundingBox();
   if (box === null) {
@@ -115,15 +123,14 @@ test("pressing the theme toggle closes it and also switches the theme", async ({
   page,
 }) => {
   await page.emulateMedia({ colorScheme: "light" });
-  await page.goto(MENU);
-  await expect(tutorial(page)).toBeVisible();
+  await openTutorial(page);
   await page.getByRole("button", { name: "Night mode" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "night");
   await expect(tutorial(page)).toBeHidden();
 });
 
 test("Got it closes it", async ({ page }) => {
-  await page.goto(MENU);
+  await openTutorial(page);
   await page.getByRole("button", { name: "Got it" }).click();
   await expect(tutorial(page)).toBeHidden();
   expect(await storedFlag(page)).toBe(TUTORIAL_DONE);
@@ -132,7 +139,7 @@ test("Got it closes it", async ({ page }) => {
 test("is not shown again after a reload, not even for a frame", async ({
   page,
 }) => {
-  await page.goto(MENU);
+  await openTutorial(page);
   await page.getByRole("button", { name: "Got it" }).click();
   await expect(tutorial(page)).toBeHidden();
 
@@ -143,8 +150,7 @@ test("is not shown again after a reload, not even for a frame", async ({
 });
 
 test("Escape closes it", async ({ page }) => {
-  await page.goto(MENU);
-  await expect(tutorial(page)).toBeVisible();
+  await openTutorial(page);
   await page.keyboard.press("Escape");
   await expect(tutorial(page)).toBeHidden();
   expect(await storedFlag(page)).toBe(TUTORIAL_DONE);
@@ -153,7 +159,7 @@ test("Escape closes it", async ({ page }) => {
 test("Tab does not close it, and Got it comes before the OSBs", async ({
   page,
 }) => {
-  await page.goto(MENU);
+  await openTutorial(page);
   const close = page.getByRole("button", { name: "Got it" });
   for (let press = 0; press < 20; press++) {
     await page.keyboard.press("Tab");
@@ -184,7 +190,7 @@ for (const { scheme, theme } of [
 ] as const) {
   test(`has no axe violations while open, ${theme}`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
-    await page.goto(MENU);
+    await openTutorial(page);
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
     await expect(tutorial(page)).toBeVisible();
     const { violations } = await new AxeBuilder({ page }).analyze();
