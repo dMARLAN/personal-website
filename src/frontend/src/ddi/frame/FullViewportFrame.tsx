@@ -18,6 +18,7 @@ import { ControlsIsland } from "../controls/ControlsIsland";
 import { PBS, pbEdge, type Edge } from "../geometry";
 import { EmissiveLayer } from "../primitives/EmissiveLayer";
 import { PBLabel } from "../primitives/PBLabel";
+import { TutorialOverlay } from "../tutorial/TutorialOverlay";
 import { Osb } from "./Osb";
 import { ScreenStateProvider, ScreenStateSlot } from "./screenState";
 import type { DdiScreen, DdiScreens } from "./types";
@@ -178,6 +179,8 @@ export function FullViewportFrame({
             />
           </div>
         </div>
+        {/* Before the OSBs, so its close button comes first in the tab order (section 5.6). */}
+        <TutorialOverlay />
         <nav className="ddi-osbs" aria-label="Display pushbuttons">
           <ScreenStateSlot
             states={perState(screens, (screen) => (

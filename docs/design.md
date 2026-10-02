@@ -378,6 +378,40 @@ halo = h(CONT) + (1 − h(CONT)) · 0.5 · max(0, 2·BRT − 1)
 - The controls island reads the same values through `useSyncExternalStore`. The server snapshot is the
   default state, so hydration does not mismatch.
 
+### 5.6 First-visit tutorial (ours)
+
+A first-time visitor sees one screen that explains the bezel. It is not a multi-step tour.
+
+- **Look.** A 60 % black layer dims the viewport. The OSBs and the knobs rise above it, so they stay lit. Corner
+  brackets, like a HUD target box, mark the four OSB rows and columns, BRT, CONT and the theme toggle. PB18 gets a
+  full outline. Each callout is a short label in the placard font (Barlow Condensed caps) in a brighter cut of the
+  symbology green, underlined by its leader line:
+
+  | Control | Label | Leader |
+  |---|---|---|
+  | OSBs | Press the buttons to navigate | Level, from the left column between PB4 and PB5 |
+  | PB18 | MENU switches TAC and SUPT | Along the band, then up midway to PB17, clear of the legends and the title box |
+  | BRT, CONT | Brightness / Contrast, drag or scroll | 45° up and inward from each corner |
+  | Theme toggle | Day / night | 45° down and inward, below the top-row legends |
+
+  A centred panel holds the dialog's name ("Quick start"), "Any press closes this guide" and a "Got it" button.
+- **Layout.** Every bracket and leader is DI × `--k` from the PB anchors and the bezel constants, the same as the
+  frame. The toggle's callout uses its px placement. Nothing is measured, so the callouts track the controls at
+  every viewport size.
+- **Closing.** The first press anywhere closes it for good: any pointer press, any key except Tab and the
+  modifiers, or the wheel on a knob. The listeners only observe, so the press also does its normal job: an OSB
+  still navigates and a knob still turns. The overlay takes no pointers except its panel.
+- **Persistence.** The close stores `localStorage["ddi:tutorial:v1"] = "done"`. Only that exact value counts.
+  Blocked storage reads as done, since a close could never persist and the overlay would return on every page.
+  The pre-paint script sets `<html data-tutorial="open">` and CSS shows the overlay only then, so a returning
+  visitor never sees it flash. The plain view never opens it.
+- **Accessibility.** It is a `role="dialog"` with `aria-modal="false"`, named by its heading. Every control stays
+  usable, so there is no focus trap and nothing is made inert. A live region would not fit: text present at load
+  is not announced, and it cannot hold the close button. The dialog sits before the OSBs in the DOM, so "Got it"
+  is the first stop after `<main>`. The callout text is a list; the brackets and leaders are hidden from assistive
+  technology. It fades in over 450 ms, and not at all under `prefers-reduced-motion`.
+- **Tests.** The Playwright config stores the flag for every spec. `e2e/tutorial.spec.ts` clears it to opt in.
+
 ---
 
 ## 6. Rendering
@@ -719,9 +753,9 @@ Because in-section state has no URL, the semantic layer of each section lists th
 - **Plain view** is the same DOM with a CSS switch. `html[data-view="plain"]` hides the frame and shows
   `<main>` styled as a plain readable page. The pre-paint script sets it from `?view=plain`, and it persists in
   `localStorage`. This adds no routes.
-- DOM order: skip link ("Text view"), `<main>`, the OSBs in PB order (only enabled ones are focusable), the
-  knobs, then the theme toggle. Next's route announcer reads the new `<h1>` after each navigation.
-- `prefers-reduced-motion` stops the radar animation and the knob transitions.
+- DOM order: skip link ("Text view"), `<main>`, the first-visit tutorial while it is open (section 5.6), the OSBs
+  in PB order (only enabled ones are focusable), the knobs, then the theme toggle. Next's route announcer reads the new `<h1>` after each navigation.
+- `prefers-reduced-motion` stops the radar animation, the knob transitions and the tutorial's fade-in.
 
 ## 11. Content schema
 
@@ -945,7 +979,8 @@ Unit tests (Vitest):
   on adjacent PBs do not overlap. Row legends fit the 169 DI pitch.
 - **Controls:** BRT and CONT clamp to 0–1, steps do not drift, and the drag clamps at the end stops. The centre
   detent holds a drag at 0.5 inside ±0.04 and releases it outside. Invalid stored state reads as the defaults.
-  The pre-paint script matches the app's maths for the knobs and the theme.
+  The pre-paint script matches the app's maths for the knobs and the theme, and opens the tutorial exactly when
+  `tutorialPending` does.
 - **Theme:** only exact theme names count as an override; the override beats the OS; the toggle flips and
   stores it.
 - **Registry:** PB18 on each menu is a state action to the other menu, and only `/` is a menu route.
@@ -968,6 +1003,8 @@ Browser tests (Playwright, added in Phase 1):
 - At 1080 × 1080 the square and the strips coincide. Those screenshots are compared by overlay with the
   research renders (`dcs-*.svg`).
 - An axe check on every route, in both themes and on both menus.
+- The tutorial shows on a first visit before any app script runs, an OSB press closes it and still navigates, Esc
+  closes it, it stays shut after a reload and in the plain view, and axe passes with it open in both themes.
 - A JavaScript-disabled fetch of every route asserts that the semantic content and the OSB `href`s are in the
   HTML.
 

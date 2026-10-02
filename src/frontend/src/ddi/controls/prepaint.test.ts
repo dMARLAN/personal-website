@@ -4,6 +4,11 @@ import {
   parseThemeOverride,
   resolveTheme,
 } from "@/theme/theme";
+import {
+  TUTORIAL_STORAGE_KEY,
+  isTutorialDone,
+  tutorialPending,
+} from "../tutorial/state";
 import { PREPAINT_SCRIPT } from "./prepaint";
 import {
   CONTROLS_STORAGE_KEY,
@@ -60,10 +65,12 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
   localStorage.clear();
   document.documentElement.removeAttribute("style");
   document.documentElement.removeAttribute("data-theme");
   document.documentElement.removeAttribute("data-view");
+  document.documentElement.removeAttribute("data-tutorial");
   window.history.replaceState(null, "", "/");
 });
 
@@ -128,5 +135,34 @@ describe("the pre-paint script", () => {
     runPrepaint();
     expect(document.documentElement.dataset.view).toBeUndefined();
     expect(localStorage.getItem(VIEW_STORAGE_KEY)).toBeNull();
+  });
+
+  it.each([null, "done", "DONE", "1", ""])(
+    "opens the tutorial for stored %j exactly when tutorialPending does",
+    (raw) => {
+      if (raw !== null) {
+        localStorage.setItem(TUTORIAL_STORAGE_KEY, raw);
+      }
+      runPrepaint();
+      expect(document.documentElement.dataset.tutorial === "open").toBe(
+        tutorialPending(),
+      );
+      expect(tutorialPending()).toBe(!isTutorialDone(raw));
+    },
+  );
+
+  it("never opens the tutorial in the plain view", () => {
+    window.history.replaceState(null, "", "/?view=plain");
+    runPrepaint();
+    expect(document.documentElement.dataset.tutorial).toBeUndefined();
+  });
+
+  it("keeps the tutorial closed when storage throws, as tutorialPending does", () => {
+    vi.spyOn(localStorage, "getItem").mockImplementation(() => {
+      throw new DOMException("blocked", "SecurityError");
+    });
+    runPrepaint();
+    expect(document.documentElement.dataset.tutorial).toBeUndefined();
+    expect(tutorialPending()).toBe(false);
   });
 });

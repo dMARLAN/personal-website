@@ -13,6 +13,11 @@ import {
   VIEW_PARAM,
   VIEW_STORAGE_KEY,
 } from "./state";
+import {
+  TUTORIAL_DONE,
+  TUTORIAL_OPEN,
+  TUTORIAL_STORAGE_KEY,
+} from "../tutorial/state";
 
 const j = JSON.stringify;
 
@@ -33,7 +38,8 @@ const FIRST_PAINT = Object.fromEntries(
  * `clampKnob`, `controlsStyle`, `parseThemeOverride` and `resolveTheme` in plain ES5. `prepaint.test.ts` checks that
  * both agree. Storage access can throw (privacy modes, blocked storage), so it is wrapped: the server-rendered
  * defaults and the OS colour scheme then apply. Outside the plain view it then preloads the resolved theme's
- * first-paint materials at the density `densityFor` picks, so the bezel textures race the stylesheet, not follow it.
+ * first-paint materials at the density `densityFor` picks, so the bezel textures race the stylesheet, not follow it,
+ * and opens the first-visit tutorial unless it is stored as done (`tutorialPending`; blocked storage reads as done).
  */
 export const PREPAINT_SCRIPT = `(function(){
 var d=document.documentElement,s=${j(DEFAULT_CONTROLS)},n=${KNOB_DIVISIONS};
@@ -52,5 +58,6 @@ d.setAttribute("data-theme",t);
 var q=new URLSearchParams(location.search).get(${j(VIEW_PARAM)}),u=${j(VIEW_STORAGE_KEY)},p=q==="plain";
 try{if(q==="plain")localStorage.setItem(u,"plain");else if(q==="ddi")localStorage.removeItem(u);else p=localStorage.getItem(u)==="plain"}catch(e){}
 if(p)d.setAttribute("data-view","plain");
-else{var m=${j(FIRST_PAINT)}[t][window.devicePixelRatio>1?"@3x":"@2x"];
+else{try{if(localStorage.getItem(${j(TUTORIAL_STORAGE_KEY)})!==${j(TUTORIAL_DONE)})d.setAttribute("data-tutorial",${j(TUTORIAL_OPEN)})}catch(e){}
+var m=${j(FIRST_PAINT)}[t][window.devicePixelRatio>1?"@3x":"@2x"];
 for(var i=0;i<m.length;i++){var e=document.createElement("link");e.rel="preload";e.as="image";e.type="image/avif";e.href=m[i];document.head.appendChild(e)}}})()`;
