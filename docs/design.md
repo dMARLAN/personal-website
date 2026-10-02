@@ -171,7 +171,7 @@ PB anchors come from `MPD_PB_defs.lua` [fnd §5.2]:
 ### 4.5 Bezel appearance
 
 The bezel is drawn from baked, lit images (ours), not CSS gradients. `scripts/materials/` bakes them from CC0
-ambientCG textures (README, "Bezel materials") into `src/frontend/public/materials/`. DCS was only a visual
+ambientCG textures (docs/development.md, "Bezel materials") into `src/frontend/public/materials/`. DCS was only a visual
 reference. The colours below are the day values the bakes are matched to, in linear light, on flat unshadowed parts.
 
 | Element | Value | Source |
