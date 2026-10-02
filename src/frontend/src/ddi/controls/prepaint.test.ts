@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { DISPLAY_MODES } from "../constants";
 import { PREPAINT_SCRIPT } from "./prepaint";
 import {
   CONTROLS_STORAGE_KEY,
@@ -32,6 +33,20 @@ function controlsOf(element: HTMLElement): Record<string, string | undefined> {
   };
 }
 
+function expectPrepaintToMatch(raw: string | null): void {
+  if (raw === null) {
+    localStorage.removeItem(CONTROLS_STORAGE_KEY);
+  } else {
+    localStorage.setItem(CONTROLS_STORAGE_KEY, raw);
+  }
+  runPrepaint();
+  const expected = document.createElement("html");
+  applyControls(expected, parseControls(raw));
+  expect(controlsOf(document.documentElement), String(raw)).toEqual(
+    controlsOf(expected),
+  );
+}
+
 afterEach(() => {
   localStorage.clear();
   document.documentElement.removeAttribute("style");
@@ -45,18 +60,24 @@ describe("the pre-paint script", () => {
     null,
     "not json",
     "[]",
-    '{"mode":"OFF","brt":0,"cont":10}',
-    '{"mode":"NIGHT","brt":7}',
-    '{"mode":"DAY","brt":3.5,"cont":"9"}',
-    '{"mode":"STANDBY","brt":10,"cont":10}',
+    '{"mode":"OFF","brt":0,"cont":1}',
+    '{"mode":"NIGHT","brt":0.7}',
+    '{"mode":"DAY","brt":0.35,"cont":"0.9"}',
+    '{"mode":"STANDBY","brt":12,"cont":-3}',
+    '{"mode":"DAY","brt":0.12345,"cont":0.9876}',
   ])("draws stored %j exactly as parseControls + applyControls do", (raw) => {
-    if (raw !== null) {
-      localStorage.setItem(CONTROLS_STORAGE_KEY, raw);
+    expectPrepaintToMatch(raw);
+  });
+
+  it("matches applyControls across the whole knob range in every mode", () => {
+    for (const mode of DISPLAY_MODES) {
+      for (let thousandths = 0; thousandths <= 1000; thousandths += 7) {
+        const value = thousandths / 1000;
+        expectPrepaintToMatch(
+          JSON.stringify({ mode, brt: value, cont: 1 - value }),
+        );
+      }
     }
-    runPrepaint();
-    const expected = document.createElement("html");
-    applyControls(expected, parseControls(raw));
-    expect(controlsOf(document.documentElement)).toEqual(controlsOf(expected));
   });
 
   it("turns the plain view on from ?view=plain and remembers it", () => {

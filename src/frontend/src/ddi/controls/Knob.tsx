@@ -1,14 +1,10 @@
 "use client";
 
-import {
-  KNOB_DIAMETER,
-  KNOB_STEPS,
-  KNOB_WHEEL_STEP_PX,
-  PLACARD,
-} from "../constants";
+import { KNOB_DIAMETER, KNOB_WHEEL_STEP_PX, PLACARD } from "../constants";
 import { KnobBody } from "./Selector";
 import { type Knob as KnobName, type Step } from "./state";
 import { dispatchControls } from "./store";
+import { useKnobDrag } from "./useKnobDrag";
 import { useWheelSteps } from "./useWheelSteps";
 
 const RADIUS = KNOB_DIAMETER / 2;
@@ -33,9 +29,12 @@ const ARROW_STEPS: Readonly<Record<string, Step>> = {
   ArrowLeft: -1,
 };
 
+const END_STOPS: Readonly<Record<string, number>> = { Home: 0, End: 1 };
+
 /**
- * BRT or CONT (design sections 5.3 and 5.4): 0 to 1 in 0.1 steps. The left half decreases and the right half
- * increases; the wheel and the arrow keys on either half step too.
+ * BRT or CONT (design sections 5.3 and 5.4): a slider from 0 to 1. Dragging right turns it up and left turns it
+ * down, continuously between the end stops. A click on the left half steps down 0.1 and on the right half up 0.1; the wheel and the
+ * arrow keys step 0.1 too, and Home and End go to the end stops.
  */
 export function Knob({
   knob,
@@ -46,21 +45,47 @@ export function Knob({
 }: KnobProps): React.JSX.Element {
   const step = (direction: Step): void =>
     dispatchControls({ type: "knob", knob, step: direction });
+  const set = (next: number): void =>
+    dispatchControls({ type: "setKnob", knob, value: next });
   const onWheel = useWheelSteps(KNOB_WHEEL_STEP_PX, step);
+  const drag = useKnobDrag(value, set);
   const onKeyDown = (event: React.KeyboardEvent): void => {
     const direction = ARROW_STEPS[event.key];
+    const endStop = END_STOPS[event.key];
     if (direction !== undefined) {
-      event.preventDefault();
       step(direction);
+    } else if (endStop !== undefined) {
+      set(endStop);
+    } else {
+      return;
     }
+    event.preventDefault();
   };
+  const onClick = (event: React.MouseEvent<HTMLElement>): void => {
+    if (drag.wasDragged()) {
+      return;
+    }
+    const box = event.currentTarget.getBoundingClientRect();
+    step(event.clientX < box.left + box.width / 2 ? -1 : 1);
+  };
+  const percent = Math.round(value * 100);
   const sign = corner === "left" ? 1 : -1;
   return (
     <div
       className={`ddi-knob ddi-knob-${corner}`}
-      role="group"
+      role="slider"
+      tabIndex={0}
       aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={percent}
+      aria-valuetext={`${percent}%`}
+      data-dragging={drag.dragging || undefined}
+      data-testid={`ddi-${knob}`}
       onWheel={onWheel}
+      onKeyDown={onKeyDown}
+      onClick={onClick}
+      {...drag.handlers}
     >
       <svg
         className="ddi-control-art"
@@ -91,23 +116,6 @@ export function Knob({
           ring
         />
       </svg>
-      <output className="ddi-control-value" data-testid={`ddi-${knob}`}>
-        {value} of {KNOB_STEPS}
-      </output>
-      <button
-        type="button"
-        className="ddi-half ddi-half-left"
-        aria-label={`Decrease ${label.toLowerCase()}`}
-        onClick={() => step(-1)}
-        onKeyDown={onKeyDown}
-      />
-      <button
-        type="button"
-        className="ddi-half ddi-half-right"
-        aria-label={`Increase ${label.toLowerCase()}`}
-        onClick={() => step(1)}
-        onKeyDown={onKeyDown}
-      />
     </div>
   );
 }

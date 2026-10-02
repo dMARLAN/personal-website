@@ -1,60 +1,41 @@
-import { DISPLAY_MODES, KNOB_STEPS } from "../constants";
+import {
+  BRIGHTNESS_CURVE,
+  DISPLAY_MODES,
+  HALO_BOOST,
+  HALO_OPACITY,
+  KNOB_DIVISIONS,
+  KNOB_SWEEP,
+  MODE_SCALE,
+  SELECTOR_ANGLES,
+} from "../constants";
 import {
   CONTROLS_STORAGE_KEY,
   DEFAULT_CONTROLS,
   VIEW_PARAM,
   VIEW_STORAGE_KEY,
-  controlsStyle,
-  type ControlsState,
 } from "./state";
 
-const TENTHS = Array.from({ length: KNOB_STEPS + 1 }, (_, tenths) => tenths);
-
-/** Every value the script can set, precomputed by `controlsStyle` so the script holds no maths of its own. */
-function styleTables(): {
-  gain: Record<string, string[]>;
-  selector: Record<string, string>;
-  halo: string[];
-  brtAngle: string[];
-  contAngle: string[];
-} {
-  const style = (state: Partial<ControlsState>): Record<string, string> =>
-    controlsStyle({ ...DEFAULT_CONTROLS, ...state });
-  return {
-    gain: Object.fromEntries(
-      DISPLAY_MODES.map((mode) => [
-        mode,
-        TENTHS.map((brt) => style({ mode, brt })["--ddi-gain"]),
-      ]),
-    ),
-    selector: Object.fromEntries(
-      DISPLAY_MODES.map((mode) => [
-        mode,
-        style({ mode })["--ddi-selector-angle"],
-      ]),
-    ),
-    halo: TENTHS.map((cont) => style({ cont })["--ddi-halo"]),
-    brtAngle: TENTHS.map((brt) => style({ brt })["--ddi-brt-angle"]),
-    contAngle: TENTHS.map((cont) => style({ cont })["--ddi-cont-angle"]),
-  };
-}
+const j = JSON.stringify;
 
 /**
- * Runs in `<head>` before first paint, so a stored OFF never flashes lit (docs/design.md section 5.5). It mirrors
- * `parseControls` and `applyControls`; `prepaint.test.ts` checks that they agree. Storage access can throw (privacy
- * modes, blocked storage), so it is wrapped: the server-rendered defaults then stay.
+ * Runs in `<head>` before first paint, so a stored OFF never flashes lit (docs/design.md section 5.5). The knobs are
+ * continuous, so the script cannot look values up in a table: it repeats `parseControls`, `clampKnob` and
+ * `controlsStyle` in plain ES5. `prepaint.test.ts` checks that both agree across the whole range. Storage access can
+ * throw (privacy modes, blocked storage), so it is wrapped: the server-rendered defaults then stay.
  */
 export const PREPAINT_SCRIPT = `(function(){
-var d=document.documentElement,t=${JSON.stringify(styleTables())},s=${JSON.stringify(DEFAULT_CONTROLS)};
-function ok(v){return typeof v==="number"&&v%1===0&&v>=0&&v<=${KNOB_STEPS}}
-try{var r=JSON.parse(localStorage.getItem(${JSON.stringify(CONTROLS_STORAGE_KEY)}));
-if(r&&typeof r==="object"){if(${JSON.stringify(DISPLAY_MODES)}.indexOf(r.mode)>=0)s.mode=r.mode;if(ok(r.brt))s.brt=r.brt;if(ok(r.cont))s.cont=r.cont}}catch(e){}
+var d=document.documentElement,s=${j(DEFAULT_CONTROLS)},n=${KNOB_DIVISIONS};
+function k(v,f){return typeof v==="number"&&isFinite(v)?Math.min(1,Math.max(0,Math.round(v*n)/n)):f}
+function c(v){return String(Math.round(v*10000)/10000)}
+try{var r=JSON.parse(localStorage.getItem(${j(CONTROLS_STORAGE_KEY)}));
+if(r&&typeof r==="object"){if(${j(DISPLAY_MODES)}.indexOf(r.mode)>=0)s.mode=r.mode;s.brt=k(r.brt,s.brt);s.cont=k(r.cont,s.cont)}}catch(e){}
+var h=${HALO_OPACITY.soft}-${HALO_OPACITY.range}*s.cont,f=${BRIGHTNESS_CURVE.floor};
 d.setAttribute("data-ddi-mode",s.mode);
-d.style.setProperty("--ddi-gain",t.gain[s.mode][s.brt]);
-d.style.setProperty("--ddi-halo",t.halo[s.cont]);
-d.style.setProperty("--ddi-selector-angle",t.selector[s.mode]);
-d.style.setProperty("--ddi-brt-angle",t.brtAngle[s.brt]);
-d.style.setProperty("--ddi-cont-angle",t.contAngle[s.cont]);
-var q=new URLSearchParams(location.search).get(${JSON.stringify(VIEW_PARAM)}),k=${JSON.stringify(VIEW_STORAGE_KEY)},p=q==="plain";
-try{if(q==="plain")localStorage.setItem(k,"plain");else if(q==="ddi")localStorage.removeItem(k);else p=localStorage.getItem(k)==="plain"}catch(e){}
+d.style.setProperty("--ddi-gain",c(${j(MODE_SCALE)}[s.mode]*Math.min(1,f+(1-f)*2*s.brt)));
+d.style.setProperty("--ddi-halo",c(h+(1-h)*${HALO_BOOST}*Math.max(0,2*s.brt-1)));
+d.style.setProperty("--ddi-selector-angle",${j(SELECTOR_ANGLES)}[s.mode]+"deg");
+d.style.setProperty("--ddi-brt-angle",c(${KNOB_SWEEP}*(2*s.brt-1))+"deg");
+d.style.setProperty("--ddi-cont-angle",c(${KNOB_SWEEP}*(2*s.cont-1))+"deg");
+var q=new URLSearchParams(location.search).get(${j(VIEW_PARAM)}),u=${j(VIEW_STORAGE_KEY)},p=q==="plain";
+try{if(q==="plain")localStorage.setItem(u,"plain");else if(q==="ddi")localStorage.removeItem(u);else p=localStorage.getItem(u)==="plain"}catch(e){}
 if(p)d.setAttribute("data-view","plain")})()`;

@@ -15,7 +15,7 @@ test("the keyboard reaches the skip link, the OSBs, then the controls", async ({
   ).toBeFocused();
 });
 
-test("Enter on an OSB navigates, and arrow keys turn a knob", async ({
+test("Enter on an OSB navigates, and arrow keys, Home and End turn a knob", async ({
   page,
 }) => {
   await page.goto("/");
@@ -23,12 +23,17 @@ test("Enter on an OSB navigates, and arrow keys turn a knob", async ({
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/supt$/);
 
-  await page.getByRole("button", { name: "Increase contrast" }).focus();
+  const contrast = page.getByRole("slider", { name: "Contrast" });
+  await contrast.focus();
   await page.keyboard.press("ArrowDown");
   await page.keyboard.press("ArrowDown");
-  await expect(page.getByTestId("ddi-cont")).toHaveText("3 of 10");
+  await expect(contrast).toHaveAttribute("aria-valuenow", "30");
   await page.keyboard.press("ArrowRight");
-  await expect(page.getByTestId("ddi-cont")).toHaveText("4 of 10");
+  await expect(contrast).toHaveAttribute("aria-valuetext", "40%");
+  await page.keyboard.press("End");
+  await expect(contrast).toHaveAttribute("aria-valuenow", "100");
+  await page.keyboard.press("Home");
+  await expect(contrast).toHaveAttribute("aria-valuenow", "0");
 });
 
 test("the selector keeps focus at its end stop", async ({ page }) => {

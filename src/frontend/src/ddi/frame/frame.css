@@ -228,7 +228,8 @@ html[data-ddi-mode="OFF"] .ddi-emissive {
 }
 
 .ddi-osb:focus-visible,
-.ddi-half:focus-visible {
+.ddi-half:focus-visible,
+.ddi-knob:focus-visible {
   outline: max(2px, calc(3 * var(--k))) solid #f2f2f2;
   outline-offset: max(2px, calc(3 * var(--k)));
 }
@@ -252,6 +253,20 @@ html[data-ddi-mode="OFF"] .ddi-emissive {
   top: calc(100% - var(--band-bottom) * var(--k) / 2);
   width: calc(var(--knob) * var(--k));
   height: calc(var(--knob) * var(--k));
+  border-radius: 50%;
+  cursor: grab;
+  /* A drag turns the knob (section 5.3): no touch scrolling and no text selection. */
+  touch-action: none;
+  user-select: none;
+}
+
+.ddi-knob[data-dragging] {
+  cursor: grabbing;
+}
+
+/* The pointer tracks the drag directly. */
+.ddi-knob[data-dragging] .ddi-knob-pointer {
+  transition: none;
 }
 
 .ddi-knob-left {

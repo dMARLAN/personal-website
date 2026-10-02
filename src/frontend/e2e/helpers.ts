@@ -1,6 +1,6 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
-export const STORAGE_KEY = "ddi:controls:v1";
+export const STORAGE_KEY = "ddi:controls:v2";
 
 export interface StoredControls {
   mode: "OFF" | "NIGHT" | "DAY";
@@ -30,6 +30,36 @@ export async function drawnControls(page: Page): Promise<{
       emissiveDisplay: getComputedStyle(emissive).display,
     };
   });
+}
+
+/** The pointer position during a knob drag: x is CSS px right of the knob centre where the drag started. */
+export interface KnobDrag {
+  page: Page;
+  centreX: number;
+  centreY: number;
+  x: number;
+}
+
+/** Presses the primary button on the centre of a knob. */
+export async function pressKnob(page: Page, knob: Locator): Promise<KnobDrag> {
+  const box = await knob.boundingBox();
+  if (box === null) {
+    throw new Error("knob not visible");
+  }
+  const centreX = box.x + box.width / 2;
+  const centreY = box.y + box.height / 2;
+  await page.mouse.move(centreX, centreY);
+  await page.mouse.down();
+  return { page, centreX, centreY, x: 0 };
+}
+
+/** Moves a pressed pointer sideways by `deltaX` CSS px, in moves of at most 10 px. */
+export async function dragBy(drag: KnobDrag, deltaX: number): Promise<void> {
+  const target = drag.x + deltaX;
+  while (drag.x !== target) {
+    drag.x += Math.sign(deltaX) * Math.min(10, Math.abs(target - drag.x));
+    await drag.page.mouse.move(drag.centreX + drag.x, drag.centreY);
+  }
 }
 
 export async function storedControls(

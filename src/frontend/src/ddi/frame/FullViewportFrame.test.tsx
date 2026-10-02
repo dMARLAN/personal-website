@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { CONTROLS_STORAGE_KEY } from "../controls/state";
 import { menuScreen } from "../pages/menus";
 import { FullViewportFrame } from "./FullViewportFrame";
 
@@ -68,51 +69,47 @@ describe("the OSBs", () => {
 });
 
 describe("the bezel controls", () => {
-  function knobValue(name: string): number {
-    const group = screen.getByRole("group", { name });
-    return Number(within(group).getByRole("status").textContent?.split(" ")[0]);
+  function knob(name: string): HTMLElement {
+    const slider = screen.getByRole("slider", { name });
+    vi.spyOn(slider, "getBoundingClientRect").mockReturnValue(
+      new DOMRect(0, 0, 84, 84),
+    );
+    return slider;
+  }
+
+  function percent(name: string): number {
+    return Number(
+      screen.getByRole("slider", { name }).getAttribute("aria-valuenow"),
+    );
   }
 
   it("step BRT with the halves, the wheel and the arrow keys", () => {
     renderTac();
-    const start = knobValue("Brightness");
-    fireEvent.click(
-      screen.getByRole("button", { name: "Decrease brightness" }),
-    );
-    expect(knobValue("Brightness")).toBe(start - 1);
-    fireEvent.wheel(screen.getByRole("group", { name: "Brightness" }), {
-      deltaY: 100,
-    });
-    expect(knobValue("Brightness")).toBe(start - 3);
-    fireEvent.keyDown(
-      screen.getByRole("button", { name: "Decrease brightness" }),
-      {
-        key: "ArrowUp",
-      },
-    );
-    expect(knobValue("Brightness")).toBe(start - 2);
-    fireEvent.click(
-      screen.getByRole("button", { name: "Increase brightness" }),
-    );
-    fireEvent.click(
-      screen.getByRole("button", { name: "Increase brightness" }),
-    );
-    expect(knobValue("Brightness")).toBe(start);
+    const brightness = knob("Brightness");
+    const start = percent("Brightness");
+    fireEvent.click(brightness, { clientX: 10, clientY: 42 });
+    expect(percent("Brightness")).toBe(start - 10);
+    fireEvent.wheel(brightness, { deltaY: 100 });
+    expect(percent("Brightness")).toBe(start - 30);
+    fireEvent.keyDown(brightness, { key: "ArrowUp" });
+    expect(percent("Brightness")).toBe(start - 20);
+    fireEvent.click(brightness, { clientX: 74, clientY: 42 });
+    fireEvent.click(brightness, { clientX: 74, clientY: 42 });
+    expect(percent("Brightness")).toBe(start);
+    expect(brightness).toHaveAttribute("aria-valuetext", `${start}%`);
   });
 
-  it("step CONT and persist it", () => {
+  it("send CONT to its end stops with Home and End, and persist it", () => {
     renderTac();
-    const start = knobValue("Contrast");
-    fireEvent.keyDown(
-      screen.getByRole("button", { name: "Increase contrast" }),
-      {
-        key: "ArrowRight",
-      },
-    );
-    expect(knobValue("Contrast")).toBe(start + 1);
+    const contrast = knob("Contrast");
+    fireEvent.keyDown(contrast, { key: "End" });
+    expect(percent("Contrast")).toBe(100);
+    fireEvent.keyDown(contrast, { key: "Home" });
+    fireEvent.keyDown(contrast, { key: "ArrowRight" });
+    expect(percent("Contrast")).toBe(10);
     expect(
-      JSON.parse(localStorage.getItem("ddi:controls:v1") ?? "{}").cont,
-    ).toBe(start + 1);
+      JSON.parse(localStorage.getItem(CONTROLS_STORAGE_KEY) ?? "{}").cont,
+    ).toBe(0.1);
   });
 
   it("stop the selector at its end stops", () => {

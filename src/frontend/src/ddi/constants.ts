@@ -148,12 +148,20 @@ export const MODE_SCALE: Readonly<Record<DisplayMode, number>> = {
   DAY: 1,
 };
 
-/** BRT and CONT run 0 to 1 in 0.1 steps (DCS gain 0.1) [bzl §1], stored as integer tenths. */
-export const KNOB_STEPS = 10;
-/** (ours) Knob pointer sweep: −135° at 0 to +135° at 1. */
-export const KNOB_SWEEP = 135;
-/** (ours) f(b) = floor + (1 − floor)·b^exponent. */
-export const BRIGHTNESS_CURVE = { floor: 0.03, exponent: 2.2 } as const;
+/** BRT and CONT run 0 to 1. Clicks, the wheel and the arrow keys step 0.1 (DCS gain 0.1) [bzl §1]; a drag is continuous. */
+export const KNOB_STEP = 0.1;
+/** (ours) Knob values are rounded to whole thousandths, so 0.1 steps never drift. */
+export const KNOB_DIVISIONS = 1000;
+/** (ours) Knob pointer sweep: −150° (about 7 o'clock) at 0 to +150° (about 5 o'clock) at 1, 0° (12 o'clock) at 0.5. */
+export const KNOB_SWEEP = 150;
+/** (ours) A press must move this many CSS px before it turns into a drag; less is a click. */
+export const KNOB_DRAG_THRESHOLD_PX = 4;
+/** (ours) Horizontal drag travel, in CSS px, that sweeps a knob from 0 to 1, whatever the knob's size. */
+export const KNOB_DRAG_RANGE_PX = 250;
+/** (ours) Below BRT 0.5: f(b) = floor + (1 − floor)·2b. f(0.5) = 1. */
+export const BRIGHTNESS_CURVE = { floor: 0.05 } as const;
+/** (ours) Above BRT 0.5 the halo closes up to this share of its gap to full opacity, reached at BRT 1. */
+export const HALO_BOOST = 0.5;
 /** (ours) haloOpacity = soft − range·c. */
 export const HALO_OPACITY = { soft: 0.75, range: 0.5 } as const;
 /** (ours) Accumulated wheel `deltaY` per step: 50 px for the knobs (trackpads), 100 px (one notch) per detent. */

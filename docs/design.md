@@ -210,7 +210,7 @@ the plain view (section 10.2). Open question 5 asks whether to make it visible.
 
 ## 5. Bezel controls
 
-All controls are real `<a>` or `<button>` elements in the bezel. Clicks on the glass do nothing.
+All controls are real `<a>` or `<button>` elements in the bezel, except BRT and CONT, which are sliders. Clicks on the glass do nothing.
 
 ### 5.1 OSBs
 
@@ -242,17 +242,33 @@ All controls are real `<a>` or `<button>` elements in the bezel. Clicks on the g
 
 ### 5.3 BRT
 
-- Continuous from 0 to 1 in 0.1 steps (DCS gain 0.1) [bzl §1]. It is stored as integer tenths to avoid float
-  drift.
-- Two half-buttons (left decreases, right increases), the wheel (one step per 50 px of accumulated `deltaY`,
-  so trackpads behave), and the arrow keys on either half.
-- The pointer sweeps from −135° at 0 to +135° at 1 (ours).
-- **Curve (ours):** `f(b) = 0.03 + 0.97 · b^2.2`.
-  - The exponent 2.2 makes each 0.1 step look about equally large, because the gain is applied in linear
-    light.
-  - The 0.03 floor keeps BRT 0 visibly different from OFF.
-  - f(1) = 1, so the default BRT of 1.0 draws the material green at unit gain. That matches DCS screenshots
-    [fnd §2.1]. The DCS curve itself is C++ [fnd §2.2].
+- Continuous from 0 to 1. Default 0.5, with the pointer at 12 o'clock. It was 1.0 before the curve was retuned.
+- Each knob is one `role="slider"` element with `aria-valuenow` and `aria-valuetext` as a percentage (`"50%"`).
+  It replaced the two half-buttons.
+- Steps of 0.1 (DCS gain 0.1) [bzl §1]: a click on the left half steps down and on the right half steps up; the
+  wheel steps once per 50 px of accumulated `deltaY`, so trackpads behave; the arrow keys step too. Home and End
+  go to 0 and 1.
+- **Drag (ours).** Press and drag sideways. Dragging right turns the knob clockwise (up) and dragging left turns
+  it counter-clockwise (down). The change follows the horizontal pointer travel since the last move, not the
+  pointer's position or angle: 250 CSS px sweeps 0 to 1, whatever the knob's size. The value clamps at the end
+  stops and never wraps. Travel past an end stop is dropped, so reversing moves the knob at once. A press must
+  move 4 px before it becomes a drag; less is a click. The knob captures the pointer, sets `touch-action: none`
+  and `user-select: none`, and shows a `grab` cursor (`grabbing` while dragging).
+- The pointer sweeps 300° (ours): −150° (about 7 o'clock) at 0, 0° (12 o'clock) at 0.5 and +150° (about
+  5 o'clock) at 1, clockwise from up. The 60° at the bottom is a dead zone the pointer never enters.
+- **Curve (ours):**
+  - At and below 0.5: `f(b) = 0.05 + 0.95 · 2b`, and `gain = modeScale × f`. So f(0.5) = 1: the default draws
+    the material green at unit gain, the look DCS shows by default [fnd §2.1]. The DCS curve itself is C++
+    [fnd §2.2].
+  - The ramp is a straight line. Chrome composites `opacity` on sRGB-encoded values, not in linear light: we
+    measured opacity 0.5 of `#1E8C00` over black at G = 70, not 102. Encoded values are close to perceptual, so
+    a straight line dims in even-looking steps. The old `b^2.2` exponent made the bottom half far too dark.
+  - The 0.05 floor keeps BRT 0 visibly different from OFF: it adds about 7 to the tint's green channel.
+  - Above 0.5 the gain stays at 1. Opacity cannot exceed 1, and an additive layer of `#1E8C00` cannot draw
+    brighter than `#1E8C00`. A `brightness()` filter could, but it would draw a colour that is not the material.
+    Instead BRT lights more of each stroke's falloff,
+    the way an overdriven display blooms: `halo = h + (1 − h) · 0.5 · (2b − 1)`, where `h` is the CONT halo
+    (section 5.4). The cap is BRT 1, where the halo has closed half its gap to opaque: 0.75 at CONT 0.5.
 
 ### 5.4 CONT (our design)
 
@@ -260,23 +276,30 @@ DCS defines no CONT behaviour [fnd §2.2]. We make CONT set the sharpness of the
 contrast between a stroke and the background around it. It never changes the black level, as [fnd §2.2]
 recommends.
 
-- Range 0 to 1 in 0.1 steps. Default 0.5. Same inputs as BRT.
-- `haloOpacity = 0.75 − 0.5 · c`, so it runs from 0.75 (soft) to 0.25 (crisp) and is 0.5 at the default.
-- The halo is the outer stroke described in section 6.2.
+- Range 0 to 1, continuous. Default 0.5, with the pointer at 12 o'clock. Same inputs, sweep and drag as BRT.
+- `h = 0.75 − 0.5 · c`, so it runs from 0.75 (soft) to 0.25 (crisp) and is 0.5 at the default. The default look
+  is unchanged by the retune: at BRT and CONT 0.5 the halo opacity is 0.5, as before.
+- The halo is the outer stroke described in section 6.2. Above BRT 0.5, BRT raises it (section 5.3).
 
 ### 5.5 Intensity and persistence
 
 ```
 gain = modeScale × f(BRT)        modeScale: DAY 1.0, NIGHT 0.126, OFF → emissive layer not rendered
+halo = h(CONT) + (1 − h(CONT)) · 0.5 · max(0, 2·BRT − 1)
 ```
 
 - NIGHT is ×0.126, the MDI cockpit value [fnd §2.2]. At NIGHT the symbology is very dim on a monitor. That is
   faithful to DCS.
-- State is stored per viewer in `localStorage["ddi:controls:v1"]` as `{"mode":"OFF"|"NIGHT"|"DAY","brt":0..10,"cont":0..10}`.
-  Values that are missing or invalid read as the defaults (DAY, 10, 5). This is untrusted input, not an
-  internal invariant.
+- State is stored per viewer in `localStorage["ddi:controls:v2"]` as
+  `{"mode":"OFF"|"NIGHT"|"DAY","brt":0..1,"cont":0..1}`. The knob values are floats rounded to thousandths, so
+  0.1 steps never drift. v1 stored integer tenths (0–10). The key changed with the format, so a v1 value is
+  ignored and the controls start at the defaults.
+- Stored state is untrusted input, not an internal invariant. A missing or invalid field reads as its default
+  (DAY, 0.5, 0.5). A knob value must be a finite number; one outside 0–1 is clamped.
 - A small inline script in `<head>` runs before first paint. It reads the stored state and sets
-  `data-ddi-mode`, `--ddi-gain` and `--ddi-halo` on `<html>`, so a stored OFF never flashes lit. The same
+  `data-ddi-mode`, `--ddi-gain`, `--ddi-halo` and the pointer angles on `<html>`, so a stored OFF never
+  flashes lit. The knobs are continuous, so the script repeats the parse and curve maths instead of looking
+  values up; a unit test checks it against the app's code across the whole range. The same
   script reads `?view=plain` (section 10.2).
 - The controls island reads the same values through `useSyncExternalStore`. The server snapshot is the
   default state, so hydration does not mismatch.
@@ -295,7 +318,7 @@ gain = modeScale × f(BRT)        modeScale: DAY 1.0, NIGHT 0.126, OFF → emiss
 | Glass smudge (optional) | See 6.3 | |
 
 - **Additive look.** `plus-lighter` adds the green to the tint, as the DCS bake does with
-  `additive_alpha = true`. At DAY and BRT 1.0 a stroke core shows `#1a2218 + #1E8C00 = #38AE18`.
+  `additive_alpha = true`. At DAY and BRT 0.5 or above a stroke core shows `#1a2218 + #1E8C00 = #38AE18`.
   `@supports not (mix-blend-mode: plus-lighter)` falls back to `screen`, which looks almost the same on a dark
   base.
 - Changing BRT or the mode changes only `opacity`. That is compositor-only work and causes no re-raster.
@@ -814,14 +837,14 @@ Unit tests (Vitest):
   `site.ts`.
 - **Registry:** no two legends share an OSB on a menu or a page. Every route has a page module. Side legends
   on adjacent PBs do not overlap. Row legends fit the 169 DI pitch.
-- **Controls:** the selector never wraps and disables its end stops. BRT and CONT clamp to 0–10 tenths. The
+- **Controls:** the selector never wraps and disables its end stops. BRT and CONT clamp to 0–1, steps do not drift, and the drag clamps at the end stops. The
   NIGHT gain is 0.126 × f. OFF removes the emissive layer. Invalid stored state reads as the defaults.
 
 Component tests (Testing Library):
 
 - OSBs render as links or buttons with accessible names.
 - Blank OSBs are hidden from assistive technology.
-- The knob halves respond to click, wheel and arrow keys.
+- The knobs respond to click, wheel, the arrow keys, Home and End.
 
 Browser tests (Playwright, added in Phase 1):
 
