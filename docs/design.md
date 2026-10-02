@@ -1182,29 +1182,86 @@ build would still need the API or a snapshot).
 
 ### 13.8 Admin console (ours)
 
-`/admin` is a plain, functional console for one user, separate from the DDI and the homepage: standard HTML forms,
-system fonts, light and dark from the OS (`src/admin/`, `app/(admin)`).
+`/admin` is a developer-tool console for one user, separate from the DDI and the homepage: its own root layout,
+Tailwind v4 with shadcn/ui (zinc tokens in `src/admin/admin.css`), Geist and Geist Mono, light and dark from the OS
+(`src/admin/`, `app/(admin)`).
 
 - **Reachability.** `/admin` and `/api/admin/*` are Tailscale-only. The homeserver ingress enforces it by blocking
   both prefixes on the public host; nothing in this repo does. The page itself is `noindex, nofollow` and not in
   the sitemap.
 - **Client-side.** The console runs in the browser and calls `/api/admin/*` with `fetch` (`src/admin/api.ts`,
-  typed by the generated schema). The session cookie's path is `/`, so the browser also sends it with page
-  requests; only preview (section 13.9) reads it on the Next server.
+  `drafts.ts`, typed by the generated schema). The session cookie's path is `/`, so the browser also sends it with
+  page requests; only preview (section 13.9) reads it on the Next server.
 - **Session.** Sign-in posts the password and keeps the returned CSRF token in memory; after a reload,
   `GET /api/admin/session` returns it again. Every write sends it as `X-CSRF-Token`. A 401 on any call shows the
-  sign-in form again. Sign-out posts `/api/admin/logout`.
-- **Editors.** A list of sections and one editor per section. About, Contact and Links are forms with one field per
-  slot and the slot's limit in its label. The other sections are a JSON editor: the whole document in a textarea,
-  parsed before sending. The résumé PDF has its own upload form (`PUT /api/admin/resume`).
-- **Saving.** A save sends the whole document with `If-Match` set to the ETag it was loaded with.
-  - 200: the status line shows the time and the revalidation status (`done`, or `failed` with "save again to
-    retry").
-  - 412: "this section changed since you loaded it". The edits stay in the form, and a button reloads the stored
-    version.
-  - 422: each validation error with its field path (`status › 1 › value: …`); form fields also show their own
-    message and `aria-invalid`.
-- Each editor links to its live page ("View live").
+  sign-in form again with "your session ended". Sign-out posts `/api/admin/logout`.
+
+**Layout.** A sidebar lists the sections in two groups, "Site content" (About, Resume, Work, Projects, Contact,
+Links, Résumé PDF) and "DDI showcase" (BIT, FUEL, FCS, CHKLST, ENG / server, Radar, MUMI), with an amber dot on each
+section with unsaved edits and a `DRAFT` tag on each with a stored draft. The open section is in the URL hash
+(`/admin#links`). The section pane has a sticky action bar (title, badges, the last publish's status, "Advanced:
+JSON", "View live", Discard draft, Discard changes, Save draft, Publish) over a resizable split: the editor on the
+left, the preview slot on the right.
+
+**The form engine (`src/admin/schema/`, `src/admin/form/`).** Every section is edited through a form generated from
+its JSON Schema; no section has a hand-written form.
+
+- **Schema source.** `npm run openapi:gen` writes `src/lib/api/openapi-schemas.json` (the OpenAPI document's
+  `components.schemas`) beside `schema.ts`, from the same document. The forms, the client validation and the
+  TypeScript types therefore always describe one API version, the admin needs no extra request or public endpoint,
+  and unit tests read the same file. The cost: an API schema change needs `openapi:gen`, as the types already do.
+- **Why our own renderer.** `buildField` (`fields.ts`) maps a schema to a small model (`FieldNode`: object, array,
+  tuple, string, number, boolean, enum, const, nullable, union) and the widgets render the model. The schema uses
+  2020-12 `prefixItems` tuples, enum-keyed maps (`propertyNames`), tagged unions and our `x-` keys; a library such
+  as `@rjsf/core` would need custom fields for most of these and a full theme to look right, while the renderer is
+  a few hundred lines we control. The document is one immutable JSON value; a field edit is `setAt(pointer)`, so
+  the JSON editor and the preview read the same value, and untouched branches keep their identity so memoised
+  fields skip re-rendering. `react-hook-form` was not needed: there is no per-field registration to manage.
+- **Widgets.** Objects are titled groups that collapse (top-level ones are cards); a group's description and its
+  `x-ui-rules` show under its title. Rows of leaves (a status row, a link) lay out side by side, with labels on the
+  first row only. Strings are text inputs with a live counter against `maxLength` (amber from 85 % or the last
+  character, red past it) and, for `x-ddi-wrap`, a row counter; `x-ui-widget` gives a textarea, `type="url"` or
+  `type="email"`; `x-ui-options-from` gives a select of the values at that path. Stroke-font strings use a
+  fixed-pitch font, and "Auto-uppercase DDI text" (sidebar) upper-cases them as typed. Enums of up to 4 short
+  options are segmented controls, longer ones selects; booleans are switches; numbers are number inputs with their
+  bounds. A nullable field has a switch; a union has a kind control that resets the value to that variant.
+- **Arrays.** Variable-length arrays are lists of cards with a summary line (the item's name, title, label…),
+  add (`x-ui-new-item`, else built from the item schema), duplicate, remove, move up and down, and drag-to-reorder
+  (dnd-kit, keyboard included), within `minItems`/`maxItems`. Small items start open, big ones closed. Fixed-length
+  arrays (`prefixItems`, or `minItems` = `maxItems`) cannot add or remove.
+- **Validation.** On every edit the document is checked with Ajv against the section schema, plus the rules the
+  `x-` keys describe (`hintIssues`): the stroke-font glyphs (naming the characters instead of quoting the pattern),
+  word wrap, a row's combined length, `x-ui-unique-by` and `x-ui-options-from`. A 422's `loc` maps to the same
+  field (`locToPointer`, skipping a tagged union's tag segment). Messages show under their field, with
+  `aria-invalid`; groups with messages inside show a count and open themselves; a summary under the action bar lists
+  every message and moves to the field. An API message stays until its field changes. The client check does not
+  block a save: the API is the authority.
+- **JSON escape hatch.** "Advanced: JSON" swaps the form for CodeMirror 6 (`src/admin/json/`): JSON highlighting,
+  auto-indent, bracket matching and closing, folding, Format (Shift+Alt+F), parse errors and schema messages as lint
+  markers on the exact value. Text that parses replaces the document, so the form follows; text that does not stays
+  in the editor and the form keeps the last document that parsed.
+
+**Drafts, publishing and conflicts (`useConsole.ts`, `consoleState.ts`).**
+
+- The console loads every section and `GET /api/admin/drafts` at sign-in. A section with a draft opens the draft,
+  badged "Draft — not published", with "Discard draft" (`DELETE`, back to the live copy).
+- **Save draft** (Ctrl/Cmd+S) puts the document to `PUT /api/admin/drafts/{section}`. **Publish** (Ctrl/Cmd+Enter)
+  puts it to `PUT /api/admin/content/{section}` with `If-Match`; the API deletes the draft. The status line then
+  shows the time and `Revalidation: done` (or `failed`, "publish again to retry"); toasts report success and
+  failure. **Discard changes** returns to the draft, or the live copy.
+- **412.** A dialog shows each field that differs between the newly published copy and the edits, and offers Keep
+  editing, Reload the latest version (drops the edits) and Overwrite with mine (publishes with the new ETag).
+- **Unsaved edits** are mirrored to `localStorage` (`admin:unsaved-edits`) while they exist, so an expired session,
+  a sign-out or a closed tab loses nothing: the next load restores them, with a toast. Leaving the page with unsaved
+  edits asks first (`beforeunload`).
+- **Résumé PDF.** A drop zone (or file picker) uploads to `PUT /api/admin/resume`; the panel shows the served file's
+  size and last-modified time and links to it.
+
+**The preview slot.** The split's right pane renders `<PreviewPanel section draft valid livePath />`
+(`src/admin/preview/PreviewPanel.tsx`), today a placeholder. `section` is the `SectionId`; `draft` is the document as
+it stands in the editor, saved or not, on every keystroke, typed as JSON because the JSON editor can produce any
+shape; `valid` is true when it passes the client check; `livePath` is the public page (`/about`). The live preview
+replaces the component's body and keeps these props.
 
 ### 13.9 Drafts and preview (ours)
 
@@ -1279,6 +1336,11 @@ Unit tests (Vitest):
   - the TAC title box from −469 to −423.
 - **Font:** 55 glyphs present. `A`, `S` and `/` equal the research paths [fnd §3.2]. `measure()` returns
   n·W + (n − 1)·ic for every font id. Unmapped characters throw.
+- **Admin form engine:** every section's schema builds a form and the seed passes the client check; each widget
+  kind maps from its schema (and `x-` key); the counters' tones; the glyph, wrap, combined-length, unique and
+  options checks; a 422 `loc` lands on its field; the form renders, adds, duplicates, moves and removes items within
+  the limits; the JSON editor and the form stay in step both ways; the console state through draft, publish,
+  conflict and discard.
 - **Content adapter and revalidation:** `adapt.ts` unwraps the API's list sections and rejects a station, BIT key
   or host reading the pages cannot draw. `POST /revalidate` answers 401 to a wrong or missing token, 400 to a bad
   body, and revalidates each path and the `(home)` group with the right one.
@@ -1321,10 +1383,14 @@ temporary SQLite database with a test password hash, wired as in the cluster (`p
   HTML.
 - Every shipped route and `/admin` answers 200 with a heading in `<main>` and no uncaught script error.
 - The admin console (its own Playwright project, run after the rest because it changes content): a wrong password
-  fails; sign-in works; saving the About bio reports `Revalidation: done` and `/about` then shows it; a too-long
-  value shows its field message; a save over a newer save shows the 412 message and reloads; a PDF upload
-  replaces what `/api/resume.pdf` serves; sign-out ends the session; axe passes on the sign-in form, a form editor
-  and the JSON editor; `/admin` is `noindex` and not in the sitemap.
+  fails; sign-in lists the grouped sections; on About, through the form, a too-long value turns its counter red
+  and shows its message, Ctrl+S saves a draft that survives a reload, and Publish reports `Revalidation: done`,
+  deletes the draft and `/about` shows the bio; a rule only the API checks comes back as a 422 on that field; a
+  publish over a newer one shows the conflict dialog and reloads; on Links an added item starts from
+  `x-ui-new-item`, moves up, drags into place and publishes in that order; the JSON editor round-trips with the
+  form and marks a schema error; an expired session keeps the edits and restores them after sign-in; a PDF upload
+  replaces what `/api/resume.pdf` serves; sign-out ends the session; axe passes on the sign-in form, a form, a
+  nested array and the JSON editor, in both themes; `/admin` is `noindex` and not in the sitemap.
 
 Extraction script (pytest): it parses a small hand-made fixture SVG with the same transform structure. The ED
 file is never committed.
