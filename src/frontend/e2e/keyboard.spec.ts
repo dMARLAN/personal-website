@@ -1,34 +1,41 @@
 import { expect, test } from "@playwright/test";
+import { menuPages } from "../src/ddi/pages/registry";
 
 test("the keyboard reaches the skip link, the OSBs, the knobs, then the theme toggle", async ({
   page,
 }) => {
   await page.goto("/");
-  // DOM order (design section 10.2): the skip link, the semantic layer's links to shipped pages, their legends in PB
-  // order and PB18, the knobs, then the toggle. The semantic layer is visually hidden in DDI mode, so its links take
-  // focus out of view: an open question for Chad (docs/pages/resume.md).
-  const semanticLinks = page.locator("main a");
-  const osbs = page.locator(".ddi-osbs .ddi-osb:not([tabindex='-1'])");
-  await expect(osbs.last()).toHaveAccessibleName("Support menu");
-  const all = async (locator: typeof osbs): Promise<(typeof osbs)[]> =>
-    Array.from({ length: await locator.count() }, (_, index) =>
-      locator.nth(index),
-    );
+  const main = page.getByRole("main");
+  const osbs = page.getByRole("navigation", { name: "Display pushbuttons" });
+  // OSBs come in PB order: TAC's page links, and PB18, which switches to SUPT.
+  const tacOsbs = [
+    ...menuPages("TAC").flatMap(({ menu, label }) =>
+      menu
+        ? [{ pb: menu.pb, osb: osbs.getByRole("link", { name: label }) }]
+        : [],
+    ),
+    { pb: 18, osb: page.getByRole("button", { name: "Support menu" }) },
+  ].toSorted((a, b) => a.pb - b.pb);
+  // The semantic layer lists both menus' pages, before the OSBs in DOM order (design section 10.2). It is visually
+  // hidden in the display view, so its links take focus without being visible: open question in docs/pages/projects.md.
+  const hiddenLinks = [...menuPages("TAC"), ...menuPages("SUPT")].map(
+    ({ label }) => main.getByRole("link", { name: label }),
+  );
   const visible = [
-    ...(await all(osbs)),
+    ...tacOsbs.map(({ osb }) => osb),
     page.getByRole("slider", { name: "Brightness" }),
     page.getByRole("slider", { name: "Contrast" }),
     page.getByRole("button", { name: "Night mode" }),
   ];
   const order = [
     page.getByRole("link", { name: "Text view" }),
-    ...(await all(semanticLinks)),
+    ...hiddenLinks,
     ...visible,
   ];
   for (const target of order) {
     await page.keyboard.press("Tab");
     await expect(target).toBeFocused();
-    if (visible.includes(target) || order[0] === target) {
+    if (!hiddenLinks.includes(target)) {
       await expect(target).toBeInViewport();
     }
   }

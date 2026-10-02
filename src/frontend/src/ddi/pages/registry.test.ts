@@ -11,6 +11,7 @@ import {
   pbLabelLayout,
 } from "../frame/legend";
 import type { Rect } from "../geometry";
+import type { LegendSpec } from "../frame/types";
 import {
   ALL_PAGES,
   MENU_NAMES,
@@ -91,23 +92,30 @@ describe("the page registry", () => {
     }
   });
 
-  it("shows only shipped pages, plus MENU", () => {
+  it("shows only shipped pages' legends, plus MENU at PB18", () => {
     for (const menu of MENUS) {
-      const shipped = ALL_PAGES.filter(
-        (page) => page.available && page.menu?.on === menu,
-      ).map((page) => [page.menu?.pb, page.menu?.legend]);
+      const shipped = ALL_PAGES.flatMap((page) =>
+        page.available && page.menu?.on === menu
+          ? [[page.menu.pb, page.menu.legend]]
+          : [],
+      );
       expect(menuLegends(menu).map(({ pb, lines }) => [pb, lines])).toEqual([
         ...shipped,
-        [18, ["MENU"]],
+        [MENU_PB, ["MENU"]],
       ]);
     }
   });
 
-  it("shows RESUME at TAC PB6 and WORK at TAC PB7", () => {
+  it("shows PROJECTS at TAC PB5, RESUME at TAC PB6 and WORK at TAC PB7", () => {
     const legends = menuLegends("TAC").map(({ pb, lines, action }) => [
       pb,
       lines,
       action,
+    ]);
+    expect(legends).toContainEqual([
+      5,
+      ["PROJECTS"],
+      { kind: "link", href: "/projects" },
     ]);
     expect(legends).toContainEqual([
       6,
@@ -122,15 +130,14 @@ describe("the page registry", () => {
   });
 
   it("toggles TAC and SUPT in place with PB18: in-section state, not a URL", () => {
-    const pb18 = (menu: MenuName): ReturnType<typeof menuLegends>[number] => {
+    const menuLegend = (menu: MenuName): LegendSpec => {
       const legend = menuLegends(menu).find(({ pb }) => pb === MENU_PB);
       if (legend === undefined) {
         throw new Error(`${menu} has no PB18 legend`);
       }
       return legend;
     };
-    const tacMenu = pb18("TAC");
-    const suptMenu = pb18("SUPT");
+    const [tacMenu, suptMenu] = [menuLegend("TAC"), menuLegend("SUPT")];
     expect(tacMenu.action).toEqual({ kind: "state", state: "SUPT" });
     expect(suptMenu.action).toEqual({ kind: "state", state: "TAC" });
     expect([tacMenu.label, suptMenu.label]).toEqual([
@@ -145,12 +152,16 @@ describe("the page registry", () => {
     expect(ALL_PAGES.some((page) => page.path === "/supt")).toBe(false);
   });
 
-  it("lists / and the shipped sections in the sitemap: SUPT has no URL of its own", () => {
+  it("lists / and the shipped pages in the sitemap: SUPT has no URL of its own", () => {
+    expect(sitemap()).toEqual(
+      ALL_PAGES.filter((page) => page.available).map((page) => ({
+        url: new URL(page.path, SITE_URL).toString(),
+      })),
+    );
     const urls = sitemap().map(({ url }) => url);
-    expect(urls).toContain(`${SITE_URL}/`);
-    expect(urls).toContain(`${SITE_URL}/resume`);
-    expect(urls).toContain(`${SITE_URL}/work`);
-    expect(urls).toContain(`${SITE_URL}/server`);
+    for (const route of ["/", "/projects", "/resume", "/work", "/server"]) {
+      expect(urls).toContain(`${SITE_URL}${route}`);
+    }
     expect(urls).not.toContain(`${SITE_URL}/supt`);
   });
 });

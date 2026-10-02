@@ -74,7 +74,7 @@ export const PAGES: Readonly<Record<PageId, PageDef>> = {
     kind: "section",
     menu: { on: "TAC", pb: 5, legend: ["PROJECTS"] },
     label: "Projects",
-    available: false,
+    available: true,
   },
   contact: {
     id: "contact",
