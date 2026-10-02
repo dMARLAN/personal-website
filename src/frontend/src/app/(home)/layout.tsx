@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 // The page background per theme (--page in home.css). It follows the OS, not the visitor's override.
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f6f3" },
+    { media: "(prefers-color-scheme: light)", color: "#e3e7df" },
     { media: "(prefers-color-scheme: dark)", color: "#0a0d0b" },
   ],
   colorScheme: "light dark",

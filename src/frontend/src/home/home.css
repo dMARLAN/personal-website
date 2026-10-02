@@ -4,29 +4,32 @@
  * the stored override or the OS. Without JavaScript there is no attribute, so the OS colour scheme decides here.
  *
  * Contrast (WCAG AA): every text token is at least 4.5:1 on --page, --surface and --surface-2 in its theme. The
- * accent is the DDI green family: #1a7300 by day (5.6:1 on the page), #5cc93a at night (9:1).
+ * accent is the DDI green family: #1a6600 by day (5.7:1 on the page), #5cc93a at night (9:1).
+ *
+ * Day is a pale sage-grey, not white: the page is the mid layer, cards sit one step lighter and inset panels one step
+ * darker, so surfaces separate by tone and border. Ink is 14:1 on the page and the muted ink 7.1:1 (AAA).
  */
 
 :root,
 :root[data-theme="day"] {
-  --page: #f5f6f3;
-  --surface: #ffffff;
-  --surface-2: #eef1ec;
-  --border: #dfe3dc;
-  --border-strong: #c7cec4;
-  --ink: #131713;
-  --ink-muted: #4d574c;
-  --accent: #1a7300;
-  --accent-fill: #1a7300;
-  --accent-fill-hover: #155f00;
+  --page: #e3e7df;
+  --surface: #edf0ea;
+  --surface-2: #d9dfd4;
+  --border: #cdd3c6;
+  --border-strong: #b2baab;
+  --ink: #161a15;
+  --ink-muted: #454c41;
+  --accent: #1a6600;
+  --accent-fill: #1a6600;
+  --accent-fill-hover: #145200;
   --on-accent: #ffffff;
   --accent-soft: rgb(30 140 0 / 0.09);
   --warn: #8a5a00;
-  --header: rgb(245 246 243 / 0.82);
-  --shadow: 0 1px 2px rgb(16 24 16 / 0.05), 0 8px 24px -12px rgb(16 24 16 / 0.12);
-  --grid-line: rgb(19 23 19 / 0.05);
+  --header: rgb(227 231 223 / 0.82);
+  --shadow: 0 1px 2px rgb(32 38 26 / 0.06), 0 8px 24px -12px rgb(32 38 26 / 0.18);
+  --grid-line: rgb(22 26 21 / 0.06);
   --glow: rgb(30 140 0 / 0.1);
-  --focus: #1a7300;
+  --focus: #1a6600;
   color-scheme: light;
 }
 
