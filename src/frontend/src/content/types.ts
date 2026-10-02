@@ -89,10 +89,62 @@ export interface LinkEntry {
   url: string;
 }
 
-/** /server → ENG [pgA §2]; fake data. */
+/**
+ * /server → ENG [pgA §2]: the two engine columns are two home-server hosts and the 13 engine rows are metrics. These
+ * are the metric keys, top row first. A live stats API would return one number per key per host (`ServerSnapshot`).
+ */
+export const SERVER_METRICS = [
+  "inletTemp",
+  "cpu",
+  "ram",
+  "cpuTemp",
+  "power",
+  "fan",
+  "memPressure",
+  "throughput",
+  "jitter",
+  "diskTemp",
+  "loadAvg",
+  "disk",
+  "uptime",
+] as const;
+
+export type ServerMetric = (typeof SERVER_METRICS)[number];
+
+/** One host's readings: a number per metric, in that row's unit. */
+export type HostReadings = Readonly<Record<ServerMetric, number>>;
+
+/** Both hosts' readings at one moment, left host first. The shape a live stats API would return. */
+export interface ServerSnapshot {
+  hosts: readonly [HostReadings, HostReadings];
+}
+
+export interface ServerHost {
+  /** Column header at (∓250, 413), in place of `LEFT EPE` / `RIGHT EPE`; ≤ 9 chars. */
+  header: string;
+  /** The semantic layer's name for the host. */
+  name: string;
+}
+
+/** One ENG row: a server metric in place of an engine parameter. */
+export interface ServerRow {
+  metric: ServerMetric;
+  /** Centre label, F150; ≤ 10 chars, the width of `INLET TEMP`. */
+  label: string;
+  /** The semantic layer's name, for example "CPU load". */
+  name: string;
+  /** The semantic layer's unit, for example "%". Empty for a bare number. */
+  unit: string;
+  /** Digits after the decimal point, on the glass and in the semantic layer. */
+  decimals: number;
+  /** Drawn right after the value on the glass, for example "D" for days. A value with its suffix is ≤ 6 chars. */
+  suffix: string;
+}
+
 export interface ServerStats {
-  /** Headers at (∓250, 413), ≤ 9. */
-  hosts: [string, string];
-  /** Exactly 13 rows; label ≤ 10, values ≤ 6. */
-  rows: { label: string; left: string; right: string }[];
+  hosts: readonly [ServerHost, ServerHost];
+  /** Exactly one row per metric, in `SERVER_METRICS` order. */
+  rows: readonly ServerRow[];
+  /** What the server renders, and the centre the fake readings wander around. */
+  baseline: ServerSnapshot;
 }

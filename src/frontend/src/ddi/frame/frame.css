@@ -431,8 +431,26 @@ html[data-view="plain"] .ddi-frame::before,
 html[data-view="plain"] .ddi-screen,
 html[data-view="plain"] .ddi-controls,
 html[data-view="plain"] .ddi-osb[aria-hidden="true"],
+html[data-view="plain"] .ddi-osb[aria-disabled="true"],
 html[data-view="plain"] .ddi-osb[data-action="state"] {
   display: none;
+}
+
+html[data-view="plain"] .ddi-semantic table {
+  margin-bottom: 12px;
+  border-collapse: collapse;
+}
+
+html[data-view="plain"] .ddi-semantic caption {
+  text-align: left;
+  font-weight: 650;
+}
+
+html[data-view="plain"] .ddi-semantic th,
+html[data-view="plain"] .ddi-semantic td {
+  padding: 2px 16px 2px 0;
+  text-align: left;
+  vertical-align: top;
 }
 
 html[data-view="plain"] .ddi-osbs {
