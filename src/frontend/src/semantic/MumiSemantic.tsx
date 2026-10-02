@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import type { MissionData } from "@/content/types";
 import { MumiSession } from "@/ddi/pages/mumi/islands";
-import { ADMIN_PATH } from "@/ddi/pages/mumi/structure";
+import { ADMIN_PATH, LOAD_LEGEND } from "@/ddi/pages/mumi/structure";
 
 /** The MUMI page as HTML (design section 10.2): the mission data, and the load as a plain link. */
 export function MumiSemantic({
@@ -32,7 +32,7 @@ export function MumiSemantic({
         ))}
       </dl>
       <p>
-        <a href={ADMIN_PATH}>Admin console</a>
+        <a href={ADMIN_PATH}>{LOAD_LEGEND.label}</a>
       </p>
     </>
   );

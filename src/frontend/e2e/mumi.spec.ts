@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 const ADMIN_URL = /\/admin$/;
 
@@ -10,6 +10,16 @@ async function expectAdminConsole(page: Page): Promise<void> {
     page.getByRole("heading", { level: 2, name: "Sign in" }),
   ).toBeVisible();
   await expect(page.getByLabel("Password")).toBeVisible();
+}
+
+const LOAD_NAME = "Load the admin console";
+
+/** The `LOAD` legend (ours), on PB12 of the More set. */
+async function showLoad(page: Page): Promise<Locator> {
+  await page.getByRole("button", { name: "More data types" }).click();
+  const load = page.locator(".ddi-osb-island[data-pb='12'] a");
+  await expect(load).toBeVisible();
+  return load;
 }
 
 function loadPhase(page: Page): Promise<string | null> {
@@ -34,20 +44,22 @@ test("SUPT PB10 MUMI opens /mumi", async ({ page }) => {
   ).toBeAttached();
 });
 
-test("ID runs the load on the glass, then opens /admin", async ({ page }) => {
+test("LOAD runs the load on the glass, then opens /admin", async ({ page }) => {
   await page.goto("/mumi");
   const historyLength = await page.evaluate(() => history.length);
   expect(await loadPhase(page)).toBe("idle");
 
-  // MORE and RETURN switch the legend sets in place.
-  await page.getByRole("button", { name: "More data types" }).click();
+  // ID (PB11) is back to its real, inert role.
+  const id = page.locator(".ddi-osb[data-pb='11']");
+  await expect(id).toHaveAccessibleName("Identification data");
+  await expect(id).toHaveAttribute("aria-disabled", "true");
+
+  // MORE and RETURN switch the legend sets in place; LOAD is on the More set.
+  const load = await showLoad(page);
   await expect(page.locator(".ddi-osb[data-pb='10']")).toHaveAccessibleName(
     "Main data types",
   );
-  await page.getByRole("button", { name: "Main data types" }).click();
-
-  const load = page.locator(".ddi-osb-island[data-pb='11'] a");
-  await expect(load).toHaveAccessibleName("Admin console");
+  await expect(load).toHaveAccessibleName(LOAD_NAME);
   await expect(load).toHaveAttribute("href", "/admin");
   const started = Date.now();
   await load.click();
@@ -67,9 +79,9 @@ test("ID runs the load on the glass, then opens /admin", async ({ page }) => {
   await expectAdminConsole(page);
 });
 
-test("Enter on ID runs the same load", async ({ page }) => {
+test("Enter on LOAD runs the same load", async ({ page }) => {
   await page.goto("/mumi");
-  await page.locator(".ddi-osb-island[data-pb='11'] a").focus();
+  await (await showLoad(page)).focus();
   await page.keyboard.press("Enter");
   await expect.poll(() => loadPhase(page)).toBe("loading");
   await expectAdminConsole(page);
@@ -78,12 +90,13 @@ test("Enter on ID runs the same load", async ({ page }) => {
 test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
 
-  test("ID opens /admin at once, with no load on the glass", async ({
+  test("LOAD opens /admin at once, with no load on the glass", async ({
     page,
   }) => {
     await page.goto("/mumi");
+    const load = await showLoad(page);
     const started = Date.now();
-    await page.locator(".ddi-osb-island[data-pb='11'] a").click();
+    await load.click();
     await page.waitForURL(ADMIN_URL);
     expect(Date.now() - started).toBeLessThan(1500);
     await expectAdminConsole(page);
@@ -95,7 +108,7 @@ test("serves the mission data and a plain admin link without JavaScript, noindex
 }) => {
   const html = await (await request.get("/mumi")).text();
   expect(html).toContain("<h1>Mission initialization, simulated</h1>");
-  expect(html).toContain('<a href="/admin">Admin console</a>');
+  expect(html).toContain(`<a href="/admin">${LOAD_NAME}</a>`);
   expect(html).toContain("HOMELAB-01");
   expect(html).toContain('<meta name="robots" content="noindex, nofollow"/>');
 });

@@ -9,8 +9,16 @@ export interface MumiLegend {
 
 /** PB10 switches the two legend sets, `MORE` on Main and `RETURN` on More [pgB §5]. */
 export const SUBLEVEL_PB: Pb = 10;
-/** The data-type legend that runs the load (ours: the Lua has no LOAD legend; see docs/pages/mumi.md). */
-export const LOAD_PB: Pb = 11;
+/**
+ * (ours) The `LOAD` legend that runs the load: MUMI.lua has no LOAD legend (docs/pages/mumi.md). No OSB is blank in
+ * both sets, so it sits on the More set's PB12, with blank PB11 and PB13 either side.
+ */
+export const LOAD_PB: Pb = 12;
+export const LOAD_LEGEND: MumiLegend = {
+  pb: LOAD_PB,
+  lines: ["LOAD"],
+  label: "Load the admin console",
+};
 /** Where the load ends: the admin console, a normal navigation out of the DDI. */
 export const ADMIN_PATH = "/admin";
 
@@ -25,7 +33,7 @@ export const MAIN_LEGENDS: readonly MumiLegend[] = [
   { pb: 7, lines: ["MI"], label: "Memory inspect" },
   { pb: 8, lines: ["IFF"], label: "IFF data" },
   { pb: 9, lines: ["DL 13"], label: "Link 16 data" },
-  { pb: 11, lines: ["ID"], label: "Admin console" },
+  { pb: 11, lines: ["ID"], label: "Identification data" },
   { pb: 12, lines: ["MON", "FATG"], label: "Fatigue monitor data" },
   { pb: 13, lines: ["COMM"], label: "Radio presets" },
   { pb: 14, lines: ["HOLD"], label: "Hold" },

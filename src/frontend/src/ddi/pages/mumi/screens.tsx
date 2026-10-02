@@ -13,6 +13,7 @@ import { StrokeBox } from "../../primitives/StrokeBox";
 import { MENU_LEGEND } from "../menuLegend";
 import { LoadOsb, LoadSlot } from "./islands";
 import {
+  LOAD_LEGEND,
   LOAD_PB,
   MAIN_LEGENDS,
   MORE_LEGENDS,
@@ -24,19 +25,14 @@ import {
 export const MAIN_STATE = "MAIN";
 export const MORE_STATE = "MORE";
 
-const LOAD_LABEL = "Admin console";
-
 function dataLegend({ pb, lines, label }: MumiLegend): LegendSpec {
-  if (pb === LOAD_PB) {
-    return {
-      pb,
-      lines,
-      label: LOAD_LABEL,
-      action: { kind: "island", render: <LoadOsb label={LOAD_LABEL} /> },
-    };
-  }
   return { pb, lines, label, action: { kind: "inert" } };
 }
+
+const LOAD: LegendSpec = {
+  ...LOAD_LEGEND,
+  action: { kind: "island", render: <LoadOsb label={LOAD_LEGEND.label} /> },
+};
 
 /**
  * MUMI draws `MENU` with `addMenuLabel`, unboxed at the title position (0, −446), and gives PB18 no legend of its
@@ -44,9 +40,9 @@ function dataLegend({ pb, lines, label }: MumiLegend): LegendSpec {
  */
 const MENU_AT_TITLE: LegendSpec = { ...MENU_LEGEND, lines: [] };
 
-/** The load OSB's box: boxed while its data loads and once it has loaded (`MPD_MUMI_ID_Box`). */
+/** The `LOAD` box: boxed while the load runs and once it has loaded, as MUMI boxes a selected legend. */
 function loadBox(): React.JSX.Element {
-  const [box] = pbLabelLayout(LOAD_PB, ["ID"], true).boxes;
+  const [box] = pbLabelLayout(LOAD_PB, LOAD_LEGEND.lines, true).boxes;
   const drawn = (
     <StrokeBox w={box.width} h={box.height} align={box.align} pos={box.pos} />
   );
@@ -102,35 +98,37 @@ function screen(
 }
 
 /**
- * /mumi: the real MUMI format with the site's "mission data" from the API. `MORE` and `RETURN` switch the legend sets in place.
- * `ID` (PB11) runs the load and then opens the admin console. The other legends are inert (docs/pages/mumi.md).
+ * /mumi: the real MUMI format with the site's "mission data" from the API. `MORE` and `RETURN` switch the legend sets
+ * in place. `LOAD` (ours, PB12 of the More set) runs the load and then opens the admin console. The real legends are
+ * inert (docs/pages/mumi.md).
  */
 export function mumiScreens(data: MissionData): DdiScreens {
   return {
     initial: MAIN_STATE,
     screens: {
-      [MAIN_STATE]: screen(
+      [MAIN_STATE]: screen(data, [
+        ...MAIN_LEGENDS.map(dataLegend),
+        {
+          pb: SUBLEVEL_PB,
+          lines: ["MORE"],
+          label: "More data types",
+          action: { kind: "state", state: MORE_STATE },
+        },
+      ]),
+      [MORE_STATE]: screen(
         data,
         [
-          ...MAIN_LEGENDS.map(dataLegend),
+          ...MORE_LEGENDS.map(dataLegend),
+          LOAD,
           {
             pb: SUBLEVEL_PB,
-            lines: ["MORE"],
-            label: "More data types",
-            action: { kind: "state", state: MORE_STATE },
+            lines: ["RETURN"],
+            label: "Main data types",
+            action: { kind: "state", state: MAIN_STATE },
           },
         ],
         loadBox(),
       ),
-      [MORE_STATE]: screen(data, [
-        ...MORE_LEGENDS.map(dataLegend),
-        {
-          pb: SUBLEVEL_PB,
-          lines: ["RETURN"],
-          label: "Main data types",
-          action: { kind: "state", state: MAIN_STATE },
-        },
-      ]),
     },
   };
 }

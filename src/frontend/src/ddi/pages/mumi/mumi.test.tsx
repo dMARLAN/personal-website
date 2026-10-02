@@ -19,7 +19,7 @@ import {
   mumiLoad,
   type MumiLoad,
 } from "./store";
-import { LOAD_PB, MAIN_LEGENDS, MORE_LEGENDS } from "./structure";
+import { LOAD_LEGEND, LOAD_PB, MAIN_LEGENDS, MORE_LEGENDS } from "./structure";
 
 const MISSION_DATA = SNAPSHOT_CONTENT.mumi;
 
@@ -108,6 +108,7 @@ describe("the MUMI legends", () => {
     ]);
     expect(legendsOf(MORE_STATE)).toEqual([
       ...MORE_LEGENDS.map(({ pb, lines }) => [pb, lines]),
+      [LOAD_PB, ["LOAD"]],
       [10, ["RETURN"]],
       [18, []],
     ]);
@@ -117,20 +118,28 @@ describe("the MUMI legends", () => {
     expect(pb10(MORE_STATE)).toEqual({ kind: "state", state: MAIN_STATE });
   });
 
-  it("makes ID the load, MENU (drawn at the title) the menu link and every other data legend inert", () => {
+  it("puts LOAD (ours) on a PB the More set leaves blank, with blank PBs either side", () => {
+    const morePbs = MORE_LEGENDS.map(({ pb }) => pb);
+    for (const pb of [LOAD_PB - 1, LOAD_PB, LOAD_PB + 1]) {
+      expect(morePbs).not.toContain(pb);
+    }
+    expect(LOAD_LEGEND.lines).toEqual(["LOAD"]);
+  });
+
+  it("makes LOAD the load, MENU (drawn at the title) the menu link and every real data legend inert", () => {
     const { screens } = mumiScreens(MISSION_DATA);
-    for (const { pb, action } of screens[MAIN_STATE].legends) {
-      if (pb === LOAD_PB) {
-        expect(action.kind).toBe("island");
-      } else if (pb === 18) {
-        expect(action).toEqual({ kind: "link", href: "/ddi" });
-      } else if (pb !== 10) {
-        expect(action).toEqual({ kind: "inert" });
+    for (const state of [MAIN_STATE, MORE_STATE]) {
+      for (const { pb, action } of screens[state].legends) {
+        if (state === MORE_STATE && pb === LOAD_PB) {
+          expect(action.kind).toBe("island");
+        } else if (pb === 18) {
+          expect(action).toEqual({ kind: "link", href: "/ddi" });
+        } else if (pb !== 10) {
+          expect(action).toEqual({ kind: "inert" });
+        }
       }
     }
-    expect(MAIN_LEGENDS.find(({ pb }) => pb === LOAD_PB)?.lines).toEqual([
-      "ID",
-    ]);
+    expect(MAIN_LEGENDS.find(({ pb }) => pb === 11)?.lines).toEqual(["ID"]);
   });
 });
 
