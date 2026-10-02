@@ -62,6 +62,12 @@ function subscribe(listener: () => void): () => void {
   };
 }
 
+/** The visitor asked for the plain view, by `?view=plain` now or earlier (docs/design.md section 10.2). */
+export function plainViewRequested(): boolean {
+  const viewParam = new URLSearchParams(location.search).get(VIEW_PARAM);
+  return viewParam === "plain" || readStorage(VIEW_STORAGE_KEY) === "plain";
+}
+
 export function dispatchControls(action: ControlsAction): void {
   const next = controlsReducer(snapshot(), action);
   if (next === current) {
@@ -82,8 +88,7 @@ export function useDisplayControls(): ControlsState {
   // script set. Re-apply before paint. In production this rewrites the same values.
   useLayoutEffect(() => {
     applyControls(document.documentElement, snapshot());
-    const viewParam = new URLSearchParams(location.search).get(VIEW_PARAM);
-    if (viewParam === "plain" || readStorage(VIEW_STORAGE_KEY) === "plain") {
+    if (plainViewRequested()) {
       document.documentElement.dataset.view = "plain";
     }
   }, []);

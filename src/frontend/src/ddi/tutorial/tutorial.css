@@ -1,0 +1,379 @@
+/*
+ * The first-visit tutorial (docs/design.md section 5.6). It sits inside .ddi-frame, so it inherits --k and the frame's
+ * DI sizes; TutorialOverlay.tsx adds the bracket geometry (--t-*) from the PB anchors. Every position is DI × --k, or
+ * px where the theme toggle is px, so nothing is measured.
+ */
+
+:root,
+:root[data-theme="day"] {
+  /* A brighter cut of the symbology green #1E8C00, so small text reads over the dimmed bezel. */
+  --tutorial-ink: #5ccf34;
+  --tutorial-glow: rgb(92 207 52 / 0.5);
+  --tutorial-dim: rgb(0 0 0 / 0.62);
+  --tutorial-panel: rgb(5 8 5 / 0.9);
+}
+
+:root[data-theme="night"] {
+  --tutorial-ink: #44ad1f;
+  --tutorial-glow: rgb(68 173 31 / 0.4);
+  --tutorial-dim: rgb(0 0 0 / 0.58);
+  --tutorial-panel: rgb(3 5 3 / 0.9);
+}
+
+.ddi-tutorial {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  /* Every press passes through to the control under it; only the panel takes pointers. */
+  pointer-events: none;
+  color: var(--tutorial-ink);
+  font-family: var(--font-placard), "Arial Narrow", sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  /* The theme toggle's 28 px button (ThemeToggle.tsx), centred in the top-right corner cell but 4 px from the edges. */
+  --t-theme-centre: calc(max(4px, calc((var(--band) * var(--k) - 28px) / 2)) + 14px);
+  --t-theme-half: 18px;
+}
+
+:root[data-tutorial="open"] .ddi-tutorial {
+  display: block;
+}
+
+/* The controls stay lit above the dimmed bezel. */
+:root[data-tutorial="open"] :is(.ddi-osb, .ddi-osb-island, .ddi-knob) {
+  z-index: 3;
+}
+
+.ddi-tutorial::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--tutorial-dim);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-tutorial="open"] .ddi-tutorial {
+    animation: ddi-tutorial-in 450ms ease-out 150ms both;
+  }
+}
+
+@keyframes ddi-tutorial-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---- Brackets: corner ticks round each highlighted control, like a HUD target box ----------------------------- */
+
+.ddi-tutorial-marks {
+  position: absolute;
+  inset: 0;
+  filter: drop-shadow(0 0 3px var(--tutorial-glow));
+}
+
+.ddi-bracket {
+  --tick: max(6px, calc(14 * var(--k)));
+  --weight: 2px;
+  position: absolute;
+  background:
+    linear-gradient(var(--tutorial-ink) 0 0) left top / var(--tick) var(--weight),
+    linear-gradient(var(--tutorial-ink) 0 0) left top / var(--weight) var(--tick),
+    linear-gradient(var(--tutorial-ink) 0 0) right top / var(--tick) var(--weight),
+    linear-gradient(var(--tutorial-ink) 0 0) right top / var(--weight) var(--tick),
+    linear-gradient(var(--tutorial-ink) 0 0) left bottom / var(--tick) var(--weight),
+    linear-gradient(var(--tutorial-ink) 0 0) left bottom / var(--weight) var(--tick),
+    linear-gradient(var(--tutorial-ink) 0 0) right bottom / var(--tick) var(--weight),
+    linear-gradient(var(--tutorial-ink) 0 0) right bottom / var(--weight) var(--tick);
+  background-repeat: no-repeat;
+}
+
+.ddi-bracket-top,
+.ddi-bracket-bottom {
+  left: calc(50% + var(--t-row-left) * var(--k));
+  width: calc((var(--t-row-right) - var(--t-row-left)) * var(--k));
+  height: calc(2 * var(--t-osb-half) * var(--k));
+}
+
+.ddi-bracket-top {
+  top: calc((var(--cap-centre) - var(--t-osb-half)) * var(--k));
+}
+
+.ddi-bracket-bottom {
+  top: calc(100% - (var(--cap-centre) + var(--t-osb-half)) * var(--k));
+}
+
+.ddi-bracket-left,
+.ddi-bracket-right {
+  top: calc(50% - var(--t-column-top) * var(--k));
+  width: calc(2 * var(--t-osb-half) * var(--k));
+  height: calc((var(--t-column-top) - var(--t-column-bottom)) * var(--k));
+}
+
+.ddi-bracket-left {
+  left: calc((var(--cap-centre) - var(--t-osb-half)) * var(--k));
+}
+
+.ddi-bracket-right {
+  left: calc(100% - (var(--cap-centre) + var(--t-osb-half)) * var(--k));
+}
+
+/* PB18 is the one OSB singled out, so it gets a full outline inside the bottom row's brackets. */
+.ddi-bracket-menu {
+  left: calc(50% + (var(--t-menu-x) - var(--t-osb-half)) * var(--k));
+  top: calc(100% - (var(--cap-centre) + var(--t-osb-half)) * var(--k));
+  width: calc(2 * var(--t-osb-half) * var(--k));
+  height: calc(2 * var(--t-osb-half) * var(--k));
+  border: 1.5px solid var(--tutorial-ink);
+  border-radius: max(3px, calc(8 * var(--k)));
+  background: none;
+}
+
+.ddi-bracket-brt,
+.ddi-bracket-cont {
+  top: calc(100% - (var(--band) / 2 + var(--t-knob-half)) * var(--k));
+  width: calc(2 * var(--t-knob-half) * var(--k));
+  height: calc(2 * var(--t-knob-half) * var(--k));
+}
+
+.ddi-bracket-brt {
+  left: calc((var(--band) / 2 - var(--t-knob-half)) * var(--k));
+}
+
+.ddi-bracket-cont {
+  left: calc(100% - (var(--band) / 2 + var(--t-knob-half)) * var(--k));
+}
+
+.ddi-bracket-theme {
+  --tick: 6px;
+  top: calc(var(--t-theme-centre) - var(--t-theme-half));
+  left: calc(100% - var(--t-theme-centre) - var(--t-theme-half));
+  width: calc(2 * var(--t-theme-half));
+  height: calc(2 * var(--t-theme-half));
+}
+
+/* ---- Callouts: each <li> is a zero-size anchor where its leader leaves the bracket ------------------------------ */
+
+.ddi-callouts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ddi-callout {
+  --leader: max(24px, calc(96 * var(--k)));
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.ddi-callout-leader {
+  position: absolute;
+  filter: drop-shadow(0 0 2px var(--tutorial-glow));
+}
+
+/* The underline is the leader's shelf. */
+.ddi-callout-label {
+  position: absolute;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--tutorial-ink);
+  font-size: max(12px, calc(18 * var(--k)));
+  line-height: 1.2;
+  white-space: nowrap;
+  text-shadow: 0 0 6px rgb(0 0 0 / 0.9);
+}
+
+.ddi-callout-label b {
+  display: block;
+  font-weight: inherit;
+  opacity: 0.75;
+}
+
+/* A diagonal leader: a 1.5 px line across a square box, bottom left to top right. */
+.ddi-callout-brt .ddi-callout-leader,
+.ddi-callout-cont .ddi-callout-leader,
+.ddi-callout-theme .ddi-callout-leader {
+  width: var(--leader);
+  height: var(--leader);
+  background: linear-gradient(
+    to top left,
+    transparent calc(50% - 0.75px),
+    var(--tutorial-ink) calc(50% - 0.75px) calc(50% + 0.75px),
+    transparent calc(50% + 0.75px)
+  );
+}
+
+/* Mirrored: bottom right to top left. */
+.ddi-callout-cont .ddi-callout-leader {
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.75px),
+    var(--tutorial-ink) calc(50% - 0.75px) calc(50% + 0.75px),
+    transparent calc(50% + 0.75px)
+  );
+}
+
+/* The OSBs: a level leader from the left column, between PB4 and PB5, into the glass. */
+.ddi-callout-osbs {
+  --leader: calc(250 * var(--k));
+  left: calc((var(--cap-centre) + var(--t-osb-half)) * var(--k));
+  top: calc(50% - var(--t-column-gap) * var(--k));
+}
+
+.ddi-callout-osbs .ddi-callout-leader {
+  left: 0;
+  top: -1px;
+  width: var(--leader);
+  height: 1px;
+  background: var(--tutorial-ink);
+}
+
+.ddi-callout-osbs .ddi-callout-label {
+  left: var(--leader);
+  bottom: 0;
+  translate: 0 1px;
+}
+
+/* PB18: an elbow leader, level along the band, then up between the MENU and PB17 legends. */
+.ddi-callout-menu {
+  --leader: calc(260 * var(--k));
+  left: calc(50% + (var(--t-menu-x) + var(--t-osb-half)) * var(--k));
+  top: calc(100% - var(--cap-centre) * var(--k));
+}
+
+.ddi-callout-menu .ddi-callout-leader {
+  left: 0;
+  bottom: 0;
+  width: calc((var(--t-menu-riser) - var(--t-osb-half)) * var(--k));
+  height: var(--leader);
+  border-right: 1px solid var(--tutorial-ink);
+  border-bottom: 1px solid var(--tutorial-ink);
+  translate: 0 0.5px;
+}
+
+.ddi-callout-menu .ddi-callout-label {
+  left: calc((var(--t-menu-riser) - var(--t-osb-half)) * var(--k));
+  bottom: var(--leader);
+  translate: -50% 0;
+}
+
+/* BRT and CONT: diagonal leaders up and inward from each corner, labels reading away from the corner. */
+.ddi-callout-brt,
+.ddi-callout-cont {
+  top: calc(100% - (var(--band) / 2 + var(--t-knob-half)) * var(--k));
+}
+
+.ddi-callout-brt {
+  left: calc((var(--band) / 2 + var(--t-knob-half)) * var(--k));
+}
+
+.ddi-callout-cont {
+  left: calc(100% - (var(--band) / 2 + var(--t-knob-half)) * var(--k));
+}
+
+.ddi-callout-brt .ddi-callout-leader {
+  left: 0;
+  bottom: 0;
+}
+
+.ddi-callout-brt .ddi-callout-label {
+  left: var(--leader);
+  bottom: var(--leader);
+}
+
+.ddi-callout-cont .ddi-callout-leader {
+  right: 0;
+  bottom: 0;
+}
+
+.ddi-callout-cont .ddi-callout-label {
+  right: var(--leader);
+  bottom: var(--leader);
+  text-align: right;
+}
+
+/* The theme toggle: a diagonal leader down and inward from the bracket's lower-left corner, below the top row. */
+.ddi-callout-theme {
+  /* Long enough that the label clears two-line top-row legends: they reach 168 DI below the viewport top. */
+  --leader: max(24px, calc(220 * var(--k) - var(--t-theme-centre) - var(--t-theme-half)));
+  left: calc(100% - var(--t-theme-centre) - var(--t-theme-half));
+  top: calc(var(--t-theme-centre) + var(--t-theme-half));
+}
+
+.ddi-callout-theme .ddi-callout-leader {
+  right: 0;
+  top: 0;
+}
+
+.ddi-callout-theme .ddi-callout-label {
+  right: var(--leader);
+  top: var(--leader);
+  translate: 0 -100%;
+  text-align: right;
+}
+
+/* ---- The panel: the dialog's name and the explicit close ------------------------------------------------------- */
+
+.ddi-tutorial-panel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  display: grid;
+  justify-items: center;
+  gap: max(6px, calc(10 * var(--k)));
+  padding: max(14px, calc(24 * var(--k))) max(18px, calc(36 * var(--k)));
+  border: 1px solid var(--tutorial-ink);
+  border-radius: 4px;
+  background: var(--tutorial-panel);
+  box-shadow: 0 0 12px var(--tutorial-glow);
+  text-align: center;
+  pointer-events: auto;
+}
+
+.ddi-tutorial-panel h2 {
+  font-size: max(18px, calc(30 * var(--k)));
+  font-weight: inherit;
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+}
+
+.ddi-tutorial-panel p {
+  font-size: max(12px, calc(17 * var(--k)));
+  line-height: 1.2;
+  opacity: 0.85;
+}
+
+.ddi-tutorial-close {
+  margin-top: max(4px, calc(6 * var(--k)));
+  padding: max(5px, calc(7 * var(--k))) max(16px, calc(26 * var(--k)));
+  border: 1px solid var(--tutorial-ink);
+  border-radius: 3px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-transform: inherit;
+  font-size: max(13px, calc(18 * var(--k)));
+  letter-spacing: 0.14em;
+  cursor: pointer;
+}
+
+.ddi-tutorial-close:hover {
+  background: rgb(92 207 52 / 0.12);
+}
+
+.ddi-tutorial-close:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+@media (forced-colors: active) {
+  .ddi-tutorial {
+    color: CanvasText;
+  }
+
+  .ddi-tutorial::before {
+    background: none;
+  }
+}

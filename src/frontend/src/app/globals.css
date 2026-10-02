@@ -4,6 +4,7 @@
 @import "../theme/theme.css";
 @import "../theme/toggle.css";
 @import "../ddi/frame/frame.css";
+@import "../ddi/tutorial/tutorial.css";
 
 @custom-variant dark (&:is(.dark *));
 
