@@ -826,7 +826,8 @@ Recruiters land on a conventional page first. The DDI is one click away.
 ## 11. Content schema
 
 The stored content and its validation live in the API (section 13): its Pydantic models are the source of truth,
-and the frontend generates its types from them (`src/lib/api/schema.ts`). The frontend reads content only
+and the frontend generates its types from them (`src/lib/api/schema.ts`). Their JSON Schema also carries each
+field's title, help text and limits, which the admin console builds its forms from (section 13.2). The frontend reads content only
 through `src/frontend/src/content/`: one module per section (`getProfile()`, `getEmployers()`, …) over
 `getSiteContent()` (section 13.7). `adapt.ts` shapes the API's document into the types below: it unwraps
 `work.employers`, `links.links` and `projects`, and narrows what OpenAPI cannot express (a station is 1–9, every
@@ -1040,6 +1041,31 @@ Writes enforce what the glass can draw: every drawn string uses only the stroke 
 wrapped text (bio, highlights, descriptions) fits its rows. Counts and cross-field rules follow the frontend's
 content-fit tests (for example 1–5 employers with 1–4 roles, unique project stations, stores a station can draw).
 
+**The schema drives the admin forms.** Every field of every section model has a `title` and a `description` (help
+text), and every limit JSON Schema can express is in the schema itself: `maxLength`/`minLength` (every drawn string
+has a `maxLength`), `maxItems`/`minItems`, `pattern`, `enum`, numeric `minimum`/`maximum`, and
+`minProperties`/`maxProperties` with `propertyNames` for maps that must hold every key (`bit.checks`,
+`bit.legendNames`, server readings). Property order is form order; a nested object is a group. Rules JSON Schema
+cannot express keep their Pydantic validator and are described by `x-` keys (`src/api/src/content/extensions.py`).
+They describe only: the server enforces every rule.
+
+| Key | On | Value and meaning |
+|---|---|---|
+| `x-ddi-charset` | string | `"stroke-font"`: the glass draws it. The string also has `pattern` `^[A-Za-z0-9 +'()*%,°./\\?:#=_^@-]*$` (in `allOf` when it has a pattern of its own, as the email does). Lower case is fine; the glass upper-cases it. |
+| `x-ddi-wrap` | string | `{chars, rows}`: greedy word wrap into at most `rows` rows of `chars` characters (`wrapText`); no word longer than `chars`. `maxLength` is `chars × rows + rows − 1`. |
+| `x-ddi-combined-length` | object | `{fields, gap, maxLength}`: the named fields' lengths plus `gap` fit `maxLength` (one drawn row: profile tags, contact rows, employer subline). |
+| `x-ui-widget` | string | `"textarea"` (wrapped prose), `"url"` or `"email"`. Absent: a one-line input. |
+| `x-ui-new-item` | variable-length array | The item "add item" appends, valid against the item schema. Fixed-length arrays (`minItems` = `maxItems`, or `prefixItems`) have none. |
+| `x-ui-unique-by` | array of objects | Property names whose values must each be unique across items (`["slug", "station"]` on projects). |
+| `x-ui-options-from` | string | The value must equal one at this path from the section root, `*` for any index (`categories/*/legend`). |
+| `x-ui-rules` | object or array | Sentences for rules nothing above expresses (which stations take which store, a role's shared highlight rows, the server value slot). Show them beside the field. |
+
+A 422 for a rule a model validator enforces points at the offending field, not the object that holds it: for
+example `["body", "projects", 1, "station"]` for a duplicate station, `["body", "checks", "RDR", "name"]` for a BIT
+name too long for its legend. `msg` and `ctx.error` carry the sentence. Request bodies are the named section
+components (`Profile`, `Work`, …); responses are `SectionState_<Model>_`, `SavedSection_<Model>_` and
+`SectionDraft_<Model>_`.
+
 ### 13.3 Endpoints
 
 | Method and path | Auth | What it does |
@@ -1051,13 +1077,22 @@ content-fit tests (for example 1–5 employers with 1–4 roles, unique project 
 | `GET /api/admin/session` | session | `{csrfToken, expiresAt}`, so a reloaded admin page can recover its CSRF token. |
 | `POST /api/admin/logout` | session + CSRF | Deletes the session and clears the cookie. 204. |
 | `GET /api/admin/content/{section}` | session | `{document, etag, updatedAt}` for one section. |
-| `PUT /api/admin/content/{section}` | session + CSRF | Body: the whole document. Optional `If-Match: "<etag>"` → 412 if it changed. 422 if it cannot render. Returns `{document, etag, updatedAt, revalidation: "done" \| "failed"}`. |
+| `PUT /api/admin/content/{section}` | session + CSRF | Publish. Body: the whole document. Optional `If-Match: "<etag>"` → 412 if it changed. 422 if it cannot render. Deletes the section's draft and revalidates. Returns `{document, etag, updatedAt, revalidation: "done" \| "failed"}`. |
+| `GET /api/admin/drafts` | session | `{[section]: {content, updatedAt}}` for each section that has a draft; `{}` when none. |
+| `GET /api/admin/drafts/{section}` | session | `{content, updatedAt}`; 404 `DRAFT_NOT_FOUND` if the section has no draft. |
+| `PUT /api/admin/drafts/{section}` | session + CSRF | Body: the whole document, validated exactly as a publish (422 the same way). Creates or replaces the draft. No `If-Match`, no revalidation. Returns `{content, updatedAt}`. |
+| `DELETE /api/admin/drafts/{section}` | session + CSRF | Discards the draft. 204, whether or not there was one. |
 | `PUT /api/admin/resume` | session + CSRF | Multipart `file`: `application/pdf`, starting `%PDF-`, ≤ 10 MB (415 / 413 otherwise). Returns `{etag, size, revalidation}`. |
 
 `{section}` is one of `profile`, `resume`, `work`, `projects`, `contact`, `links`, `server`, `fuel`, `fcs`,
 `checklist`, `bit`, `radar`, `mumi`. Each has its own route pair and `operationId` (`adminGetProfile`,
-`adminPutProfile`, …), so every document is exactly typed in the generated schema. Errors are
-`{"detail": "<CODE>"}`, or FastAPI's validation list for 422.
+`adminPutProfile`, `adminGetProfileDraft`, `adminPutProfileDraft`, …), so every document is exactly typed in the
+generated schema; `adminGetDrafts` and `adminDeleteDraft` serve every section. Errors are `{"detail": "<CODE>"}`,
+or FastAPI's validation list for 422.
+
+Drafts are global, not per browser: Chad is the only admin. One row per section in `content_draft` (migration
+0004), validated on write and on read like published documents, so a content data migration must rewrite drafts
+too.
 
 ### 13.4 Auth
 
@@ -1066,8 +1101,8 @@ content-fit tests (for example 1–5 employers with 1–4 roles, unique project 
 - One user. `ADMIN_AUTH_PASSWORD_HASH` holds an argon2 hash (`make -C src/api hash-password`); no plaintext
   password exists anywhere. Unset means login is disabled (503).
 - Server-side sessions: a random 256-bit token in the cookie `pw_admin_session` (`HttpOnly; Secure;
-  SameSite=Strict; Path=/api/admin`; 12 h). The database stores only its sha256, so logout and expiry are real.
-  Being server-side, it needs no signing secret.
+  SameSite=Strict; Path=/`; 12 h). The database stores only its sha256, so logout and expiry are real.
+  Being server-side, it needs no signing secret. `Path=/` lets preview work (section 13.9).
 - CSRF: every mutating admin request needs `X-CSRF-Token` equal to the session's token (returned by login and
   `GET /api/admin/session`), else 403. SameSite=Strict and the JSON-only login body are a second layer.
 - Login throttling: 5 failed logins from one client IP lock it for the rest of a 15-minute sliding window (429,
@@ -1100,7 +1135,7 @@ Content-Type: application/json
 ### 13.6 Same-origin API (ours)
 
 The browser calls the API at the site's own origin, under `/api`. The admin session relies on it: the cookie is
-`SameSite=Strict` with `Path=/api/admin`, and the CSRF check assumes a same-origin page.
+`SameSite=Strict` with `Path=/`, and the CSRF check assumes a same-origin page.
 
 - **One mechanism everywhere.** `next.config.ts` rewrites `/api/:path*` to `$API_INTERNAL_URL/api/:path*`, so
   `next dev` on the host, the Tilt pod and the production image all proxy the same way. The ingress sends every
@@ -1154,8 +1189,8 @@ system fonts, light and dark from the OS (`src/admin/`, `app/(admin)`).
   both prefixes on the public host; nothing in this repo does. The page itself is `noindex, nofollow` and not in
   the sitemap.
 - **Client-side.** The console runs in the browser and calls `/api/admin/*` with `fetch` (`src/admin/api.ts`,
-  typed by the generated schema). The session cookie's path is `/api/admin`, so the Next server never sees it and
-  the page is static.
+  typed by the generated schema). The session cookie's path is `/`, so the browser also sends it with page
+  requests; only preview (section 13.9) reads it on the Next server.
 - **Session.** Sign-in posts the password and keeps the returned CSRF token in memory; after a reload,
   `GET /api/admin/session` returns it again. Every write sends it as `X-CSRF-Token`. A 401 on any call shows the
   sign-in form again. Sign-out posts `/api/admin/logout`.
@@ -1171,7 +1206,46 @@ system fonts, light and dark from the OS (`src/admin/`, `app/(admin)`).
     message and `aria-invalid`.
 - Each editor links to its live page ("View live").
 
-### 13.9 Later
+### 13.9 Drafts and preview (ours)
+
+Chad saves an edit as a draft and sees the real page render it before he publishes. Drafts are API data
+(section 13.3); preview is Next.js draft mode, rendered on the server from the draft content.
+
+**Mechanism: the session cookie at `Path=/`, forwarded by the Next server.** The browser sends `pw_admin_session`
+with every request to the site, page requests included. The Next server forwards it, as a `Cookie` header, to the
+API at `API_INTERNAL_URL` (the cluster network, not the ingress, so the ingress's `/api/admin` block does not apply).
+The contract for the frontend:
+
+1. **Enter preview.** A Next route handler under `/admin` (Tailscale-only), for example
+   `GET /admin/preview?path=/about`, calls `GET $API_INTERNAL_URL/api/admin/session` with
+   `Cookie: pw_admin_session=<value from the request>`. On 200 it calls `draftMode().enable()` and redirects to
+   `path`, which must be a site path (starts with `/`, not `//`). On 401 it sends the browser to `/admin` to sign in.
+2. **Render.** When `draftMode().isEnabled`, the content loader also fetches `GET $API_INTERNAL_URL/api/admin/drafts`
+   with the forwarded cookie and `cache: "no-store"`, and uses each returned section's `content` in place of the
+   published one from `GET /api/content`. On 401 (no session, or it expired) it renders the published content. It
+   never fetches drafts outside draft mode, so a draft never reaches Next's page cache: draft-mode renders are
+   dynamic and uncached.
+3. **Leave preview.** A route handler calls `draftMode().disable()`. Publishing deletes the section's draft, so the
+   preview then shows the published document.
+
+Why not a server-to-server endpoint with a shared secret (like `REVALIDATE_SECRET`):
+
+- **One authority.** With the cookie, the API decides on every preview render whether to hand out drafts, by the
+  same session check as the console. Next's draft-mode cookie (`__prerender_bypass`) only switches rendering mode;
+  without a valid session it shows published content. With a secret, the Next server could read drafts for anyone,
+  so it would still need the session check to decide who may preview: two mechanisms instead of one.
+- **No new secret.** A leaked shared secret would expose unpublished content to whoever holds it, from wherever
+  the API is reachable. The cookie is per session, expires in 12 h, and dies at logout.
+- **What `Path=/` costs.** The token now travels with page requests, so the Next server sees it. It is our own
+  same-origin server, which already proxies every `/api/admin` call; it must not log `Cookie` headers. The cookie
+  stays `HttpOnly` (no page script reads it), `Secure` and `SameSite=Strict` (no cross-site request carries it).
+  Writes still need `X-CSRF-Token`, which the Next server never holds, so a forwarded cookie can read drafts and
+  the session but cannot change anything.
+- **Public host.** The ingress blocks `/admin` and `/api/admin` publicly, so nobody can sign in or enter preview
+  there. A public page render forwards no valid session, so the drafts call answers 401 and the page shows published
+  content.
+
+### 13.10 Later
 
 - `GET /stats` for live home-server metrics on `/server`. The frontend would read it at request time and lose
   static generation for that one route.
