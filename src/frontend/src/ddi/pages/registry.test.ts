@@ -125,6 +125,11 @@ describe("the page registry", () => {
     ]);
     expect(supt).toContainEqual([15, ["FCS"], { kind: "link", href: "/fcs" }]);
     expect(supt).toContainEqual([
+      10,
+      ["MUMI"],
+      { kind: "link", href: "/mumi" },
+    ]);
+    expect(supt).toContainEqual([
       20,
       ["FUEL"],
       { kind: "link", href: "/fuel" },
@@ -195,11 +200,13 @@ describe("the page registry", () => {
     expect(ALL_PAGES.some((page) => page.path === "/supt")).toBe(false);
   });
 
-  it("lists /, /ddi and the shipped pages in the sitemap: SUPT has no URL of its own", () => {
+  it("lists /, /ddi and the shipped, indexed pages in the sitemap: SUPT has no URL of its own", () => {
     expect(sitemap()).toEqual(
-      ALL_PAGES.filter((page) => page.available).map((page) => ({
-        url: new URL(page.path, SITE_URL).toString(),
-      })),
+      ALL_PAGES.filter((page) => page.available && !page.noindex).map(
+        (page) => ({
+          url: new URL(page.path, SITE_URL).toString(),
+        }),
+      ),
     );
     const urls = sitemap().map(({ url }) => url);
     for (const route of [
@@ -221,5 +228,6 @@ describe("the page registry", () => {
       expect(urls).toContain(`${SITE_URL}${route}`);
     }
     expect(urls).not.toContain(`${SITE_URL}/supt`);
+    expect(urls).not.toContain(`${SITE_URL}/mumi`);
   });
 });

@@ -644,6 +644,7 @@ legend is on TAC, the section takes that OSB.
 | Links | UFC BU [pgB §12] | A 12-row channel table with a selection box. The keypad digits on the OSBs select a row. `ENT` opens it. | `/links` | TAC PB9 `LINKS` |
 | Radar (showcase) | RDR ATTK, RWS [hog §4], [gpg §16] | The real format, with fake moving contacts. | `/radar` | TAC PB4 `RDR`/`ATTK` (real) |
 | Home server (showcase) | ENG [pgA §2] | A 13-row, two-column metrics table: two hosts and 13 fake metrics. | `/server` | SUPT PB12 `ENG` (real) |
+| Mission initialization (showcase) | MUMI [pgB §5] | The real format with the site's deployment as mission data. Its `ID` load opens `/admin` (`docs/pages/mumi.md`). Noindexed. | `/mumi` | SUPT PB10 `MUMI` (real) |
 | Later showcases | SA [pgB §10], EW [pgB §7], HSI [pgB §9], AZ/EL | Real formats. EW's BIT pages already contain "THE QUICK BROWN FOXES…" [pgB §7]. | `/sa`, `/ew`, `/hsi`, `/azel` | TAC PB13, TAC PB17, SUPT PB2, TAC PB1 (all real) |
 
 Rejected candidates: CHKLST has no OSB legends, so it cannot host a download or paging. FUEL and FCS are
@@ -667,7 +668,8 @@ S/W CONFIG, which has 24 rows. HSI DATA WYPT fits too few characters per row for
   sublevel, and `RECORD` on ENG (always boxed in DCS). Menu legends are never boxed, because pressing one
   leaves the menu.
 - `MENU` is the PB18 legend on every page, TAC and SUPT included. DCS shows "MENU" on the ground and a time when
-  airborne. We always show "MENU" [fnd §5.5].
+  airborne. We always show "MENU" [fnd §5.5]. MUMI draws it where its Lua does: unboxed at the title position
+  (0, −446), with PB18 keeping the action.
 
 ### 9.3 TAC and SUPT
 
@@ -687,7 +689,7 @@ we never build stay hidden.
 | 7 | `WORK` | — |
 | 8 | `CONTACT` | `BIT` |
 | 9 | `LINKS` | — |
-| 10 | `PROJECTS` (ours) | — |
+| 10 | `PROJECTS` (ours) | `MUMI` |
 | 11 | — | `CHKLST` |
 | 12 | — | `ENG` |
 | 13 | `SA` (later) | — |
