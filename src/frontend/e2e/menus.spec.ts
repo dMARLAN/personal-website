@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { menuPages } from "../src/ddi/pages/registry";
 
 test("PB18 toggles TAC and SUPT in place on press, and the URL stays /", async ({
   page,
@@ -35,11 +36,16 @@ test("the page opens on TAC every time, including after a reload", async ({
   ).toBeVisible();
 });
 
-test("the menus show only MENU until pages ship", async ({ page }) => {
+test("TAC shows MENU and a legend for each shipped page only", async ({
+  page,
+}) => {
   await page.goto("/");
+  const shipped = menuPages("TAC").length;
   const legends = page.locator(".ddi-osb:not([aria-hidden='true'])");
-  await expect(legends).toHaveCount(1);
-  await expect(page.locator(".ddi-osb[aria-hidden='true']")).toHaveCount(19);
+  await expect(legends).toHaveCount(1 + shipped);
+  await expect(page.locator(".ddi-osb[aria-hidden='true']")).toHaveCount(
+    19 - shipped,
+  );
 });
 
 test("/supt no longer exists", async ({ request }) => {

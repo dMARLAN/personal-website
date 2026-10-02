@@ -54,21 +54,58 @@ export interface Role {
   bullets: string[];
 }
 
+/** Projects → STORES: one category per top-row OSB (PB6–10), in order. At most 5. */
+export interface ProjectCategory {
+  /** Top-row legend, ≤ 7 chars (169 DI pitch). */
+  legend: string;
+  /** The accessible name and semantic heading, for example "Web". */
+  name: string;
+}
+
+/**
+ * What a station carries, which picks its symbol [pgA §1.2]. `missile` is one `116-aim`, `pair` is two (a LAU-115
+ * with 2 × AIM-9), `rack` is a BRU-33 `134-rhombus` with an amount, `tank` draws no symbol (like `FUEL`). Stations 1,
+ * 4, 6 and 9 take only `missile`; station 5 takes only `rack` or `tank`.
+ */
+export type ProjectStore =
+  | { kind: "missile" }
+  | { kind: "pair" }
+  /** `amount` is the number of parts the project ships as (services, packages), ≤ 2 digits. */
+  | { kind: "rack"; amount: number }
+  | { kind: "tank" };
+
+/** Project health, as words from the DCS `Status_Set` (STORES.lua line 9). */
+export type ProjectStatus = "RDY" | "STBY" | "DEGD" | "HUNG";
+
+export interface ProjectField {
+  label: string;
+  value: string;
+}
+
+export interface ProjectLink {
+  /** The DATA sublevel legend: `REPO` at PB16, `DEMO` at PB19. */
+  kind: "REPO" | "DEMO";
+  url: string;
+}
+
 /** Projects → STORES [pgA §1]. At most 9 projects, one per station. */
 export interface Project {
   slug: string;
   station: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+  /** The PROG title on the main page and the DATA title: ≤ 22 chars. */
+  name: string;
   /** Station type text, F100, ≤ 6 (110-wide selection box). */
   code: string;
-  /** Words from DCS Status_Set. */
-  status: "RDY" | "STBY" | "SEL" | "DEGD";
-  /** Top-row legend, ≤ 7; ≤ 5 categories. */
+  store: ProjectStore;
+  status: ProjectStatus;
+  /** A `ProjectCategory.legend`. */
   category: string;
-  /** PROG block: 5 rows × 2 columns; labels ≤ 6, values ≤ 6 / ≤ 15. */
-  fields: { label: string; value: string }[];
-  /** DATA sublevel: 8 rows × 47 chars at F100 (square tier). */
+  /** PROG block: ≤ 5 rows per column. Left: label ≤ 7, value ≤ 7. Right: label ≤ 7, value ≤ 15. */
+  fields: { left: ProjectField[]; right: ProjectField[] };
+  /** DATA sublevel: wrapped to ≤ 7 rows × 47 chars at F100. */
   description: string;
-  url?: string;
+  /** At most one of each kind. */
+  links: ProjectLink[];
 }
 
 /** Contact → MIDS status block: 4 rows; values ≤ 21. */

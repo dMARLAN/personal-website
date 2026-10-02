@@ -11,6 +11,7 @@ import {
   pbLabelLayout,
 } from "../frame/legend";
 import type { Rect } from "../geometry";
+import type { LegendSpec } from "../frame/types";
 import {
   ALL_PAGES,
   MENU_NAMES,
@@ -91,17 +92,29 @@ describe("the page registry", () => {
     }
   });
 
-  it("shows only shipped pages: in Phase 1 the menus have MENU alone", () => {
+  it("shows only shipped pages' legends, plus MENU at PB18", () => {
     for (const menu of MENUS) {
+      const shipped = ALL_PAGES.flatMap((page) =>
+        page.available && page.menu?.on === menu
+          ? [[page.menu.pb, page.menu.legend]]
+          : [],
+      );
       expect(menuLegends(menu).map(({ pb, lines }) => [pb, lines])).toEqual([
-        [18, ["MENU"]],
+        ...shipped,
+        [MENU_PB, ["MENU"]],
       ]);
     }
   });
 
   it("toggles TAC and SUPT in place with PB18: in-section state, not a URL", () => {
-    const [tacMenu] = menuLegends("TAC");
-    const [suptMenu] = menuLegends("SUPT");
+    const menuLegend = (menu: MenuName): LegendSpec => {
+      const legend = menuLegends(menu).find(({ pb }) => pb === MENU_PB);
+      if (legend === undefined) {
+        throw new Error(`${menu} has no PB18 legend`);
+      }
+      return legend;
+    };
+    const [tacMenu, suptMenu] = [menuLegend("TAC"), menuLegend("SUPT")];
     expect(tacMenu.action).toEqual({ kind: "state", state: "SUPT" });
     expect(suptMenu.action).toEqual({ kind: "state", state: "TAC" });
     expect([tacMenu.label, suptMenu.label]).toEqual([
@@ -116,7 +129,12 @@ describe("the page registry", () => {
     expect(ALL_PAGES.some((page) => page.path === "/supt")).toBe(false);
   });
 
-  it("lists only / in the sitemap: SUPT has no URL of its own", () => {
-    expect(sitemap()).toEqual([{ url: `${SITE_URL}/` }]);
+  it("lists / and the shipped pages in the sitemap: SUPT has no URL of its own", () => {
+    expect(sitemap()).toEqual(
+      ALL_PAGES.filter((page) => page.available).map((page) => ({
+        url: new URL(page.path, SITE_URL).toString(),
+      })),
+    );
+    expect(sitemap()).toContainEqual({ url: `${SITE_URL}/` });
   });
 });
