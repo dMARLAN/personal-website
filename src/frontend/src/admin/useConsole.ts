@@ -53,6 +53,8 @@ export interface ConsoleApi {
   discardDraft(section: SectionId): Promise<void>;
   dismissConflict(section: SectionId): void;
   takeTheirs(section: SectionId): void;
+  /** Shows the sign-in form, as a 401 does: the preview found the session gone. */
+  showSignIn(): void;
 }
 
 /** The API's documents as JSON: its response models are the schema the editor's model is built from. */
@@ -170,7 +172,11 @@ export function useConsole(session: Session): ConsoleApi {
   }, []);
 
   const refuse = useCallback(
-    (section: SectionId, issues: readonly ValidationIssue[]) => {
+    (
+      section: SectionId,
+      issues: readonly ValidationIssue[],
+      quiet: boolean,
+    ) => {
       const fields = sectionModel(section).fields;
       dispatch({
         type: "refused",
@@ -180,6 +186,9 @@ export function useConsole(session: Session): ConsoleApi {
           message: issue.msg,
         })),
       });
+      if (quiet) {
+        return;
+      }
       const count = `${issues.length} ${issues.length === 1 ? "problem" : "problems"}`;
       toast.error(
         `${sectionInfo(section).label}: not saved, the API found ${count}.`,
@@ -193,10 +202,11 @@ export function useConsole(session: Session): ConsoleApi {
     toast.error(`${sectionInfo(section).label}: ${message}`);
   }, []);
 
-  const saveDraft = useCallback(
-    async (section: SectionId) => {
+  /** Save draft (`quiet` false) and autosave (`quiet` true): the same PUT, but an autosave reports only in the preview. */
+  const storeDraft = useCallback(
+    async (section: SectionId, quiet: boolean) => {
       const sent = current(section).value;
-      dispatch({ type: "busy", section, busy: "draft" });
+      dispatch({ type: "busy", section, busy: quiet ? "autosave" : "draft" });
       const result = await putDraft(section, sent, csrfToken);
       switch (result.kind) {
         case "ok":
@@ -206,24 +216,40 @@ export function useConsole(session: Session): ConsoleApi {
             content: sent,
             updatedAt: result.data.updatedAt,
           });
-          toast.success(`${sectionInfo(section).label}: draft saved.`);
+          if (!quiet) {
+            toast.success(`${sectionInfo(section).label}: draft saved.`);
+          }
           return;
         case "signed-out":
           onSignedOut();
           return;
         case "invalid":
-          refuse(section, result.issues);
+          refuse(section, result.issues, quiet);
           return;
         case "conflict":
-          fail(section, "the API answered 412 to a draft save.");
+        case "failed": {
+          const message =
+            result.kind === "failed"
+              ? result.message
+              : "the API answered 412 to a draft save.";
+          if (quiet) {
+            dispatch({ type: "autosave-failed", section, message });
+          } else {
+            fail(section, message);
+          }
           return;
-        case "failed":
-          fail(section, result.message);
-          return;
+        }
       }
     },
     [csrfToken, current, fail, onSignedOut, refuse],
   );
+
+  const saveDraft = useCallback(
+    (section: SectionId) => storeDraft(section, false),
+    [storeDraft],
+  );
+
+  useAutosave(load.kind === "ready" ? sections : null, current, storeDraft);
 
   const publish = useCallback(
     async (section: SectionId, options?: { overwrite: boolean }) => {
@@ -259,7 +285,7 @@ export function useConsole(session: Session): ConsoleApi {
           onSignedOut();
           return;
         case "invalid":
-          refuse(section, result.issues);
+          refuse(section, result.issues, false);
           return;
         case "conflict": {
           const theirs = await getSection(section);
@@ -340,8 +366,10 @@ export function useConsole(session: Session): ConsoleApi {
       discardDraft,
       dismissConflict,
       takeTheirs,
+      showSignIn: onSignedOut,
     }),
     [
+      onSignedOut,
       load,
       sections,
       edit,
@@ -354,4 +382,75 @@ export function useConsole(session: Session): ConsoleApi {
       takeTheirs,
     ],
   );
+}
+
+/** How long the editor waits after the last edit before it saves the draft the preview shows. */
+const AUTOSAVE_DELAY_MS = 600;
+
+/**
+ * Autosave (docs/design.md section 13.8): each edit restarts a section's timer; when it fires, a document that differs
+ * from the stored one and passes the client check is saved as the draft, quietly. The value a section loaded with, a
+ * restored stash included, is not an edit: it waits for the next one. A section busy with another request is tried
+ * again after the delay; one with an open conflict is left alone. A refused or failed autosave is not retried until the
+ * next edit.
+ */
+function useAutosave(
+  sections: Sections | null,
+  current: (section: SectionId) => SectionEdit,
+  storeDraft: (section: SectionId, quiet: boolean) => Promise<void>,
+): void {
+  const seen = useRef(new Map<SectionId, JsonValue>());
+  const timers = useRef(new Map<SectionId, number>());
+
+  const arm = useCallback(
+    (section: SectionId) => {
+      function schedule(): void {
+        window.clearTimeout(timers.current.get(section));
+        timers.current.set(section, window.setTimeout(fire, AUTOSAVE_DELAY_MS));
+      }
+      function fire(): void {
+        timers.current.delete(section);
+        const edit = current(section);
+        if (!isDirty(edit) || edit.conflict !== null) {
+          return;
+        }
+        if (edit.busy !== null) {
+          schedule();
+          return;
+        }
+        if (sectionModel(section).validate(edit.value).length > 0) {
+          return;
+        }
+        void storeDraft(section, true);
+      }
+      schedule();
+    },
+    [current, storeDraft],
+  );
+
+  useEffect(() => {
+    if (sections === null) {
+      return;
+    }
+    for (const { id } of SECTIONS) {
+      const edit = sections[id];
+      if (edit === undefined) {
+        continue;
+      }
+      const previous = seen.current.get(id);
+      seen.current.set(id, edit.value);
+      if (previous !== undefined && previous !== edit.value) {
+        arm(id);
+      }
+    }
+  }, [sections, arm]);
+
+  useEffect(() => {
+    const pending = timers.current;
+    return () => {
+      for (const timer of pending.values()) {
+        window.clearTimeout(timer);
+      }
+    };
+  }, []);
 }

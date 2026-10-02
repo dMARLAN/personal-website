@@ -94,6 +94,40 @@ describe("the console's section state", () => {
     expect(isDirty(profile(sections))).toBe(false);
   });
 
+  test("the preview's revision counts what the API stores; a failed autosave is kept until a save succeeds", () => {
+    let sections = consoleReducer(loaded(), {
+      type: "edited",
+      section: "profile",
+      value: { footer: "X" },
+    });
+    expect(profile(sections).revision).toBe(0);
+    sections = consoleReducer(sections, {
+      type: "autosave-failed",
+      section: "profile",
+      message: "The API answered 500.",
+    });
+    expect(profile(sections)).toMatchObject({
+      revision: 0,
+      busy: null,
+      autosaveFailure: "The API answered 500.",
+    });
+    sections = consoleReducer(sections, {
+      type: "draft-saved",
+      section: "profile",
+      content: { footer: "X" },
+      updatedAt: "2026-10-02T01:00:00Z",
+    });
+    expect(profile(sections)).toMatchObject({
+      revision: 1,
+      autosaveFailure: null,
+    });
+    sections = consoleReducer(sections, {
+      type: "draft-discarded",
+      section: "profile",
+    });
+    expect(profile(sections).revision).toBe(2);
+  });
+
   test("discarding changes returns to the baseline; discarding the draft to the live copy", () => {
     let sections = loaded({ footer: "DRAFT" });
     sections = consoleReducer(sections, {

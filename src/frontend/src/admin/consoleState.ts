@@ -15,7 +15,8 @@ export interface ServerIssue extends FieldIssue {
   valueAt: JsonValue | undefined;
 }
 
-export type Busy = "draft" | "publish" | "discard-draft";
+/** A request in flight for the section. `autosave` is the quiet draft save the preview runs on (section 13.8). */
+export type Busy = "draft" | "autosave" | "publish" | "discard-draft";
 
 export interface SectionEdit {
   live: LiveCopy;
@@ -30,6 +31,10 @@ export interface SectionEdit {
   lastPublish: { updatedAt: string; revalidation: Revalidation } | null;
   /** A publish was refused (412): the copy someone else published since this one loaded. */
   conflict: LiveCopy | null;
+  /** Counts changes to what the API stores for the section (a draft saved or discarded, a publish): the preview reloads. */
+  revision: number;
+  /** Why the last autosave failed, until a save succeeds. A refusal (422) shows as field messages instead. */
+  autosaveFailure: string | null;
 }
 
 export type Sections = Partial<Record<SectionId, SectionEdit>>;
@@ -50,6 +55,7 @@ export type ConsoleAction =
       value: JsonValue;
     }
   | { type: "busy"; section: SectionId; busy: Busy | null }
+  | { type: "autosave-failed"; section: SectionId; message: string }
   | {
       type: "draft-saved";
       section: SectionId;
@@ -104,6 +110,8 @@ export function consoleReducer(
           busy: null,
           lastPublish: null,
           conflict: null,
+          revision: 0,
+          autosaveFailure: null,
         },
       };
     }
@@ -122,6 +130,12 @@ export function consoleReducer(
         ...edit,
         busy: action.busy,
       }));
+    case "autosave-failed":
+      return update(sections, action.section, (edit) => ({
+        ...edit,
+        busy: null,
+        autosaveFailure: action.message,
+      }));
     case "draft-saved":
       return update(sections, action.section, (edit) => ({
         ...edit,
@@ -129,6 +143,8 @@ export function consoleReducer(
         baseline: action.content,
         serverIssues: [],
         busy: null,
+        revision: edit.revision + 1,
+        autosaveFailure: null,
       }));
     case "published":
       return update(sections, action.section, (edit) => ({
@@ -147,6 +163,8 @@ export function consoleReducer(
           revalidation: action.revalidation,
         },
         conflict: null,
+        revision: edit.revision + 1,
+        autosaveFailure: null,
       }));
     case "refused":
       return update(sections, action.section, (edit) => ({
@@ -197,6 +215,7 @@ export function consoleReducer(
         value: edit.live.document,
         serverIssues: [],
         busy: null,
+        revision: edit.revision + 1,
       }));
   }
 }
