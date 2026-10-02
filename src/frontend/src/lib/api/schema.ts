@@ -340,6 +340,277 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/admin/drafts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Drafts */
+    get: operations["adminGetDrafts"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/{section}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete Draft
+     * @description Discard the section's draft. Answers 204 whether or not it had one.
+     */
+    delete: operations["adminDeleteDraft"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/profile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Profile Draft */
+    get: operations["adminGetProfileDraft"];
+    /** Put Profile Draft */
+    put: operations["adminPutProfileDraft"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/resume": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Resume Draft */
+    get: operations["adminGetResumeDraft"];
+    /** Put Resume Draft */
+    put: operations["adminPutResumeDraft"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/work": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Work Draft */
+    get: operations["adminGetWorkDraft"];
+    /** Put Work Draft */
+    put: operations["adminPutWorkDraft"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/projects": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Projects Draft */
+    get: operations["adminGetProjectsDraft"];
+    /** Put Projects Draft */
+    put: operations["adminPutProjectsDraft"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/contact": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Contact Draft */
+    get: operations["adminGetContactDraft"];
+    /** Put Contact Draft */
+    put: operations["adminPutContactDraft"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/links": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Links Draft */
+    get: operations["adminGetLinksDraft"];
+    /** Put Links Draft */
+    put: operations["adminPutLinksDraft"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/server": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Server Draft */
+    get: operations["adminGetServerDraft"];
+    /** Put Server Draft */
+    put: operations["adminPutServerDraft"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/fuel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Fuel Draft */
+    get: operations["adminGetFuelDraft"];
+    /** Put Fuel Draft */
+    put: operations["adminPutFuelDraft"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/fcs": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Fcs Draft */
+    get: operations["adminGetFcsDraft"];
+    /** Put Fcs Draft */
+    put: operations["adminPutFcsDraft"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/checklist": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Checklist Draft */
+    get: operations["adminGetChecklistDraft"];
+    /** Put Checklist Draft */
+    put: operations["adminPutChecklistDraft"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/bit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Bit Draft */
+    get: operations["adminGetBitDraft"];
+    /** Put Bit Draft */
+    put: operations["adminPutBitDraft"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/radar": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Radar Draft */
+    get: operations["adminGetRadarDraft"];
+    /** Put Radar Draft */
+    put: operations["adminPutRadarDraft"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/drafts/mumi": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Mumi Draft */
+    get: operations["adminGetMumiDraft"];
+    /** Put Mumi Draft */
+    put: operations["adminPutMumiDraft"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/admin/resume": {
     parameters: {
       query?: never;
@@ -379,21 +650,42 @@ export interface components {
      * @description /bit → BIT FAILURES and its sublevels (docs/pages/bit.md); themed mock checks.
      */
     Bit: {
-      /** Checks */
+      /**
+       * Checks
+       * @description One row per BIT item, every item once.
+       */
       checks: {
         [key: string]: components["schemas"]["BitCheck"];
       };
-      /** Legendnames */
+      /**
+       * Legend names
+       * @description The names of the item legends with no list row, ≤ 7 characters each.
+       */
       legendNames: {
         [key: string]: string;
       };
+      /**
+       * S/W configuration
+       * @description The site's own stack, in two columns.
+       */
       swConfig: components["schemas"]["SwConfig"];
     };
     /** BitCheck */
     BitCheck: {
-      /** Name */
+      /**
+       * Name
+       * @description The row's name in the list.
+       */
       name: string;
+      /**
+       * Status
+       * @description The status before any test.
+       */
       status: components["schemas"]["BitCheckStatus"];
+      /**
+       * Status after test
+       * @description The status a test resolves to, after IN TEST.
+       */
       afterTest: components["schemas"]["BitCheckStatus"];
     };
     /**
@@ -473,32 +765,67 @@ export interface components {
       /** File */
       file: string;
     };
+    Channel: string;
     /**
      * Checklist
      * @description /chklst → CHKLST (docs/pages/chklst.md).
      */
     Checklist: {
+      /**
+       * Left column
+       * @description Up to 6 items of ≤ 13 characters.
+       */
       left: components["schemas"]["LeftChecklistColumn"];
+      /**
+       * Right column
+       * @description Up to 9 items of ≤ 16 characters.
+       */
       right: components["schemas"]["RightChecklistColumn"];
+      /**
+       * Weight
+       * @description The A/C WT line.
+       */
       weight: components["schemas"]["ChecklistWeight"];
-      /** Maxnz */
+      /**
+       * Max NZ
+       * @description The MAX NZ value.
+       */
       maxNz: string;
+      /**
+       * Stabilator
+       * @description The STAB POS line.
+       */
       stab: components["schemas"]["ChecklistStab"];
     };
     /** ChecklistStab */
     ChecklistStab: {
-      /** Label */
+      /**
+       * Label
+       * @description In place of STAB POS.
+       */
       label: string;
-      /** Left */
+      /**
+       * Left
+       * @description The left value.
+       */
       left: string;
-      /** Right */
+      /**
+       * Right
+       * @description The right value.
+       */
       right: string;
     };
     /** ChecklistWeight */
     ChecklistWeight: {
-      /** Label */
+      /**
+       * Label
+       * @description In place of A/C WT.
+       */
       label: string;
-      /** Value */
+      /**
+       * Value
+       * @description Drawn after the label.
+       */
       value: string;
     };
     /**
@@ -506,9 +833,15 @@ export interface components {
      * @description Contact → MIDS (docs/pages/contact.md). The email fills the first row; `rows` fill the other three.
      */
     Contact: {
-      /** Email */
-      email: string;
-      /** Rows */
+      /**
+       * Email
+       * @description The first row, after EMAIL:.
+       */
+      email: string & unknown;
+      /**
+       * Rows
+       * @description The three rows under the email.
+       */
       rows: [
         components["schemas"]["ContactRow"],
         components["schemas"]["ContactRow"],
@@ -517,10 +850,69 @@ export interface components {
     };
     /** ContactRow */
     ContactRow: {
-      /** Label */
+      /**
+       * Label
+       * @description The row's name.
+       */
       label: string;
-      /** Value */
+      /**
+       * Value
+       * @description Drawn after the label; the two fit 46 characters together.
+       */
       value: string;
+    };
+    /**
+     * ContentSection
+     * @description One stored document each. The value is the `SiteContent` field and the database key.
+     * @enum {string}
+     */
+    ContentSection:
+      | "profile"
+      | "resume"
+      | "work"
+      | "projects"
+      | "contact"
+      | "links"
+      | "server"
+      | "fuel"
+      | "fcs"
+      | "checklist"
+      | "bit"
+      | "radar"
+      | "mumi";
+    /**
+     * Drafts
+     * @description Every section that has a draft, keyed as `GET /api/content` keys sections.
+     *
+     *     A section without a draft is left out of the JSON rather than sent as null, so the schema has no null.
+     */
+    Drafts: {
+      /** Profile */
+      profile?: components["schemas"]["SectionDraft_Profile_"];
+      /** Resume */
+      resume?: components["schemas"]["SectionDraft_Resume_"];
+      /** Work */
+      work?: components["schemas"]["SectionDraft_Work_"];
+      /** Projects */
+      projects?: components["schemas"]["SectionDraft_Projects_"];
+      /** Contact */
+      contact?: components["schemas"]["SectionDraft_Contact_"];
+      /** Links */
+      links?: components["schemas"]["SectionDraft_Links_"];
+      /** Server */
+      server?: components["schemas"]["SectionDraft_ServerStats_"];
+      /** Fuel */
+      fuel?: components["schemas"]["SectionDraft_FuelReserves_"];
+      /** Fcs */
+      fcs?: components["schemas"]["SectionDraft_FlightControls_"];
+      /** Checklist */
+      checklist?: components["schemas"]["SectionDraft_Checklist_"];
+      /** Bit */
+      bit?: components["schemas"]["SectionDraft_Bit_"];
+      /** Radar */
+      radar?: components["schemas"]["SectionDraft_RadarScene_"];
+      /** Mumi */
+      mumi?: components["schemas"]["SectionDraft_MissionData_"];
     };
     /**
      * DrainMotion
@@ -528,32 +920,65 @@ export interface components {
      */
     DrainMotion: {
       /**
-       * @description discriminator enum property added by openapi-typescript
+       * @description Drains, then refills at once. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
       kind: "drain";
+      /**
+       * Low
+       * @description The level it drains to, 0 (empty) to 1 (full).
+       */
       low: components["schemas"]["Fraction"];
+      /**
+       * Period
+       * @description Seconds from full to low.
+       */
       periodSeconds: components["schemas"]["Period"];
     };
     /** Employer */
     Employer: {
+      /**
+       * ID
+       * @description The URL slug, lower case words joined by hyphens; unique per employer.
+       */
       id: components["schemas"]["Slug"];
-      /** Tab */
+      /**
+       * Tab
+       * @description The employer's top-row legend.
+       */
       tab: string;
-      /** Name */
+      /**
+       * Name
+       * @description Drawn large above the roles.
+       */
       name: string;
-      /** Location */
+      /**
+       * Location
+       * @description The subline's left part.
+       */
       location: string;
-      /** Span */
+      /**
+       * Span
+       * @description The subline's right part; with the location it fits 38 characters.
+       */
       span: string;
-      /** Roles */
+      /**
+       * Roles
+       * @description 1 to 4 roles, newest first.
+       */
       roles: components["schemas"]["Role"][];
     };
     /** FcsAoa */
     FcsAoa: {
-      /** Left */
+      /**
+       * Left
+       * @description The left readout.
+       */
       left: string;
-      /** Right */
+      /**
+       * Right
+       * @description The right readout.
+       */
       right: string;
     };
     /**
@@ -566,30 +991,64 @@ export interface components {
      * @description One X in a channel table: that channel has failed.
      */
     FcsFailure: {
+      /**
+       * Table
+       * @description Which channel table.
+       */
       table: components["schemas"]["FcsTable"];
-      /** Row */
+      /**
+       * Row
+       * @description The table row, from 0 at the top.
+       */
       row: number;
-      /** Channel */
+      /**
+       * Channel
+       * @description The channel, 1 to 4.
+       */
       channel: number;
     };
     /** FcsStatusRow */
     FcsStatusRow: {
-      /** Label */
+      /**
+       * Label
+       * @description The row's name beside the table.
+       */
       label: string;
-      /** Meaning */
+      /**
+       * Meaning
+       * @description What the row stands for, for screen readers.
+       */
       meaning: string;
     };
     /** FcsSurface */
     FcsSurface: {
-      /** Label */
+      /**
+       * Label
+       * @description The surface's name, e.g. LEF.
+       */
       label: string;
+      /**
+       * Left
+       * @description The left surface.
+       */
       left: components["schemas"]["FcsSurfaceSide"];
+      /**
+       * Right
+       * @description The right surface.
+       */
       right: components["schemas"]["FcsSurfaceSide"];
     };
     /** FcsSurfaceSide */
     FcsSurfaceSide: {
-      /** Value */
+      /**
+       * Value
+       * @description The deflection readout.
+       */
       value: string;
+      /**
+       * Arrow
+       * @description The arrow beside the value, or none.
+       */
       arrow: components["schemas"]["FcsArrow"] | null;
     };
     /**
@@ -602,7 +1061,10 @@ export interface components {
      * @description /fcs → FCS (docs/pages/fcs.md); fake data.
      */
     FlightControls: {
-      /** Surfaces */
+      /**
+       * Surfaces
+       * @description LEF, TEF, AIL, RUD and STAB, in that order.
+       */
       surfaces: [
         components["schemas"]["FcsSurface"],
         components["schemas"]["FcsSurface"],
@@ -610,16 +1072,40 @@ export interface components {
         components["schemas"]["FcsSurface"],
         components["schemas"]["FcsSurface"],
       ];
-      /** Statusrows */
+      /**
+       * Status rows
+       * @description The 11 rows beside the bottom table.
+       */
       statusRows: components["schemas"]["FcsStatusRow"][];
-      /** Channels */
-      channels: [string, string, string, string];
-      /** Failures */
+      /**
+       * Channels
+       * @description What channels 1 to 4 stand for, for screen readers.
+       */
+      channels: [
+        components["schemas"]["Channel"],
+        components["schemas"]["Channel"],
+        components["schemas"]["Channel"],
+        components["schemas"]["Channel"],
+      ];
+      /**
+       * Failures
+       * @description The channel cells drawn with an X.
+       */
       failures: components["schemas"]["FcsFailure"][];
-      /** Glimit */
+      /**
+       * G limit
+       * @description The G limit readout.
+       */
       gLimit: string;
+      /**
+       * AOA
+       * @description The two angle-of-attack readouts.
+       */
       aoa: components["schemas"]["FcsAoa"];
-      /** Blincode */
+      /**
+       * BLIN code
+       * @description The BLIN code line.
+       */
       blinCode: string;
     };
     Fraction: number;
@@ -631,19 +1117,43 @@ export interface components {
      * @description /fuel → FUEL (docs/pages/fuel.md); fake "energy" reserves.
      */
     FuelReserves: {
-      /** Tanks */
+      /**
+       * Tanks
+       * @description All nine tanks, each once.
+       */
       tanks: components["schemas"]["FuelTank"][];
+      /**
+       * Bingo
+       * @description The BINGO readout in pounds, ≤ 4 digits.
+       */
       bingo: components["schemas"]["Pounds"];
     };
     /** FuelTank */
     FuelTank: {
+      /**
+       * Tank
+       * @description Which tank box this is; each tank appears once.
+       */
       id: components["schemas"]["FuelTankId"];
-      /** Label */
+      /**
+       * Label
+       * @description Drawn in the tank's box; how much fits depends on the box.
+       */
       label: string;
-      /** Name */
+      /**
+       * Name
+       * @description The name for screen readers, for example "Coffee".
+       */
       name: string;
-      /** Capacity */
+      /**
+       * Capacity
+       * @description Pounds when full, ≤ 4 digits.
+       */
       capacity: number;
+      /**
+       * Motion
+       * @description How the level moves over time.
+       */
       motion: components["schemas"]["FuelMotion"];
     };
     /**
@@ -673,9 +1183,15 @@ export interface components {
      * @description One ID field, over its 200 DI rule.
      */
     IdField: {
-      /** Value */
+      /**
+       * Value
+       * @description The field's value.
+       */
       value: string;
-      /** Meaning */
+      /**
+       * Meaning
+       * @description What the value stands for, for screen readers; not drawn.
+       */
       meaning: string;
     };
     /**
@@ -683,11 +1199,20 @@ export interface components {
      * @description ≤ 6 items of ≤ 13 characters, so they clear the right column.
      */
     LeftChecklistColumn: {
-      /** Title */
+      /**
+       * Title
+       * @description The column's heading, ≤ 4 characters.
+       */
       title: string;
-      /** Meaning */
+      /**
+       * Meaning
+       * @description What the heading means, for screen readers; not drawn.
+       */
       meaning: string;
-      /** Items */
+      /**
+       * Items
+       * @description Up to 6 items, ≤ 13 characters each.
+       */
       items: string[];
     };
     /**
@@ -695,18 +1220,33 @@ export interface components {
      * @description PROG block, left column: label and value each ≤ 7 (F100, 130 DI columns).
      */
     LeftField: {
-      /** Label */
+      /**
+       * Label
+       * @description The field's name.
+       */
       label: string;
-      /** Value */
+      /**
+       * Value
+       * @description Drawn after the label.
+       */
       value: string;
     };
     /** LinkEntry */
     LinkEntry: {
-      /** Name */
+      /**
+       * Name
+       * @description Written in normal case: the glass upper-cases it and screen readers keep it.
+       */
       name: string;
-      /** Tag */
+      /**
+       * Tag
+       * @description The short tag after the name.
+       */
       tag: string;
-      /** Url */
+      /**
+       * URL
+       * @description An external https URL, or a path on this site such as /api/resume.pdf.
+       */
       url: string;
     };
     /**
@@ -720,7 +1260,10 @@ export interface components {
      * @description Links → UFC BU (docs/pages/links.md): one row per keypad digit.
      */
     Links: {
-      /** Links */
+      /**
+       * Links
+       * @description 1 to 10 links, one per keypad digit.
+       */
       links: components["schemas"]["LinkEntry"][];
     };
     /**
@@ -728,9 +1271,15 @@ export interface components {
      * @description The ERRORS list from the last load, a character clear of `ERRORS:`. A new load clears it.
      */
     LoadErrors: {
-      /** Value */
+      /**
+       * Value
+       * @description The errors after ERRORS:.
+       */
       value: string;
-      /** Meaning */
+      /**
+       * Meaning
+       * @description What the value stands for, for screen readers; not drawn.
+       */
       meaning: string;
     };
     LoadoutRow: string;
@@ -742,7 +1291,7 @@ export interface components {
     /** MissileStore */
     MissileStore: {
       /**
-       * @description discriminator enum property added by openapi-typescript
+       * @description The store's symbol on the wingform. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
       kind: "missile";
@@ -752,16 +1301,38 @@ export interface components {
      * @description /mumi → MUMI (docs/pages/mumi.md); the site's deployment as fake mission data.
      */
     MissionData: {
+      /**
+       * MU ID
+       * @description The memory unit, on the long rule.
+       */
       muId: components["schemas"]["MuId"];
-      /** Loadedmuid */
+      /**
+       * Loaded MU ID
+       * @description The MU ID once the load completes: the console the load opens.
+       */
       loadedMuId: string;
-      /** Idfields */
+      /**
+       * ID fields
+       * @description The two ID fields, ≤ 10 characters each.
+       */
       idFields: [
         components["schemas"]["IdField"],
         components["schemas"]["IdField"],
       ];
+      /**
+       * MC
+       * @description The mission computer version.
+       */
       mc: components["schemas"]["VersionField"];
+      /**
+       * SMS
+       * @description The stores management version.
+       */
       sms: components["schemas"]["VersionField"];
+      /**
+       * Errors
+       * @description The errors from the last load.
+       */
       errors: components["schemas"]["LoadErrors"];
     };
     /**
@@ -769,26 +1340,44 @@ export interface components {
      * @description The memory unit, on the 570 DI rule.
      */
     MuId: {
-      /** Value */
+      /**
+       * Value
+       * @description The MU ID before a load.
+       */
       value: string;
-      /** Meaning */
+      /**
+       * Meaning
+       * @description What the value stands for, for screen readers; not drawn.
+       */
       meaning: string;
     };
     /** Ownship */
     Ownship: {
-      /** Heading */
+      /**
+       * Heading
+       * @description Degrees magnetic, shown as three digits.
+       */
       heading: number;
-      /** Airspeed */
+      /**
+       * Airspeed
+       * @description Knots calibrated, ≤ 3 digits.
+       */
       airspeed: number;
-      /** Mach */
+      /**
+       * Mach
+       * @description Shown as written, for example 0.90.
+       */
       mach: string;
-      /** Altitude */
+      /**
+       * Altitude
+       * @description Feet.
+       */
       altitude: number;
     };
     /** PairStore */
     PairStore: {
       /**
-       * @description discriminator enum property added by openapi-typescript
+       * @description The store's symbol on the wingform. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
       kind: "pair";
@@ -802,9 +1391,15 @@ export interface components {
      *     The `header` slot is the site name: the frontend fills it from `SITE_NAME`, so it is not stored here.
      */
     Profile: {
-      /** Badge */
+      /**
+       * Badge
+       * @description The line under the name at the top.
+       */
       badge: string;
-      /** Status */
+      /**
+       * Status rows
+       * @description The five rows of the top-left status quadrant.
+       */
       status: [
         components["schemas"]["StatusRow"],
         components["schemas"]["StatusRow"],
@@ -812,7 +1407,10 @@ export interface components {
         components["schemas"]["StatusRow"],
         components["schemas"]["StatusRow"],
       ];
-      /** Loadout */
+      /**
+       * Loadout
+       * @description The five rows of the stores quadrant, ≤ 17 characters each.
+       */
       loadout: [
         components["schemas"]["LoadoutRow"],
         components["schemas"]["LoadoutRow"],
@@ -820,54 +1418,116 @@ export interface components {
         components["schemas"]["LoadoutRow"],
         components["schemas"]["LoadoutRow"],
       ];
-      /** Footer */
+      /**
+       * Footer
+       * @description The fuel and gun line across the middle.
+       */
       footer: string;
-      /** Tags */
+      /**
+       * Tags
+       * @description The three rows of the IFF quadrant.
+       */
       tags: [
         components["schemas"]["TagRow"],
         components["schemas"]["TagRow"],
         components["schemas"]["TagRow"],
       ];
-      /** Bio */
+      /**
+       * Bio
+       * @description Fills the bottom-left quadrant, wrapped to 9 rows of 18 characters.
+       */
       bio: string;
     };
     /** Project */
     Project: {
+      /**
+       * Slug
+       * @description The URL slug, lower case words joined by hyphens; unique per project.
+       */
       slug: components["schemas"]["Slug"];
-      /** Station */
+      /**
+       * Station
+       * @description The wingform station, 1 to 9; unique per project.
+       */
       station: number;
-      /** Name */
+      /**
+       * Name
+       * @description Drawn above the PROG block.
+       */
       name: string;
-      /** Code */
+      /**
+       * Code
+       * @description The station's type text on the wingform.
+       */
       code: string;
+      /**
+       * Store
+       * @description The symbol the station draws.
+       */
       store: components["schemas"]["ProjectStore"];
+      /**
+       * Status
+       * @description The station's status word.
+       */
       status: components["schemas"]["ProjectStatus"];
-      /** Category */
+      /**
+       * Category
+       * @description The legend of one of the categories above.
+       */
       category: string;
+      /**
+       * PROG fields
+       * @description The two columns of the PROG block.
+       */
       fields: components["schemas"]["ProjectFields"];
-      /** Description */
+      /**
+       * Description
+       * @description The DATA sublevel, wrapped to 7 rows of 47 characters.
+       */
       description: string;
-      /** Links */
+      /**
+       * Links
+       * @description At most one REPO and one DEMO link.
+       */
       links: components["schemas"]["ProjectLink"][];
     };
     /** ProjectCategory */
     ProjectCategory: {
-      /** Legend */
+      /**
+       * Legend
+       * @description The top-row button legend; unique.
+       */
       legend: string;
-      /** Name */
+      /**
+       * Name
+       * @description The category's name for screen readers; not drawn.
+       */
       name: string;
     };
     /** ProjectFields */
     ProjectFields: {
-      /** Left */
+      /**
+       * Left column
+       * @description Up to 5 rows; label and value ≤ 7 each.
+       */
       left: components["schemas"]["LeftField"][];
-      /** Right */
+      /**
+       * Right column
+       * @description Up to 5 rows; label ≤ 7, value ≤ 15.
+       */
       right: components["schemas"]["RightField"][];
     };
     /** ProjectLink */
     ProjectLink: {
+      /**
+       * Kind
+       * @description Which DATA legend opens it: REPO or DEMO.
+       */
       kind: components["schemas"]["LinkKind"];
-      /** Url */
+      /**
+       * URL
+       * @description An https URL.
+       */
       url: string;
     };
     /**
@@ -886,16 +1546,28 @@ export interface components {
      * @description Projects → STORES (docs/pages/projects.md): one category per top-row OSB (PB6–10), one project per station.
      */
     Projects: {
-      /** Categories */
+      /**
+       * Categories
+       * @description 1 to 5 categories, one per top-row button; each needs at least one project.
+       */
       categories: components["schemas"]["ProjectCategory"][];
-      /** Projects */
+      /**
+       * Projects
+       * @description 1 to 9 projects, one per wingform station.
+       */
       projects: components["schemas"]["Project"][];
     };
     /** QualificationColumn */
     QualificationColumn: {
-      /** Heading */
+      /**
+       * Heading
+       * @description The column's heading for screen readers; not drawn.
+       */
       heading: string;
-      /** Rows */
+      /**
+       * Rows
+       * @description Up to 12 qualifications, top first.
+       */
       rows: components["schemas"]["QualificationRow"][];
     };
     /**
@@ -903,19 +1575,28 @@ export interface components {
      * @description Right column: the value must end before the side legends (x = 470), so ≤ 12.
      */
     QualificationRow: {
-      /** Name */
+      /**
+       * Name
+       * @description The row's short label.
+       */
       name: string;
-      /** Value */
+      /**
+       * Value
+       * @description Drawn after the name.
+       */
       value: string;
     };
     /** RackStore */
     RackStore: {
       /**
-       * @description discriminator enum property added by openapi-typescript
+       * @description The store's symbol on the wingform. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
       kind: "rack";
-      /** Amount */
+      /**
+       * Amount
+       * @description The number of parts the project ships as; two digits at most.
+       */
       amount: number;
     };
     /**
@@ -923,15 +1604,30 @@ export interface components {
      * @description A contact at t = 0, moving in a straight line relative to our aircraft.
      */
     RadarContact: {
-      /** Range */
+      /**
+       * Range
+       * @description Nautical miles, within the 80 NM scale.
+       */
       range: number;
-      /** Azimuth */
+      /**
+       * Azimuth
+       * @description Degrees off the nose, right positive.
+       */
       azimuth: number;
-      /** Speed */
+      /**
+       * Speed
+       * @description Knots, relative to our aircraft.
+       */
       speed: number;
-      /** Track */
+      /**
+       * Track
+       * @description Degrees clockwise from our nose: 180 flies straight at us.
+       */
       track: number;
-      /** Altitude */
+      /**
+       * Altitude
+       * @description Feet. The contact flies level, so the elevation bars decide which scans see it.
+       */
       altitude: number;
     };
     /**
@@ -939,10 +1635,17 @@ export interface components {
      * @description /radar → RDR ATTK in RWS (docs/pages/radar.md); fake data.
      */
     RadarScene: {
+      /** @description Our aircraft's readouts. */
       ownship: components["schemas"]["Ownship"];
-      /** Weapon */
+      /**
+       * Weapon
+       * @description The priority air-to-air weapon and its count, for example 9X 2.
+       */
       weapon: string;
-      /** Contacts */
+      /**
+       * Contacts
+       * @description 3 to 6 contacts.
+       */
       contacts: components["schemas"]["RadarContact"][];
     };
     /**
@@ -950,12 +1653,23 @@ export interface components {
      * @description Resume → S/W CONFIGURATION (docs/pages/resume.md). The PDF is uploaded separately (`PUT /api/admin/resume`).
      */
     Resume: {
-      /** Title */
+      /**
+       * Title
+       * @description Two lines drawn large at the top, ≤ 24 characters each.
+       */
       title: [
         components["schemas"]["TitleLine"],
         components["schemas"]["TitleLine"],
       ];
+      /**
+       * Left column
+       * @description Skills: name ≤ 6, value ≤ 15.
+       */
       left: components["schemas"]["SkillColumn"];
+      /**
+       * Right column
+       * @description Qualifications: name ≤ 6, value ≤ 12.
+       */
       right: components["schemas"]["QualificationColumn"];
     };
     /**
@@ -969,27 +1683,54 @@ export interface components {
      * @description ≤ 9 items of ≤ 16 characters, so they stay inside the glass.
      */
     RightChecklistColumn: {
-      /** Title */
+      /**
+       * Title
+       * @description The column's heading, ≤ 4 characters.
+       */
       title: string;
-      /** Meaning */
+      /**
+       * Meaning
+       * @description What the heading means, for screen readers; not drawn.
+       */
       meaning: string;
-      /** Items */
+      /**
+       * Items
+       * @description Up to 9 items, ≤ 16 characters each.
+       */
       items: string[];
     };
-    /** RightField */
+    /**
+     * RightField
+     * @description PROG block, right column: label ≤ 7, value ≤ 15.
+     */
     RightField: {
-      /** Label */
+      /**
+       * Label
+       * @description The field's name.
+       */
       label: string;
-      /** Value */
+      /**
+       * Value
+       * @description Drawn after the label.
+       */
       value: string;
     };
     /** Role */
     Role: {
-      /** Title */
+      /**
+       * Title
+       * @description The role's job title.
+       */
       title: string;
-      /** Span */
+      /**
+       * Span
+       * @description The dates, for example 2021-2024.
+       */
       span: string;
-      /** Bullets */
+      /**
+       * Highlights
+       * @description Wrapped at 38 characters; the employer's roles share the page's rows.
+       */
       bullets: string[];
     };
     /** SavedResume */
@@ -1156,6 +1897,123 @@ export interface components {
       updatedAt: string;
       revalidation: components["schemas"]["RevalidationStatus"];
     };
+    /** SectionDraft[Bit] */
+    SectionDraft_Bit_: {
+      content: components["schemas"]["Bit"];
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionDraft[Checklist] */
+    SectionDraft_Checklist_: {
+      content: components["schemas"]["Checklist"];
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionDraft[Contact] */
+    SectionDraft_Contact_: {
+      content: components["schemas"]["Contact"];
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionDraft[FlightControls] */
+    SectionDraft_FlightControls_: {
+      content: components["schemas"]["FlightControls"];
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionDraft[FuelReserves] */
+    SectionDraft_FuelReserves_: {
+      content: components["schemas"]["FuelReserves"];
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionDraft[Links] */
+    SectionDraft_Links_: {
+      content: components["schemas"]["Links"];
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionDraft[MissionData] */
+    SectionDraft_MissionData_: {
+      content: components["schemas"]["MissionData"];
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionDraft[Profile] */
+    SectionDraft_Profile_: {
+      content: components["schemas"]["Profile"];
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionDraft[Projects] */
+    SectionDraft_Projects_: {
+      content: components["schemas"]["Projects"];
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionDraft[RadarScene] */
+    SectionDraft_RadarScene_: {
+      content: components["schemas"]["RadarScene"];
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionDraft[Resume] */
+    SectionDraft_Resume_: {
+      content: components["schemas"]["Resume"];
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionDraft[ServerStats] */
+    SectionDraft_ServerStats_: {
+      content: components["schemas"]["ServerStats"];
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionDraft[Work] */
+    SectionDraft_Work_: {
+      content: components["schemas"]["Work"];
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
     /** SectionState[Bit] */
     SectionState_Bit_: {
       document: components["schemas"]["Bit"];
@@ -1301,9 +2159,15 @@ export interface components {
     };
     /** ServerHost */
     ServerHost: {
-      /** Header */
+      /**
+       * Header
+       * @description The column header, in place of LEFT EPE.
+       */
       header: string;
-      /** Name */
+      /**
+       * Name
+       * @description The host's name for screen readers.
+       */
       name: string;
     };
     /**
@@ -1327,16 +2191,35 @@ export interface components {
       | "uptime";
     /** ServerRow */
     ServerRow: {
+      /**
+       * Metric
+       * @description Which reading the row shows.
+       */
       metric: components["schemas"]["ServerMetric"];
-      /** Label */
+      /**
+       * Label
+       * @description The centre label, as wide as INLET TEMP.
+       */
       label: string;
-      /** Name */
+      /**
+       * Name
+       * @description The row's name for screen readers.
+       */
       name: string;
-      /** Unit */
+      /**
+       * Unit
+       * @description The unit for screen readers; empty for a bare number.
+       */
       unit: string;
-      /** Decimals */
+      /**
+       * Decimals
+       * @description Digits after the decimal point.
+       */
       decimals: number;
-      /** Suffix */
+      /**
+       * Suffix
+       * @description Drawn right after the value, for example D for days; may be empty.
+       */
       suffix: string;
     };
     /**
@@ -1344,7 +2227,10 @@ export interface components {
      * @description Both hosts' readings at one moment, left host first.
      */
     ServerSnapshot: {
-      /** Hosts */
+      /**
+       * Hosts
+       * @description One reading per metric for each host, left host first.
+       */
       hosts: [
         components["schemas"]["HostReadings"],
         components["schemas"]["HostReadings"],
@@ -1355,13 +2241,23 @@ export interface components {
      * @description /server → ENG (docs/pages/eng.md); fake data.
      */
     ServerStats: {
-      /** Hosts */
+      /**
+       * Hosts
+       * @description The two columns, left host first.
+       */
       hosts: [
         components["schemas"]["ServerHost"],
         components["schemas"]["ServerHost"],
       ];
-      /** Rows */
+      /**
+       * Rows
+       * @description One row per metric, in this order: inletTemp, cpu, ram, cpuTemp, power, fan, memPressure, throughput, jitter, diskTemp, loadAvg, disk, uptime.
+       */
       rows: components["schemas"]["ServerRow"][];
+      /**
+       * Baseline
+       * @description The readings the page starts from and drifts around.
+       */
       baseline: components["schemas"]["ServerSnapshot"];
     };
     /**
@@ -1385,9 +2281,15 @@ export interface components {
     };
     /** SkillColumn */
     SkillColumn: {
-      /** Heading */
+      /**
+       * Heading
+       * @description The column's heading for screen readers; not drawn.
+       */
       heading: string;
-      /** Rows */
+      /**
+       * Rows
+       * @description Up to 12 skills, top first.
+       */
       rows: components["schemas"]["SkillRow"][];
     };
     /**
@@ -1395,9 +2297,15 @@ export interface components {
      * @description Left column: the value must end before the right column (x = 80), so ≤ 15.
      */
     SkillRow: {
-      /** Name */
+      /**
+       * Name
+       * @description The row's short label.
+       */
       name: string;
-      /** Value */
+      /**
+       * Value
+       * @description Drawn after the name.
+       */
       value: string;
     };
     Slug: string;
@@ -1406,9 +2314,15 @@ export interface components {
      * @description A status-quadrant row: label ≤ 7 including the colon, value ≤ 9.
      */
     StatusRow: {
-      /** Label */
+      /**
+       * Label
+       * @description Left of the row, colon included, e.g. ROLE:.
+       */
       label: string;
-      /** Value */
+      /**
+       * Value
+       * @description Right of the label.
+       */
       value: string;
     };
     /**
@@ -1416,16 +2330,28 @@ export interface components {
      * @description S/W CONFIGURATION: the site's own stack. `null` is a blank row.
      */
     SwConfig: {
-      /** Left */
+      /**
+       * Left column
+       * @description 12 rows; null is a blank row.
+       */
       left: (components["schemas"]["SwConfigEntry"] | null)[];
-      /** Right */
+      /**
+       * Right column
+       * @description 12 rows.
+       */
       right: components["schemas"]["SwConfigEntry"][];
     };
     /** SwConfigEntry */
     SwConfigEntry: {
-      /** Name */
+      /**
+       * Name
+       * @description The component's name.
+       */
       name: string;
-      /** Value */
+      /**
+       * Value
+       * @description Its version, ≤ 8 characters.
+       */
       value: string;
     };
     /**
@@ -1433,15 +2359,21 @@ export interface components {
      * @description An IFF-quadrant row, drawn as `label value` in ≤ 18 characters.
      */
     TagRow: {
-      /** Label */
+      /**
+       * Label
+       * @description The tag's name.
+       */
       label: string;
-      /** Value */
+      /**
+       * Value
+       * @description Drawn after the label and a space; the whole row fits 18 characters.
+       */
       value: string;
     };
     /** TankStore */
     TankStore: {
       /**
-       * @description discriminator enum property added by openapi-typescript
+       * @description The store's symbol on the wingform. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
       kind: "tank";
@@ -1465,9 +2397,15 @@ export interface components {
      * @description The MC or SMS value, a character clear of its label and the vertical rule.
      */
     VersionField: {
-      /** Value */
+      /**
+       * Value
+       * @description The version string.
+       */
       value: string;
-      /** Meaning */
+      /**
+       * Meaning
+       * @description What the value stands for, for screen readers; not drawn.
+       */
       meaning: string;
     };
     /**
@@ -1476,12 +2414,24 @@ export interface components {
      */
     WaveMotion: {
       /**
-       * @description discriminator enum property added by openapi-typescript
+       * @description A slow sine. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
       kind: "wave";
+      /**
+       * Level
+       * @description The level at the start, 0 (empty) to 1 (full).
+       */
       level: components["schemas"]["Fraction"];
+      /**
+       * Swing
+       * @description How far the level moves either way, 0 to 1.
+       */
       swing: components["schemas"]["Fraction"];
+      /**
+       * Period
+       * @description Seconds per cycle.
+       */
       periodSeconds: components["schemas"]["Period"];
     };
     /**
@@ -1489,7 +2439,10 @@ export interface components {
      * @description Work history (docs/pages/work.md): one employer per top-row tab (PB6–10), newest first.
      */
     Work: {
-      /** Employers */
+      /**
+       * Employers
+       * @description 1 to 5 employers, newest first; each gets a top-row tab.
+       */
       employers: components["schemas"]["Employer"][];
     };
   };
@@ -2798,6 +3751,1143 @@ export interface operations {
       };
       /** @description The section changed since the `If-Match` ETag. */
       412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetDrafts: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Drafts"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminDeleteDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path: {
+        section: components["schemas"]["ContentSection"];
+      };
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetProfileDraft: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Profile_"];
+        };
+      };
+      /** @description The section has no draft. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutProfileDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Profile"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Profile_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetResumeDraft: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Resume_"];
+        };
+      };
+      /** @description The section has no draft. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutResumeDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Resume"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Resume_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetWorkDraft: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Work_"];
+        };
+      };
+      /** @description The section has no draft. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutWorkDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Work"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Work_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetProjectsDraft: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Projects_"];
+        };
+      };
+      /** @description The section has no draft. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutProjectsDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Projects"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Projects_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetContactDraft: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Contact_"];
+        };
+      };
+      /** @description The section has no draft. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutContactDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Contact"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Contact_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetLinksDraft: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Links_"];
+        };
+      };
+      /** @description The section has no draft. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutLinksDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Links"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Links_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetServerDraft: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_ServerStats_"];
+        };
+      };
+      /** @description The section has no draft. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutServerDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ServerStats"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_ServerStats_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetFuelDraft: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_FuelReserves_"];
+        };
+      };
+      /** @description The section has no draft. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutFuelDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["FuelReserves"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_FuelReserves_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetFcsDraft: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_FlightControls_"];
+        };
+      };
+      /** @description The section has no draft. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutFcsDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["FlightControls"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_FlightControls_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetChecklistDraft: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Checklist_"];
+        };
+      };
+      /** @description The section has no draft. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutChecklistDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Checklist"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Checklist_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetBitDraft: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Bit_"];
+        };
+      };
+      /** @description The section has no draft. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutBitDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Bit"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_Bit_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetRadarDraft: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_RadarScene_"];
+        };
+      };
+      /** @description The section has no draft. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutRadarDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RadarScene"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_RadarScene_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetMumiDraft: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_MissionData_"];
+        };
+      };
+      /** @description The section has no draft. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutMumiDraft: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MissionData"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionDraft_MissionData_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
         headers: {
           [name: string]: unknown;
         };

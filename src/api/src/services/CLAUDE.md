@@ -5,7 +5,7 @@ Services hold the logic and orchestrate repos and clients. They receive dependen
 
 ```
 services/
-├── content/       # ContentService: published content, admin get/save, seeding; types.py
+├── content/       # ContentService: published content, admin get/save (publish), drafts, seeding; types.py
 ├── auth/          # AuthService (argon2, sessions, CSRF) and LoginThrottle; types.py
 ├── resume/        # ResumeService: the PDF on the data volume
 └── revalidation/  # RevalidationService: calls the Next.js revalidation route

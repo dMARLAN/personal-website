@@ -4,7 +4,12 @@ from dataclasses import dataclass
 from typing import Final
 
 from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from pydantic_core import ErrorDetails
+
+from content.base import ContentRuleError
 
 from services.auth.types import (
     AdminLoginDisabledError,
@@ -13,7 +18,7 @@ from services.auth.types import (
     LoginThrottledError,
     NotAuthenticatedError,
 )
-from services.content.types import PreconditionFailedError
+from services.content.types import DraftNotFoundError, PreconditionFailedError
 from services.resume.types import NotAPdfError, ResumeNotFoundError, ResumeTooLargeError
 
 
@@ -32,6 +37,7 @@ _ERROR_RESPONSES: Final[dict[type[Exception], _ErrorResponse]] = {
     NotAPdfError: _ErrorResponse(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, "NOT_A_PDF"),
     ResumeTooLargeError: _ErrorResponse(status.HTTP_413_CONTENT_TOO_LARGE, "FILE_TOO_LARGE"),
     ResumeNotFoundError: _ErrorResponse(status.HTTP_404_NOT_FOUND, "RESUME_NOT_FOUND"),
+    DraftNotFoundError: _ErrorResponse(status.HTTP_404_NOT_FOUND, "DRAFT_NOT_FOUND"),
 }
 
 
@@ -50,7 +56,26 @@ async def _throttled(_: Request, error: Exception) -> JSONResponse:
     )
 
 
+def _located(error: ErrorDetails) -> ErrorDetails:
+    """Points a content rule's error at the offending field instead of the model whose validator raised it."""
+    match error.get("ctx", {}).get("error"):
+        case ContentRuleError() as rule:
+            return {**error, "loc": (*error["loc"], *rule.loc), "ctx": {"error": str(rule)}}
+        case _:
+            return error
+
+
+async def _invalid_request(_: Request, error: Exception) -> JSONResponse:
+    if not isinstance(error, RequestValidationError):
+        raise TypeError(f"handler registered for RequestValidationError got {type(error).__name__}")
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        content={"detail": jsonable_encoder([_located(detail) for detail in error.errors()])},
+    )
+
+
 def register_error_handlers(app: FastAPI) -> None:
     for error_type in _ERROR_RESPONSES:
         app.add_exception_handler(error_type, _mapped_error)
     app.add_exception_handler(LoginThrottledError, _throttled)
+    app.add_exception_handler(RequestValidationError, _invalid_request)

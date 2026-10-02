@@ -14,4 +14,6 @@ services.
   `X-CSRF-Token`) for anything that changes state.
 - ETag helpers and the public `Cache-Control` value are in `http_cache.py`.
 - `admin/content/route.py` has one explicit GET/PUT pair per section, so OpenAPI types each document exactly. A new
-  section needs its pair there, a `SectionSpec` in `content/sections.py`, and a seed document.
+  section needs its pair there and in `admin/drafts/route.py`, a field in `Drafts`
+  (`services/content/types.py`), a `SectionSpec` in `content/sections.py`, and a seed document.
+- `errors.py` also rewrites 422s: a `ContentRuleError` from a model validator gets its field path appended to `loc`.

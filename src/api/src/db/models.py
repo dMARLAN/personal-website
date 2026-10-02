@@ -25,6 +25,17 @@ class ContentSectionRow(Base):
     updated_at: Mapped[str] = mapped_column(Text, nullable=False)
 
 
+class ContentDraftRow(Base):
+    """A section's unpublished edit, validated like a published document. Publishing the section deletes it."""
+
+    __tablename__ = "content_draft"
+    __table_args__ = (CheckConstraint("json_valid(document)", name="ck_content_draft_document_json"),)
+
+    section: Mapped[str] = mapped_column(Text, primary_key=True)
+    document: Mapped[str] = mapped_column(Text, nullable=False)
+    updated_at: Mapped[str] = mapped_column(Text, nullable=False)
+
+
 class AdminSessionRow(Base):
     """A signed-in admin browser. The cookie holds the token; only its sha256 is stored."""
 

@@ -53,6 +53,9 @@ def _append(path: str, value: object) -> Mutation:
 
 
 LONG_WORDS = " ".join(["placeholder"] * 30)
+# Within the slot's character budget, but each word takes a row of its own, so it wraps to 10 rows.
+TEN_ROWS_OF_18 = " ".join(["placeholder"] * 10)
+EIGHT_ROWS_OF_47 = " ".join(["x" * 24] * 8)
 
 CASES: list[tuple[ContentSection, Mutation, str]] = [
     # About: TGT DATA OWNSHIP.
@@ -61,7 +64,8 @@ CASES: list[tuple[ContentSection, Mutation, str]] = [
     (ContentSection.PROFILE, _set("status.0.value", "X" * 10), "at most 9"),
     (ContentSection.PROFILE, _set("loadout.0", "X" * 18), "at most 17"),
     (ContentSection.PROFILE, _set("tags.0.value", "X" * 15), "fits 18"),
-    (ContentSection.PROFILE, _set("bio", LONG_WORDS), "the slot fits 9 rows of 18"),
+    (ContentSection.PROFILE, _set("bio", TEN_ROWS_OF_18), "the slot fits 9 rows of 18"),
+    (ContentSection.PROFILE, _set("bio", LONG_WORDS), "at most 170"),
     (ContentSection.PROFILE, _set("footer", "COFFEE!"), "no glyph"),
     (ContentSection.PROFILE, _append("loadout", "6 - EXTRA"), "at most 5"),
     (ContentSection.PROFILE, _set("header", "NAME"), "Extra inputs"),
@@ -85,7 +89,7 @@ CASES: list[tuple[ContentSection, Mutation, str]] = [
     (ContentSection.PROJECTS, _set("projects.0.code", "WEBSITE"), "at most 6"),
     (ContentSection.PROJECTS, _set("projects.0.name", "X" * 23), "at most 22"),
     (ContentSection.PROJECTS, _set("projects.0.category", "GAMES"), "do not exist"),
-    (ContentSection.PROJECTS, _set("projects.0.description", LONG_WORDS), "7 rows of 47"),
+    (ContentSection.PROJECTS, _set("projects.0.description", EIGHT_ROWS_OF_47), "7 rows of 47"),
     (ContentSection.PROJECTS, _set("projects.0.fields.left.0.value", "X" * 8), "at most 7"),
     (ContentSection.PROJECTS, _set("projects.0.fields.right.0.value", "X" * 16), "at most 15"),
     (ContentSection.PROJECTS, _set("projects.0.links.1.kind", "REPO"), "one link of each kind"),
@@ -144,7 +148,7 @@ def test_bit_requires_every_item() -> None:
     document = seed_document(ContentSection.BIT)
     del document["checks"]["ASPJ"]
 
-    with pytest.raises(ValidationError, match="every BIT item"):
+    with pytest.raises(ValidationError, match="at least 42 items"):
         validate(ContentSection.BIT, document)
 
 

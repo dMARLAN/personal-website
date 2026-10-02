@@ -8,7 +8,7 @@ from db.database import DatabaseContext
 from repo.content import ContentRepository
 from seed.content import SEED_DOCUMENTS
 from services.content.service import ContentService
-from services.content.types import PreconditionFailedError, SectionMissingError
+from services.content.types import DraftNotFoundError, Drafts, PreconditionFailedError, SectionMissingError
 from services.revalidation.service import RevalidationService
 from services.revalidation.types import RevalidationStatus
 
@@ -113,3 +113,37 @@ async def test_save_with_a_stale_etag_is_refused(db_ctx: DatabaseContext) -> Non
         await service.save(PROFILE, seed_profile().model_copy(update={"badge": "SECOND"}), if_match=loaded.etag)
     assert (await service.get(PROFILE)).document.badge == "FIRST"
     revalidation.revalidate.assert_not_awaited()
+
+
+async def test_save_draft_stores_it_without_publishing_or_revalidating(db_ctx: DatabaseContext) -> None:
+    # Arrange
+    revalidation = make_revalidation()
+    service = await make_service(db_ctx, revalidation)
+    edited = seed_profile().model_copy(update={"badge": "DRAFT"})
+
+    # Act
+    saved = await service.save_draft(PROFILE, edited)
+
+    # Assert
+    assert saved.content == edited
+    assert (await service.get_draft(PROFILE)) == saved
+    assert (await service.drafts()).profile == saved
+    assert (await service.published()).content.profile.badge == "PLACEHOLDER"
+    revalidation.revalidate.assert_not_awaited()
+
+
+async def test_get_draft_without_one_raises(db_ctx: DatabaseContext) -> None:
+    service = await make_service(db_ctx, make_revalidation())
+
+    with pytest.raises(DraftNotFoundError):
+        await service.get_draft(PROFILE)
+
+
+async def test_save_deletes_the_draft(db_ctx: DatabaseContext) -> None:
+    service = await make_service(db_ctx, make_revalidation())
+    edited = seed_profile().model_copy(update={"badge": "DRAFT"})
+    await service.save_draft(PROFILE, edited)
+
+    await service.save(PROFILE, edited, if_match=None)
+
+    assert await service.drafts() == Drafts()
