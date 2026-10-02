@@ -7,7 +7,7 @@ async function glass(page: Page): Promise<string> {
 }
 
 test("TAC PB7 WORK opens /work on press", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   const pb7 = page.locator(".ddi-osb[data-pb='7']");
   await expect(pb7).toHaveAccessibleName("Work history");
   await pb7.hover();
@@ -68,7 +68,7 @@ test("the page opens on the newest employer every time", async ({ page }) => {
 test("PB18 MENU returns to TAC", async ({ page }) => {
   await page.goto("/work");
   await page.locator(".ddi-osb[data-pb='18']").click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
   await expect(
     page.getByRole("button", { name: "Support menu" }),
   ).toBeVisible();

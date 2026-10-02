@@ -17,7 +17,7 @@ async function loadMaterials(
     ([key, value]) => localStorage.setItem(key, value),
     [THEME_KEY, theme],
   );
-  await page.goto("/");
+  await page.goto("/ddi");
   await page.waitForLoadState("networkidle");
   return responses;
 }

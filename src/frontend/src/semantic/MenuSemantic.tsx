@@ -11,7 +11,7 @@ const SUMMARIES: Readonly<Record<MenuName, string>> = {
 };
 
 /**
- * Both menus as real HTML (design section 10.2). TAC and SUPT share `/` and the glass shows one at a time, so the
+ * Both menus as real HTML (design section 10.2). TAC and SUPT share `/ddi` and the glass shows one at a time, so the
  * semantic layer lists both: SUPT's pages stay reachable without pressing PB18.
  */
 export function MenuSemantic(): React.JSX.Element {

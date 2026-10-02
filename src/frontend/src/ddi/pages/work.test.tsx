@@ -220,7 +220,7 @@ describe("the work history OSBs", () => {
     expect(push).not.toHaveBeenCalled();
     expect(screen.getByRole("link", { name: "Tactical menu" })).toHaveAttribute(
       "href",
-      "/",
+      "/ddi",
     );
   });
 });

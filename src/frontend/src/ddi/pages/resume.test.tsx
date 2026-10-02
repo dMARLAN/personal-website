@@ -79,7 +79,7 @@ describe("the resume page", () => {
       resumeLegends(RESUME).map(({ pb, lines, action }) => [pb, lines, action]),
     ).toEqual([
       [20, ["PDF"], { kind: "download", href: "/resume.pdf" }],
-      [18, ["MENU"], { kind: "link", href: "/" }],
+      [18, ["MENU"], { kind: "link", href: "/ddi" }],
     ]);
   });
 

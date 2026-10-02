@@ -19,7 +19,7 @@ for (const viewport of [
     page,
   }) => {
     await page.setViewportSize(viewport);
-    await page.goto("/");
+    await page.goto("/ddi");
     const { glass, caps } = await page.evaluate(() => {
       const box = (element: Element): Box => {
         const { top, left, bottom, right } = element.getBoundingClientRect();

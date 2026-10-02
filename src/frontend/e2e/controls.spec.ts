@@ -10,7 +10,7 @@ import {
 test("the controls change the display and persist across a reload", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   expect(await drawnControls(page)).toMatchObject({ gain: "1", halo: "0.5" });
   const brightness = page.getByRole("slider", { name: "Brightness" });
   const contrast = page.getByRole("slider", { name: "Contrast" });
@@ -39,7 +39,7 @@ test("the controls change the display and persist across a reload", async ({
 });
 
 test("the OFF/NIGHT/DAY selector is gone", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   await expect(page.getByRole("group", { name: "Display mode" })).toHaveCount(
     0,
   );
@@ -52,7 +52,7 @@ test("the OFF/NIGHT/DAY selector is gone", async ({ page }) => {
 test("dragging a knob sideways turns it, stops at the end stops and reverses at once", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   const brightness = page.getByRole("slider", { name: "Brightness" });
   const dragging = page.locator(".ddi-knob[data-dragging]");
 
@@ -83,7 +83,7 @@ test("dragging a knob sideways turns it, stops at the end stops and reverses at 
 test("a drag snaps to 12 o'clock and must travel through the notch to leave it", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   const contrast = page.getByRole("slider", { name: "Contrast" });
   const drag = await pressKnob(page, contrast);
   // 8 px is 0.032: still inside the ±0.04 window, so the knob holds at 50 %.
@@ -102,7 +102,7 @@ test("a drag snaps to 12 o'clock and must travel through the notch to leave it",
 test("a dragged value persists across a reload, pointer included", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   const contrast = page.getByRole("slider", { name: "Contrast" });
   const drag = await pressKnob(page, contrast);
   await dragBy(drag, -37.5);
@@ -119,7 +119,7 @@ test("a dragged value persists across a reload, pointer included", async ({
 });
 
 test("the wheel steps BRT", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   await page.getByRole("slider", { name: "Brightness" }).hover();
   await page.mouse.wheel(0, 150);
   await expect(
@@ -135,7 +135,7 @@ test("stored knobs are drawn before any app JavaScript runs, so they never flash
   }, STORAGE_KEY);
   // Block every app and framework script: only the inline pre-paint script in <head> can run.
   await page.route("**/_next/static/**/*.js", (route) => route.abort());
-  await page.goto("/");
+  await page.goto("/ddi");
   expect(await drawnControls(page)).toMatchObject({
     gain: "0.05",
     emissiveOpacity: "0.05",
@@ -151,7 +151,7 @@ test("an older stored value (v2, with a mode) is ignored and reads as the defaul
       JSON.stringify({ mode: "OFF", brt: 0.1, cont: 0.9 }),
     ),
   );
-  await page.goto("/");
+  await page.goto("/ddi");
   expect(await drawnControls(page)).toMatchObject({ gain: "1", halo: "0.5" });
   await expect(
     page.getByRole("slider", { name: "Brightness" }),
@@ -163,19 +163,19 @@ test("invalid stored state reads as the defaults", async ({ page }) => {
     (key) => localStorage.setItem(key, '{"brt":"x","cont":null}'),
     STORAGE_KEY,
   );
-  await page.goto("/");
+  await page.goto("/ddi");
   expect(await drawnControls(page)).toMatchObject({ gain: "1", halo: "0.5" });
 });
 
 test("the plain view is set by ?view=plain, persists, and is left by ?view=ddi", async ({
   page,
 }) => {
-  await page.goto("/?view=plain");
+  await page.goto("/ddi?view=plain");
   await expect(page.locator("html")).toHaveAttribute("data-view", "plain");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.locator(".ddi-screen")).toBeHidden();
 
-  await page.goto("/");
+  await page.goto("/ddi");
   await expect(page.locator("html")).toHaveAttribute("data-view", "plain");
   await page.getByRole("link", { name: "Display view" }).click();
   await expect(page.locator("html")).not.toHaveAttribute("data-view", "plain");

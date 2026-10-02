@@ -221,7 +221,7 @@ export interface DdiScreen {
   edges?: Partial<Record<Edge, React.ReactNode>>; // DCS coordinates, PB-anchored content
   prose?: { square: React.ReactNode; wide: React.ReactNode };
 }
-// (ours) One screen per in-section state, for example { TAC, SUPT } on `/` (section 9.4)
+// (ours) One screen per in-section state, for example { TAC, SUPT } on `/ddi` (section 9.4)
 export interface DdiScreens { initial: string; screens: Readonly<Record<string, DdiScreen>> }
 export type DdiFrame = (props: { screens: DdiScreens }) => React.ReactNode;
 ```
@@ -534,7 +534,10 @@ exists for these characters, so we may add the few that content needs.
 ```
 src/frontend/src/
   app/                         # routes only: one page.tsx per URL, plus sitemap.ts and robots.ts
-    layout.tsx                 # frame choice, the pre-paint script, fonts, metadata base
+    (home)/                    # (ours) / : the standard homepage's root layout, page and share image (section 10.3)
+    (ddi)/                     # (ours) /ddi and every DDI page
+      layout.tsx               # frame choice, the pre-paint script, fonts, metadata base, the corner buttons
+  home/                        # (ours) the standard homepage: sections, model.ts (derived from content/), home.css
   ddi/
     constants.ts               # every constant in this doc, with its citation
     geometry.ts                # toSvg, pbAnchor, lineEnd, align, measure
@@ -623,7 +626,7 @@ S/W CONFIG, which has 24 rows. HSI DATA WYPT fits too few characters per row for
 
 ### 9.3 TAC and SUPT
 
-Both menus live at `/` (ours, section 9.4). Each has an empty body, a boxed title at (0, −446) [fnd §5.5] and
+Both menus live at `/ddi` (ours, section 9.4). Each has an empty body, a boxed title at (0, −446) [fnd §5.5] and
 the PB18 legend `MENU`, which switches to the other menu in place. Legends are
 generated from the registry. A page's legend appears only after the page ships. This is the DCS rule: a
 format that is unavailable has no legend (`MPD_MENU_FormatLabelShow` [fnd §6.1]). Real legends for formats
@@ -654,13 +657,13 @@ Row legends fit their pitch. The longest, `CONTACT`, is 134 DI wide on a 169 DI 
 
 **Rule (ours, Chad's decision): sections are URLs; in-section state is not.** Entering a section changes the
 URL. Everything that happens inside a section is local client state with no URL change: TAC versus SUPT on
-`/`, `STEP`, `PAGE`, sublevels, the Links selection and the knobs. That state starts fresh each time the page
+`/ddi`, `STEP`, `PAGE`, sublevels, the Links selection and the knobs. That state starts fresh each time the page
 mounts. The browser's back and forward buttons move between sections, not between in-section states.
 
 ```mermaid
 stateDiagram-v2
   [*] --> TAC
-  state "/" as Menu {
+  state "/ddi" as Menu {
     TAC --> SUPT: PB18
     SUPT --> TAC: PB18
   }
@@ -675,10 +678,11 @@ stateDiagram-v2
 
 | State | Input | Next state | URL change |
 |---|---|---|---|
-| `/` (TAC) | PB18 | SUPT, in place | no |
-| `/` (SUPT) | PB18 | TAC, in place | no |
+| `/ddi` (TAC) | PB18 | SUPT, in place | no |
+| `/ddi` (SUPT) | PB18 | TAC, in place | no |
 | a menu | a legend OSB | that section | yes |
-| any section page or sublevel | PB18 `MENU` | `/`, showing TAC [gsys §4.1 p120], [hog §1] | yes |
+| any section page or sublevel | PB18 `MENU` | `/ddi`, showing TAC [gsys §4.1 p120], [hog §1] | yes |
+| any DDI page | the home button beside the theme toggle (ours) | `/`, the standard homepage | yes |
 | Work | an employer block's OSB | that employer's sublevel | no |
 | Work sublevel | PB8 `WORK` | Work | no |
 | a paged page | PB16 `PAGE` | the next page. It wraps to page 1, because PAGE is a cycle. | no |
@@ -697,11 +701,16 @@ Because in-section state has no URL, the semantic layer of each section lists th
 ### 10.1 Routes
 
 - The App Router has one `page.tsx` per section URL (section 9.4), with no dynamic segments, so every page is
-  static HTML at build time. `/supt` no longer exists: SUPT is in-section state of `/`. Sublevel URLs such as
+  static HTML at build time. `/supt` no longer exists: SUPT is in-section state of `/ddi`. Sublevel URLs such as
   `/work/[employer]` and `/projects/[slug]/data` were dropped for the same reason.
 - `generateMetadata` gives each route a title, a description and a canonical URL. The title is built from
   `SITE_NAME`.
-- `sitemap.ts` and `robots.ts` are generated from the registry. Today the sitemap lists only `/`.
+- `sitemap.ts` and `robots.ts` are generated from the registry. The sitemap lists `/`, `/ddi` and every
+  shipped page.
+- **(ours) Two root layouts.** `/` is the standard homepage (section 10.3), in the `app/(home)` route group
+  with its own root layout. The DDI (`/ddi` and every section and showcase URL) is in `app/(ddi)`, whose root
+  layout holds the pre-paint script, the frame CSS and the corner buttons. Neither loads the other's CSS or
+  scripts, so moving between them is a full page load. Section and showcase URLs are unchanged.
 - `SITE_NAME` and `SITE_URL` (`https://chad.hambley.org`) stay the only identity constants, in
   `src/lib/site.ts`. The DDI renders the name from `SITE_NAME`. A test fails if the surname literal appears
   anywhere else.
@@ -712,16 +721,41 @@ Because in-section state has no URL, the semantic layer of each section lists th
   links. It is visually hidden in DDI mode. The SVG is `aria-hidden="true"`. The hidden text matches what the
   glass shows, so it is an accessible equivalent, not cloaking.
 - The OSBs are `<a href>` elements, so crawlers find every route from the menus.
-- In-section state has no URL, so a section's `<main>` carries every state's content. `/` has an `<h2>` for
-  each of the Tactical and Support menus, each listing its shipped pages as links. The plain view hides the
+- In-section state has no URL, so a section's `<main>` carries every state's content. `/ddi` has an `<h2>`
+  for each of the Tactical and Support menus, each listing its shipped pages as links. The plain view hides the
   state OSBs (`data-action="state"`), since the semantic layer already shows every state.
 - The plain view follows the theme: light page by day, dark at night (section 4.8).
 - **Plain view** is the same DOM with a CSS switch. `html[data-view="plain"]` hides the frame and shows
   `<main>` styled as a plain readable page. The pre-paint script sets it from `?view=plain`, and it persists in
   `localStorage`. This adds no routes.
 - DOM order: skip link ("Text view"), `<main>`, the OSBs in PB order (only enabled ones are focusable), the
-  knobs, then the theme toggle. Next's route announcer reads the new `<h1>` after each navigation.
+  knobs, the home button, then the theme toggle. Next's route announcer reads the new `<h1>` after each navigation.
 - `prefers-reduced-motion` stops the radar animation and the knob transitions.
+
+### 10.3 Standard homepage (ours)
+
+Recruiters land on a conventional page first. The DDI is one click away.
+
+- **Route.** `/` is the standard homepage. The DDI menu is at `/ddi`. PB18 `MENU` on any DDI page opens
+  `/ddi`.
+- **Content.** It reads only the content modules' exports (profile, resume, work, projects, contact,
+  links) through `src/home/model.ts`. It holds no content of its own. The name comes from `SITE_NAME`.
+- **Layout.** One page: a sticky header (section links, `Launch DDI`, theme toggle), a hero (name, current
+  role, bio, résumé and contact buttons, a few derived numbers, and a cockpit-mode card), then Experience,
+  Projects, Skills and Contact, and a footer. It is responsive down to phone width. Each section header
+  links to the DDI page that shows the same content.
+- **Cockpit nods.** The cockpit-mode card draws a small static DDI on TAC, with legends from the registry
+  in the DCS stroke font. Section eyebrows show the menu legend in the stroke font, for example `PB7 WORK`.
+  Body text is IBM Plex Sans; numbers and labels use IBM Plex Mono (both via `next/font`).
+- **Theme.** The same `data-theme` and `localStorage["site:theme:v1"]` as the DDI, so a choice carries
+  across. A theme-only pre-paint script (`src/theme/prepaint.ts`) sets it before first paint. Day is a light
+  page; night is a near-black, green-tinged page. The accent is the DDI green family: `#1a7300` by day,
+  `#5cc93a` at night, both at least 4.5:1 on their backgrounds.
+- **Back to the homepage.** Every DDI page has a home button just left of the theme toggle, in the same
+  style: 28 px, no background, a 1 px circular border in `--theme-toggle-ink`, 8 px gap. It is a link named
+  "Exit to the standard homepage".
+- **SEO.** `/` has a title, description, canonical URL, OpenGraph and Twitter cards with a generated share
+  image, and a schema.org `Person` in JSON-LD. `/ddi` has its own title, description and canonical URL.
 
 ## 11. Content schema
 
@@ -793,11 +827,11 @@ module.
 
 ```ts
 export type PageId = "menu" | "about" | "resume" | "work" | "projects" | "contact" | "links"
-  | "radar" | "server";                         // "menu" is `/`, holding TAC and SUPT
+  | "radar" | "server";                         // "home" is `/`; "menu" is `/ddi`, holding TAC and SUPT
 export interface PageDef {
   id: PageId;
   path: string;                                 // e.g. "/work"; no dynamic segments
-  kind: "menu" | "section" | "showcase";
+  kind: "home" | "menu" | "section" | "showcase"; // "home" is the standard homepage, outside the DDI
   menu?: { on: "TAC" | "SUPT"; pb: Pb; legend: readonly string[] }; // legend lines, e.g. ["RDR", "ATTK"]
   label: string;                                // accessible name and <h1>, e.g. "Work history"
   available: boolean;                           // false hides the menu legend (DCS FormatLabelShow)
@@ -948,7 +982,7 @@ Unit tests (Vitest):
   The pre-paint script matches the app's maths for the knobs and the theme.
 - **Theme:** only exact theme names count as an override; the override beats the OS; the toggle flips and
   stores it.
-- **Registry:** PB18 on each menu is a state action to the other menu, and only `/` is a menu route.
+- **Registry:** PB18 on each menu is a state action to the other menu, and only `/ddi` is a menu route.
 
 Component tests (Testing Library):
 
@@ -961,7 +995,7 @@ Browser tests (Playwright, added in Phase 1):
 - Screenshots of every route at 1920 × 1080, 1080 × 1080 and 390 × 844, in both themes.
 - The four bands are equal, and every OSB clears the lip ring by 6–8 DI at 1920 × 1080, 2560 × 1440 and
   390 × 844.
-- PB18 toggles TAC and SUPT and the URL stays `/`. `/supt` is a 404.
+- PB18 toggles TAC and SUPT and the URL stays `/ddi`. `/supt` is a 404.
 - The theme follows the emulated OS colour scheme, the override persists across a reload, and with app scripts
   blocked a stored override is drawn by the pre-paint script alone (no flash). The toggle ink has at least
   4.5:1 contrast with the bezel behind it in both themes.

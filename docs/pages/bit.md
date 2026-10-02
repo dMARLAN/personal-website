@@ -70,7 +70,7 @@ Legends with no list row on their page are inert: DISPLAYS `UFC` (themed `KEYS`)
 All local state on one URL (design section 9.4).
 
 - **Levels.** Every level is one in-section state (`MAIN-1`, `MAIN-2`, the eight sublevel ids, `CONFIG`). Group OSBs,
-  `BIT`, `CONFIG` and `PAGE` are state OSBs. `PAGE` cycles and wraps. `MENU` links to `/`.
+  `BIT`, `CONFIG` and `PAGE` are state OSBs. `PAGE` cycles and wraps. `MENU` links to `/ddi`.
 - **Tests (ours).** A check's legend, `ALL` or `AUTO` starts a test: the status shows `IN TEST` for 1.5 s, then the
   check's `afterTest` status. `STOP` aborts every running test; the checks keep their old status. Group blocks
   summarise their checks: `IN TEST` while any runs, else the most severe failing status, else `GO`. Results survive

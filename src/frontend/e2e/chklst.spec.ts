@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 test("SUPT PB11 CHKLST opens /chklst, and MENU returns to TAC", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   await page.getByRole("button", { name: "Support menu" }).click();
   const checklist = page.locator(".ddi-osb[data-pb='11']");
   await expect(checklist).toHaveAccessibleName("Pre-flight checklist");
@@ -15,7 +15,7 @@ test("SUPT PB11 CHKLST opens /chklst, and MENU returns to TAC", async ({
   ).toBeAttached();
 
   await page.getByRole("link", { name: "Tactical menu" }).click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
 });
 
 test("has no legend but MENU, as in DCS, so a press elsewhere keeps the URL", async ({

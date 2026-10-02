@@ -7,7 +7,7 @@ function osb(page: Page, pb: number): ReturnType<Page["locator"]> {
 }
 
 test("TAC PB9 opens Links on press", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   await expect(osb(page, 9)).toHaveAccessibleName("Links");
   await osb(page, 9).hover();
   await page.mouse.down();

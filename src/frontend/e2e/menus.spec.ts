@@ -2,10 +2,10 @@ import { expect, test } from "@playwright/test";
 import { ALL_PAGES, menuPages } from "../src/ddi/pages/registry";
 import { SITE_URL } from "../src/lib/site";
 
-test("PB18 toggles TAC and SUPT in place on press, and the URL stays /", async ({
+test("PB18 toggles TAC and SUPT in place on press, and the URL stays /ddi", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   const historyLength = await page.evaluate(() => history.length);
   const pb18 = page.locator(".ddi-osb[data-pb='18']");
   await expect(pb18).toHaveAccessibleName("Support menu");
@@ -15,18 +15,18 @@ test("PB18 toggles TAC and SUPT in place on press, and the URL stays /", async (
   await page.mouse.down();
   await expect(pb18).toHaveAccessibleName("Tactical menu");
   await page.mouse.up();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
   expect(await page.evaluate(() => history.length)).toBe(historyLength);
 
   await pb18.click();
   await expect(pb18).toHaveAccessibleName("Support menu");
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
 });
 
 test("the page opens on TAC every time, including after a reload", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   await page.getByRole("button", { name: "Support menu" }).click();
   await expect(
     page.getByRole("button", { name: "Tactical menu" }),
@@ -40,7 +40,7 @@ test("the page opens on TAC every time, including after a reload", async ({
 test("TAC shows MENU and a legend for each shipped page only", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   const shipped = menuPages("TAC").length;
   const legends = page.locator(".ddi-osb:not([aria-hidden='true'])");
   await expect(legends).toHaveCount(1 + shipped);
@@ -59,7 +59,7 @@ test("/supt no longer exists", async ({ request }) => {
 test("serves both menus' semantic content without JavaScript", async ({
   request,
 }) => {
-  const html = await (await request.get("/")).text();
+  const html = await (await request.get("/ddi")).text();
   expect(html).toContain('<main id="content"');
   expect(html).toContain("<h2>Tactical menu</h2>");
   expect(html).toContain("<h2>Support menu</h2>");
@@ -72,7 +72,7 @@ test("serves both menus' semantic content without JavaScript", async ({
 test("the plain view lists both menus and hides the state OSB", async ({
   page,
 }) => {
-  await page.goto("/?view=plain");
+  await page.goto("/ddi?view=plain");
   await expect(
     page.getByRole("heading", { level: 2, name: "Tactical menu" }),
   ).toBeVisible();

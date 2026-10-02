@@ -25,7 +25,7 @@ async function press(page: Page, pb: number): Promise<void> {
 test("TAC PB10 PROJECTS opens /projects, and MENU returns to TAC", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   const projects = osb(page, 10);
   await expect(projects).toHaveAccessibleName("Projects");
   await projects.click();
@@ -36,7 +36,7 @@ test("TAC PB10 PROJECTS opens /projects, and MENU returns to TAC", async ({
   );
 
   await press(page, 18);
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
   await expect(osb(page, 18)).toHaveAccessibleName("Support menu");
 });
 

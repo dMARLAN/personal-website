@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test("SUPT PB15 FCS opens /fcs, and MENU returns to TAC", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   await page.getByRole("button", { name: "Support menu" }).click();
   const fcs = page.locator(".ddi-osb[data-pb='15']");
   await expect(fcs).toHaveAccessibleName("Flight controls, simulated");
@@ -13,7 +13,7 @@ test("SUPT PB15 FCS opens /fcs, and MENU returns to TAC", async ({ page }) => {
   ).toBeAttached();
 
   await page.getByRole("link", { name: "Tactical menu" }).click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
   await expect(
     page.getByRole("button", { name: "Support menu" }),
   ).toBeVisible();

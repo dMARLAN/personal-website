@@ -2,6 +2,7 @@ import type { LegendSpec } from "../frame/types";
 import type { Pb } from "../geometry";
 
 export type PageId =
+  | "home"
   | "menu"
   | "about"
   | "resume"
@@ -16,7 +17,7 @@ export type PageId =
   | "chklst"
   | "bit";
 
-/** The two menus. Both live at `/`: they are in-section state, not URLs (docs/design.md section 9.4). */
+/** The two menus. Both live at `/ddi`: they are in-section state, not URLs (docs/design.md section 9.4). */
 export const MENU_NAMES = ["TAC", "SUPT"] as const;
 export type MenuName = (typeof MENU_NAMES)[number];
 
@@ -30,7 +31,8 @@ export interface PageDef {
   id: PageId;
   /** The section's URL. In-section state (sublevels, STEP, PAGE) has none (docs/design.md section 9.4). */
   path: string;
-  kind: "menu" | "section" | "showcase";
+  /** `home` is the standard homepage at `/`, outside the DDI. */
+  kind: "home" | "menu" | "section" | "showcase";
   /** The page's legend on a menu: lines outermost first, for example ["RDR", "ATTK"]. */
   menu?: { on: MenuName; pb: Pb; legend: readonly string[] };
   /** The accessible name of OSBs that open the page, and the page's `<h1>`. */
@@ -41,11 +43,18 @@ export interface PageDef {
 
 /** The single source for routes, menus and the sitemap (docs/design.md sections 9.3 and 12). */
 export const PAGES: Readonly<Record<PageId, PageDef>> = {
+  home: {
+    id: "home",
+    path: "/",
+    kind: "home",
+    label: "Home",
+    available: true,
+  },
   menu: {
     id: "menu",
-    path: "/",
+    path: "/ddi",
     kind: "menu",
-    label: "Menu",
+    label: "F/A-18C DDI",
     available: true,
   },
   about: {
@@ -148,7 +157,7 @@ export const PAGES: Readonly<Record<PageId, PageDef>> = {
 
 export const ALL_PAGES: readonly PageDef[] = Object.values(PAGES);
 
-/** PB18 is `MENU` on every page [fnd §5.5]. On the menu it toggles TAC and SUPT in place; elsewhere it opens `/` (TAC). */
+/** PB18 is `MENU` on every page [fnd §5.5]. On the menu it toggles TAC and SUPT in place; elsewhere it opens `/ddi` (TAC). */
 export const MENU_PB: Pb = 18;
 
 function linkLegend(

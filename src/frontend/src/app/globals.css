@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "../ddi/primitives/emissive.css";
 @import "../theme/theme.css";
+@import "../theme/toggle.css";
 @import "../ddi/frame/frame.css";
 
 @custom-variant dark (&:is(.dark *));

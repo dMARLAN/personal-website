@@ -250,7 +250,7 @@ describe("the projects screens", () => {
     for (const { legends } of Object.values(SCREENS.screens)) {
       expect(legends.find((legend) => legend.pb === 18)).toMatchObject({
         lines: ["MENU"],
-        action: { kind: "link", href: "/" },
+        action: { kind: "link", href: "/ddi" },
       });
     }
   });

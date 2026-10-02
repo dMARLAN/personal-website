@@ -9,7 +9,7 @@ async function squarePaths(page: Page): Promise<string[]> {
 }
 
 test("SUPT PB12 ENG opens /server", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   await page.getByRole("button", { name: "Support menu" }).click();
   const eng = page.locator(".ddi-osb[data-pb='12']");
   await expect(eng).toHaveAccessibleName("Home server, simulated");
@@ -50,10 +50,10 @@ test.describe("under reduced motion", () => {
   });
 });
 
-test("PB18 MENU returns to / on TAC", async ({ page }) => {
+test("PB18 MENU returns to /ddi on TAC", async ({ page }) => {
   await page.goto("/server");
   await page.getByRole("link", { name: "Tactical menu" }).click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
   await expect(
     page.getByRole("button", { name: "Support menu" }),
   ).toBeVisible();
@@ -66,7 +66,7 @@ test("serves the metrics table and the MENU link without JavaScript", async ({
   expect(html).toContain("<caption>Host metrics</caption>");
   expect(html).toContain("Load average (1 minute)");
   expect(html).toContain("3.40");
-  expect(html).toMatch(/<a(?=[^>]*data-pb="18")(?=[^>]*href="\/")[^>]*>/);
+  expect(html).toMatch(/<a(?=[^>]*data-pb="18")(?=[^>]*href="\/ddi")[^>]*>/);
   expect(html).toContain(
     '<link rel="canonical" href="https://chad.hambley.org/server"',
   );
