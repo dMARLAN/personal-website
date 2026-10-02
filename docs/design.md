@@ -262,7 +262,8 @@ to dim the scene.
   ring (`--lip-light`), OSB (`--osb-up`, `--osb-down`), knob and placard (`--knob-*`, `--placard*`), night panel
   lighting (`--panel-*`), screen (`--screen-*`), emissive (`--ddi-bloom-*`), toggle and focus
   (`--theme-toggle-ink`, `--focus-ring`) and plain view (`--plain-*`). The bezel, lip, OSB and knob tokens point
-  at the baked images of section 4.5; each theme has its own set. A later theme change edits one group.
+  at the baked images of section 4.5; each theme has its own set. A later theme change edits one group. The
+  standard homepage has its own token set in `src/home/home.css` (section 10.3).
 - **Toggle contrast.** The ink is a light neutral on each bezel, not a black/white flip: `#d0d2d0` on the day
   face `#2f302f` (8.7:1) and a mid grey `#8f9290` on the night face `#141615` (5.8:1), so it does not
   glare in a dark room. In plain view it uses `--plain-toggle-ink`.
@@ -801,8 +802,21 @@ Recruiters land on a conventional page first. The DDI is one click away.
   Body text is IBM Plex Sans; numbers and labels use IBM Plex Mono (both via `next/font`).
 - **Theme.** The same `data-theme` and `localStorage["site:theme:v1"]` as the DDI, so a choice carries
   across. A theme-only pre-paint script (`src/theme/prepaint.ts`) sets it before first paint. Day is a light
-  page; night is a near-black, green-tinged page. The accent is the DDI green family: `#1a7300` by day,
-  `#5cc93a` at night, both at least 4.5:1 on their backgrounds.
+  page; night is a near-black, green-tinged page. The accent is the DDI green family: `#1a6600` by day,
+  `#5cc93a` at night, both at least 4.5:1 on their backgrounds. The tokens live in `src/home/home.css`.
+- **Day palette.** A pale sage-grey, never pure white, so the page does not glare. The page is the middle
+  layer; cards sit one step lighter and inset panels one step darker, split by borders.
+
+  | Token | Day | Contrast |
+  |---|---|---|
+  | `--page` / header blur | `#e3e7df` / `rgb(227 231 223 / 0.82)` | |
+  | `--surface` (cards) | `#edf0ea` | |
+  | `--surface-2` (inset panels, hovers) | `#d9dfd4` | |
+  | `--border` / `--border-strong` | `#cdd3c6` / `#b2baab` | |
+  | `--ink` | `#161a15` | 14.1:1 page, 15.3:1 surface, 13.0:1 surface-2 |
+  | `--ink-muted` | `#454c41` | 7.1:1 page, 7.7:1 surface, 6.5:1 surface-2 |
+  | `--accent` (links, tags, eyebrows) | `#1a6600` | 5.7:1 page, 6.2:1 surface, 5.6:1 on a tag |
+  | `--accent-fill` / hover, `--on-accent` | `#1a6600` / `#145200`, `#ffffff` | 7.1:1 / 9.4:1 |
 - **Back to the homepage.** Every DDI page has a home button just left of the theme toggle, in the same
   style: 28 px, no background, a 1 px circular border in `--theme-toggle-ink`, 8 px gap. It is a link named
   "Exit to the standard homepage".
