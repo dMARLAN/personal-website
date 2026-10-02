@@ -10,7 +10,7 @@ SQLite at `$STORAGE_DATA_DIR/site.db`, one API replica.
   autogenerates `000N_add_x.py` against a throwaway database at head. Review it; `render_as_batch` rebuilds tables
   where SQLite cannot `ALTER`.
 - **Content schema changes** (a field added, renamed or re-limited in `content/`) need a data migration that rewrites
-  the stored JSON in `content_section`, because reads validate every stored document and fail loudly on a mismatch.
-  Do the transform in the migration with plain JSON, never by importing the current Pydantic models: they change
-  after the migration is written.
+  the stored JSON in `content_section` and `content_draft`, because reads validate every stored document and draft
+  and fail loudly on a mismatch. Do the transform in the migration with plain JSON, never by importing the current
+  Pydantic models: they change after the migration is written.
 - `tests/db/test_migrations.py` checks that migrations apply to an empty database and match `models.py`.

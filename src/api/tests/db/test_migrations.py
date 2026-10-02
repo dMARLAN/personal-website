@@ -4,6 +4,7 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
+import pytest
 from alembic import command
 from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
@@ -33,10 +34,32 @@ def test_upgrade_creates_the_schema_on_an_empty_database(tmp_path: Path) -> None
     upgrade(db_path)
 
     # Assert
-    assert {"content_section", "admin_session", "alembic_version"} <= _tables(db_path)
+    assert {"content_section", "content_draft", "admin_session", "alembic_version"} <= _tables(db_path)
     head = ScriptDirectory.from_config(alembic_config(db_path)).get_current_head()
     with closing(sqlite3.connect(db_path)) as connection:
         assert connection.execute("SELECT version_num FROM alembic_version").fetchall() == [(head,)]
+
+
+def test_downgrading_past_drafts_drops_only_the_draft_table(tmp_path: Path) -> None:
+    # Arrange
+    db_path = tmp_path / "site.db"
+    upgrade(db_path)
+
+    # Act
+    command.downgrade(alembic_config(db_path), "0003")
+
+    # Assert
+    tables = _tables(db_path)
+    assert "content_draft" not in tables
+    assert "content_section" in tables
+
+
+def test_a_draft_must_be_json(tmp_path: Path) -> None:
+    db_path = tmp_path / "site.db"
+    upgrade(db_path)
+
+    with closing(sqlite3.connect(db_path)) as connection, pytest.raises(sqlite3.IntegrityError):
+        connection.execute("INSERT INTO content_draft VALUES ('profile', 'not json', '2026-10-02T00:00:00+00:00')")
 
 
 def test_upgrade_twice_is_a_no_op(tmp_path: Path) -> None:

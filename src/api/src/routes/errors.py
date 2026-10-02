@@ -18,7 +18,7 @@ from services.auth.types import (
     LoginThrottledError,
     NotAuthenticatedError,
 )
-from services.content.types import PreconditionFailedError
+from services.content.types import DraftNotFoundError, PreconditionFailedError
 from services.resume.types import NotAPdfError, ResumeNotFoundError, ResumeTooLargeError
 
 
@@ -37,6 +37,7 @@ _ERROR_RESPONSES: Final[dict[type[Exception], _ErrorResponse]] = {
     NotAPdfError: _ErrorResponse(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, "NOT_A_PDF"),
     ResumeTooLargeError: _ErrorResponse(status.HTTP_413_CONTENT_TOO_LARGE, "FILE_TOO_LARGE"),
     ResumeNotFoundError: _ErrorResponse(status.HTTP_404_NOT_FOUND, "RESUME_NOT_FOUND"),
+    DraftNotFoundError: _ErrorResponse(status.HTTP_404_NOT_FOUND, "DRAFT_NOT_FOUND"),
 }
 
 

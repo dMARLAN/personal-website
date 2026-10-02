@@ -14,6 +14,16 @@ class StoredSection(BaseModel):
     updated_at: datetime
 
 
+class StoredDraft(BaseModel):
+    """A `content_draft` row. `document` is the JSON text the API validated on write."""
+
+    model_config = ConfigDict(frozen=True)
+
+    section: str
+    document: str
+    updated_at: datetime
+
+
 class AdminSessionRecord(BaseModel):
     """An `admin_session` row."""
 

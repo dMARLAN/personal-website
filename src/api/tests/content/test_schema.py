@@ -243,11 +243,15 @@ def test_each_section_has_named_request_and_response_components(openapi: Schema,
     # Arrange
     model = SiteContent.model_fields[section.value].annotation.__name__  # pyright: ignore[reportOptionalMemberAccess]
     content = openapi["paths"][f"/api/admin/content/{section}"]
+    draft = openapi["paths"][f"/api/admin/drafts/{section}"]
 
     def response_ref(operation: Schema) -> str:
         return operation["responses"]["200"]["content"]["application/json"]["schema"]["$ref"]
 
     # Assert
     assert _section_body(openapi, section)["$ref"] == f"{_REF_PREFIX}{model}"
+    assert draft["put"]["requestBody"]["content"]["application/json"]["schema"]["$ref"] == f"{_REF_PREFIX}{model}"
     assert response_ref(content["get"]) == f"{_REF_PREFIX}SectionState_{model}_"
     assert response_ref(content["put"]) == f"{_REF_PREFIX}SavedSection_{model}_"
+    assert response_ref(draft["get"]) == f"{_REF_PREFIX}SectionDraft_{model}_"
+    assert response_ref(draft["put"]) == f"{_REF_PREFIX}SectionDraft_{model}_"

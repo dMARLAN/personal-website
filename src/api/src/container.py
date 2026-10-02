@@ -26,6 +26,7 @@ class Container(containers.DeclarativeContainer):
             "routes.resume.route",
             "routes.admin.auth.route",
             "routes.admin.content.route",
+            "routes.admin.drafts.route",
             "routes.admin.resume.route",
         ]
     )

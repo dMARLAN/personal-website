@@ -20,7 +20,7 @@ Routes → services → repos, as in wedding-website. Each layer has a CLAUDE.md
 - `src/cli.py`: `migrate`, `backup`, `hash-password`, `revision`, `content-snapshot`
   (`uv run python src/cli.py --help`).
 
-Why no separate `src/db` workspace member, as wedding has: the API is the only consumer, the schema is two tables,
+Why no separate `src/db` workspace member, as wedding has: the API is the only consumer, the schema is three tables,
 and the seed and migrations validate against the content schemas that live here. A second package would add a
 pyproject, Makefile, CI filter and Dockerfile steps without any reuse.
 

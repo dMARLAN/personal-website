@@ -15,6 +15,7 @@ from db.migrate import upgrade
 from proj_logging.logger import get_logger
 from routes.admin.auth.route import router as admin_auth_router
 from routes.admin.content.route import router as admin_content_router
+from routes.admin.drafts.route import router as admin_drafts_router
 from routes.admin.resume.route import router as admin_resume_router
 from routes.content.route import router as content_router
 from routes.errors import register_error_handlers
@@ -63,6 +64,7 @@ def create_app(container: Container) -> FastAPI:
     app.include_router(resume_router, prefix="/api")
     app.include_router(admin_auth_router, prefix="/api/admin")
     app.include_router(admin_content_router, prefix="/api/admin/content")
+    app.include_router(admin_drafts_router, prefix="/api/admin/drafts")
     app.include_router(admin_resume_router, prefix="/api/admin/resume")
     return app
 
