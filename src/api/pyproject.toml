@@ -1,0 +1,16 @@
+[project]
+name = "personal-website-api"
+version = "0.1.0"
+description = "Personal website API"
+requires-python = ">=3.14"
+dependencies = [
+    "dependency-injector>=4.49.1",
+    "fastapi>=0.142.2",
+    "pydantic>=2.13.5",
+    "pydantic-settings>=2.15.0",
+    "uvicorn>=0.54.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+addopts = ["--import-mode=importlib"]

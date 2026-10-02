@@ -18,8 +18,24 @@
 # deps / build
 node_modules/
 .venv/
+.next/
+out/
+build/
+dist/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
 
 # editor / OS
 .idea/
 .vscode/*
 .DS_Store
+
+# third-party reference figures (copyrighted, local only)
+docs/research/figures/

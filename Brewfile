@@ -1,0 +1,6 @@
+brew "gcc"
+brew "uv"
+brew "kind"
+brew "tilt"
+brew "ctlptl"
+brew "kubectl"

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: personal-website-api-config
+  namespace: personal-website
+data:
+  PYTHONPATH: "/app/src/api/src"
+  # "*" is acceptable here: only the ingress can reach the pod inside the cluster, so every
+  # peer that connects is a trusted proxy whose X-Forwarded-For carries the real client IP.
+  FORWARDED_ALLOW_IPS: "*"
+  APP_FRONTEND_BASE_URL: "http://localhost:3000"
