@@ -12,6 +12,7 @@ export function pageMetadata(id: PageId, description: string): Metadata {
     title: page.label,
     description,
     alternates: { canonical: page.path },
+    ...(page.noindex && { robots: { index: false, follow: false } }),
     openGraph: {
       type: "website",
       siteName: SITE_NAME,

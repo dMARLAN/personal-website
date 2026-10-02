@@ -82,14 +82,17 @@ test("the plain view lists both menus and hides the state OSB", async ({
   await expect(page.locator(".ddi-osb[data-pb='18']")).toBeHidden();
 });
 
-test("lists / and every shipped section, but not /supt, in the sitemap", async ({
+test("lists / and every shipped, indexed section, but not /supt, in the sitemap", async ({
   request,
 }) => {
   const sitemap = await (await request.get("/sitemap.xml")).text();
   for (const page of ALL_PAGES.filter((candidate) => candidate.available)) {
-    expect(sitemap).toContain(
-      `<loc>${new URL(page.path, SITE_URL).toString()}</loc>`,
-    );
+    const loc = `<loc>${new URL(page.path, SITE_URL).toString()}</loc>`;
+    if (page.noindex) {
+      expect(sitemap).not.toContain(loc);
+    } else {
+      expect(sitemap).toContain(loc);
+    }
   }
   expect(sitemap).not.toContain("/supt");
   const robots = await (await request.get("/robots.txt")).text();

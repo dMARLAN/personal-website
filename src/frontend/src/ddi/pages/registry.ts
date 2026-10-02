@@ -15,7 +15,8 @@ export type PageId =
   | "fcs"
   | "fuel"
   | "chklst"
-  | "bit";
+  | "bit"
+  | "mumi";
 
 /** The two menus. Both live at `/ddi`: they are in-section state, not URLs (docs/design.md section 9.4). */
 export const MENU_NAMES = ["TAC", "SUPT"] as const;
@@ -39,6 +40,8 @@ export interface PageDef {
   label: string;
   /** False hides the menu legend until the page ships, as DCS hides unavailable formats (`FormatLabelShow`). */
   available: boolean;
+  /** Keeps the page out of search engines and the sitemap. */
+  noindex?: true;
 }
 
 /** The single source for routes, menus and the sitemap (docs/design.md sections 9.3 and 12). */
@@ -152,6 +155,15 @@ export const PAGES: Readonly<Record<PageId, PageDef>> = {
     menu: { on: "SUPT", pb: 8, legend: ["BIT"] },
     label: "Built-in test, simulated",
     available: true,
+  },
+  mumi: {
+    id: "mumi",
+    path: "/mumi",
+    kind: "showcase",
+    menu: { on: "SUPT", pb: 10, legend: ["MUMI"] },
+    label: "Mission initialization, simulated",
+    available: true,
+    noindex: true,
   },
 };
 
