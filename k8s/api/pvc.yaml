@@ -1,0 +1,13 @@
+# The API's data volume: site.db (SQLite, WAL) and resume.pdf. kind's default `standard` StorageClass
+# (local-path) provisions it on the node, so it survives pod restarts and `tilt down`/`tilt up`.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: personal-website-api-data
+  namespace: personal-website
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

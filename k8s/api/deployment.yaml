@@ -5,6 +5,9 @@ metadata:
   namespace: personal-website
 spec:
   replicas: 1
+  # SQLite has one writer and the volume is ReadWriteOnce: stop the old pod before starting the new one.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: personal-website-api
@@ -21,3 +24,12 @@ spec:
         envFrom:
         - configMapRef:
             name: personal-website-api-config
+        - secretRef:
+            name: personal-website-api-secrets
+        volumeMounts:
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: personal-website-api-data

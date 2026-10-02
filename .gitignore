@@ -43,3 +43,8 @@ docs/research/figures/
 # bezel material bakes: downloaded CC0 sources and full-size masters (scripts/materials)
 scripts/materials/.sources/
 scripts/materials/.build/
+
+# API data and backups from `make run` / `make backup` outside the cluster (SQLite database, resume PDF)
+src/api/.data/
+src/api/.backups/
+/backups/

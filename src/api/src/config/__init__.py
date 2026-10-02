@@ -1,11 +1,19 @@
 from pydantic import Field
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
+from config._admin_auth import AdminAuthConfig
 from config._app import AppConfig
+from config._revalidate import RevalidateConfig
+from config._storage import StorageConfig
 
 
 class Config(BaseSettings):
+    # The ignores: pyright reads required settings fields as required constructor arguments, but BaseSettings fills
+    # them from the environment, and fails at startup if they are unset.
     app: AppConfig = Field(default_factory=AppConfig)
+    storage: StorageConfig = Field(default_factory=StorageConfig)  # pyright: ignore[reportArgumentType]
+    admin_auth: AdminAuthConfig = Field(default_factory=AdminAuthConfig)
+    revalidate: RevalidateConfig = Field(default_factory=RevalidateConfig)  # pyright: ignore[reportArgumentType]
 
     @classmethod
     def settings_customise_sources(  # noqa: PLR0913, PLR0917

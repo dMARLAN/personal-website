@@ -2,15 +2,14 @@
 
 Chad's personal website, to be served at <https://chad.hambley.org>.
 
-This is a skeleton. The frontend is one placeholder page with neutral styling, and the API serves only
-`GET /health`. The visual design will be an F/A-18C Hornet DDI (digital display indicator) theme, built later from
-the research in [`docs/research/`](docs/research/).
+The site is an F/A-18C Hornet DDI (digital display indicator), designed in [`docs/design.md`](docs/design.md). Its
+content is edited in `/admin` and stored by the API in SQLite (design section 13).
 
 ## Architecture
 
 | Package | Stack | What it is |
 |---|---|---|
-| `src/api` | FastAPI, `dependency-injector`, pydantic-settings | The API (`personal-website-api`), a uv workspace member. |
+| `src/api` | FastAPI, `dependency-injector`, pydantic-settings, SQLAlchemy + Alembic on SQLite | The API (`personal-website-api`), a uv workspace member: content storage and validation, admin auth, the resume PDF. |
 | `src/frontend` | Next.js (App Router), TypeScript, Tailwind v4, shadcn/ui | The site. Talks to the API through a generated `openapi-fetch` client (`npm run openapi:gen`). |
 
 The site owner's display name is set once, in `src/frontend/src/lib/site.ts`.
@@ -39,6 +38,20 @@ is shared between the two clusters.
 If this machine is on a tailnet, the Tiltfile prints a URL to share the dev site over Tailscale and adds the tailnet
 hosts to the API's `APP_CORS_ORIGINS` and the frontend's `ALLOWED_DEV_ORIGINS`.
 
+## Admin and content data
+
+- Admin login needs an argon2 hash of the password: `make -C src/api hash-password`. For Tilt, export it as
+  `ADMIN_AUTH_PASSWORD_HASH` before `make tilt-up`; in production it goes in the `personal-website-api-secrets`
+  Secret (template: `k8s/api/secret.example.yaml`). The session cookie is `Secure`, so sign in over `localhost`
+  or HTTPS.
+- The API keeps `site.db` (SQLite, WAL) and `resume.pdf` on its data volume (`STORAGE_DATA_DIR`; a PVC in the
+  cluster). A fresh volume is seeded with the placeholder content.
+- **Backups.** `make backup-api` takes an online backup from the API pod in the current kube context into
+  `./backups/<timestamp>/`. It runs `cli.py backup` in the pod, which uses SQLite's online backup API (what
+  `sqlite3 site.db ".backup out.db"` does), so it is consistent while the API serves, and copies `resume.pdf` too.
+  Outside the cluster, `make -C src/api backup` backs up the data dir in `src/api/.env`. To restore, stop the API,
+  put the backup in place as `site.db` (removing any `site.db-wal` and `site.db-shm`), and start it again.
+
 ## Make targets
 
 The root `Makefile` fans out to the packages. Each of `install` / `format` / `format_diff` / `validate` / `ci` also
@@ -52,6 +65,7 @@ has per-package variants (`make validate-api`, `make ci-frontend`, ...).
 | `make validate` | Format check, lint (Ruff / ESLint), types (Pyright / tsc), tests (pytest / Vitest). |
 | `make ci` | What CI runs: `validate` plus the API Docker build and the frontend production build. |
 | `make tilt-up` / `make tilt-down` / `make tilt-reset` | Start / stop / restart the local cluster + Tilt. |
+| `make backup-api` | Online backup of the API's database and resume PDF from the cluster into `./backups`. |
 
 ## Bezel materials
 

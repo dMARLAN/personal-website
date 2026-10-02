@@ -9,3 +9,7 @@ data:
   # peer that connects is a trusted proxy whose X-Forwarded-For carries the real client IP.
   FORWARDED_ALLOW_IPS: "*"
   APP_FRONTEND_BASE_URL: "http://localhost:3000"
+  # The SQLite database and the resume PDF live on the data volume (deployment.yaml).
+  STORAGE_DATA_DIR: "/data"
+  # The Next.js on-demand revalidation route (docs/design.md section 13).
+  REVALIDATE_URL: "http://personal-website-frontend:3000/api/revalidate"

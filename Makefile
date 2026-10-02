@@ -5,7 +5,7 @@
 	validate validate-api validate-frontend \
 	ci ci-api ci-frontend e2e \
 	bootstrap system-deps local-cluster tilt-up tilt-down tilt-reset \
-	dcs-assets
+	dcs-assets backup-api
 
 DCS_ROOT ?= /mnt/f/Program Files/Eagle Dynamics/DCS World
 
@@ -90,3 +90,7 @@ tilt-reset: tilt-down tilt-up
 # Regenerates the stroke font and symbols from a local DCS install. CI never runs this.
 dcs-assets:
 	DCS_ROOT="$(DCS_ROOT)" uv run --no-project scripts/extract_dcs_assets.py
+
+# Online backup of the API's SQLite database and resume PDF from the pod in the current kube context, into ./backups.
+backup-api:
+	./scripts/backup-api-data.sh
