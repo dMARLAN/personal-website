@@ -4,24 +4,33 @@ test("the keyboard reaches the skip link, the OSBs, the knobs, then the theme to
   page,
 }) => {
   await page.goto("/");
-  await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Text view" })).toBeFocused();
-  // The semantic layer's links to shipped pages come next, in <main>.
-  const pageLinks = await page.locator("main a").count();
-  for (let index = 0; index < pageLinks; index += 1) {
-    await page.keyboard.press("Tab");
-    await expect(page.locator("main a").nth(index)).toBeFocused();
-  }
-  const order = [
-    page.getByRole("button", { name: "Support menu" }),
+  // DOM order (design section 10.2): the skip link, the semantic layer's links to shipped pages, their legends in PB
+  // order and PB18, the knobs, then the toggle. The semantic layer is visually hidden in DDI mode, so its links take
+  // focus out of view: an open question for Chad (docs/pages/resume.md).
+  const semanticLinks = page.locator("main a");
+  const osbs = page.locator(".ddi-osbs .ddi-osb:not([tabindex='-1'])");
+  await expect(osbs.last()).toHaveAccessibleName("Support menu");
+  const all = async (locator: typeof osbs): Promise<(typeof osbs)[]> =>
+    Array.from({ length: await locator.count() }, (_, index) =>
+      locator.nth(index),
+    );
+  const visible = [
+    ...(await all(osbs)),
     page.getByRole("slider", { name: "Brightness" }),
     page.getByRole("slider", { name: "Contrast" }),
     page.getByRole("button", { name: "Night mode" }),
   ];
+  const order = [
+    page.getByRole("link", { name: "Text view" }),
+    ...(await all(semanticLinks)),
+    ...visible,
+  ];
   for (const target of order) {
     await page.keyboard.press("Tab");
     await expect(target).toBeFocused();
-    await expect(target).toBeInViewport();
+    if (visible.includes(target) || order[0] === target) {
+      await expect(target).toBeInViewport();
+    }
   }
 });
 

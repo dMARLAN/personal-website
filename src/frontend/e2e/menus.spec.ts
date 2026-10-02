@@ -35,11 +35,19 @@ test("the page opens on TAC every time, including after a reload", async ({
   ).toBeVisible();
 });
 
-test("the menus show only MENU until pages ship", async ({ page }) => {
+test("the menus show MENU and the shipped pages' legends only", async ({
+  page,
+}) => {
   await page.goto("/");
   const legends = page.locator(".ddi-osb:not([aria-hidden='true'])");
-  await expect(legends).toHaveCount(1);
-  await expect(page.locator(".ddi-osb[aria-hidden='true']")).toHaveCount(19);
+  const count = await legends.count();
+  expect(count).toBeGreaterThanOrEqual(1);
+  await expect(page.locator(".ddi-osb[aria-hidden='true']")).toHaveCount(
+    20 - count,
+  );
+  await expect(page.locator(".ddi-osb[data-pb='18']")).toHaveAccessibleName(
+    "Support menu",
+  );
 });
 
 test("/supt no longer exists", async ({ request }) => {

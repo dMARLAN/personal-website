@@ -95,20 +95,42 @@ describe("the page registry", () => {
     for (const menu of MENUS) {
       const shipped = ALL_PAGES.filter(
         (page) => page.available && page.menu?.on === menu,
-      ).map((page) => page.menu?.pb);
-      expect(menuLegends(menu).map(({ pb }) => pb)).toEqual([
+      ).map((page) => [page.menu?.pb, page.menu?.legend]);
+      expect(menuLegends(menu).map(({ pb, lines }) => [pb, lines])).toEqual([
         ...shipped,
-        MENU_PB,
+        [18, ["MENU"]],
       ]);
     }
   });
 
+  it("shows RESUME at TAC PB6 and WORK at TAC PB7", () => {
+    const legends = menuLegends("TAC").map(({ pb, lines, action }) => [
+      pb,
+      lines,
+      action,
+    ]);
+    expect(legends).toContainEqual([
+      6,
+      ["RESUME"],
+      { kind: "link", href: "/resume" },
+    ]);
+    expect(legends).toContainEqual([
+      7,
+      ["WORK"],
+      { kind: "link", href: "/work" },
+    ]);
+  });
+
   it("toggles TAC and SUPT in place with PB18: in-section state, not a URL", () => {
-    const tacMenu = menuLegends("TAC").find(({ pb }) => pb === MENU_PB);
-    const suptMenu = menuLegends("SUPT").find(({ pb }) => pb === MENU_PB);
-    if (tacMenu === undefined || suptMenu === undefined) {
-      throw new Error("a menu has no PB18 legend");
-    }
+    const pb18 = (menu: MenuName): ReturnType<typeof menuLegends>[number] => {
+      const legend = menuLegends(menu).find(({ pb }) => pb === MENU_PB);
+      if (legend === undefined) {
+        throw new Error(`${menu} has no PB18 legend`);
+      }
+      return legend;
+    };
+    const tacMenu = pb18("TAC");
+    const suptMenu = pb18("SUPT");
     expect(tacMenu.action).toEqual({ kind: "state", state: "SUPT" });
     expect(suptMenu.action).toEqual({ kind: "state", state: "TAC" });
     expect([tacMenu.label, suptMenu.label]).toEqual([
@@ -123,9 +145,11 @@ describe("the page registry", () => {
     expect(ALL_PAGES.some((page) => page.path === "/supt")).toBe(false);
   });
 
-  it("lists / and each shipped page in the sitemap: SUPT has no URL of its own", () => {
+  it("lists / and the shipped sections in the sitemap: SUPT has no URL of its own", () => {
     const urls = sitemap().map(({ url }) => url);
     expect(urls).toContain(`${SITE_URL}/`);
+    expect(urls).toContain(`${SITE_URL}/resume`);
+    expect(urls).toContain(`${SITE_URL}/work`);
     expect(urls).toContain(`${SITE_URL}/server`);
     expect(urls).not.toContain(`${SITE_URL}/supt`);
   });
