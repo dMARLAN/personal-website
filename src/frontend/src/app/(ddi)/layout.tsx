@@ -4,6 +4,7 @@ import { PREPAINT_SCRIPT } from "@/ddi/controls/prepaint";
 import { DEFAULT_CONTROLS, controlsStyle } from "@/ddi/controls/state";
 import { HomeLink } from "@/ddi/HomeLink";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { PreviewBridge } from "@/preview/PreviewBridge";
 import { ThemeToggle } from "@/theme/ThemeToggle";
 import "../globals.css";
 
@@ -51,6 +52,7 @@ export default function DdiLayout({
         {children}
         <HomeLink />
         <ThemeToggle />
+        <PreviewBridge />
       </body>
     </html>
   );

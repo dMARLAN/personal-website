@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { SITE_URL } from "@/lib/site";
+import { PreviewBridge } from "@/preview/PreviewBridge";
 import { THEME_PREPAINT_SCRIPT } from "@/theme/prepaint";
 import "@/home/home.css";
 import "@/theme/toggle.css";
@@ -49,7 +50,10 @@ export default function HomeLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_PREPAINT_SCRIPT }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <PreviewBridge />
+      </body>
     </html>
   );
 }
