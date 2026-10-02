@@ -17,40 +17,43 @@ export interface Profile {
   bio: string;
 }
 
-/** Resume → S/W CONFIGURATION [pgB §3]. */
+/** Resume → S/W CONFIGURATION [pgB §3]. Limits are tested in `ddi/pages/resume.test.tsx`. */
 export interface Resume {
   /** 200 % at (0, 300); ≤ 24 chars per line. */
   title: [string, string];
-  /** ≤ 12 rows; name ≤ 7, value ≤ 15. */
-  left: { name: string; value: string }[];
-  /** ≤ 12 rows; name ≤ 7, value ≤ 12. */
-  right: { name: string; value: string }[];
+  /** Skills, with the heading the semantic layer gives them. ≤ 12 rows; name ≤ 6, value ≤ 15. */
+  left: { heading: string; rows: { name: string; value: string }[] };
+  /** Qualifications, likewise. ≤ 12 rows; name ≤ 6, value ≤ 12. */
+  right: { heading: string; rows: { name: string; value: string }[] };
   /** Committed in public/. */
   pdfPath: "/resume.pdf";
 }
 
-/** Work → BIT [pgB §3]. At most 8 employers (PB5→1, PB11→13). */
+/**
+ * Work history → our tabbed layout (docs/pages/work.md). At most 5 employers, one per top-row OSB (PB6–10). Limits
+ * are tested in `ddi/pages/work.test.tsx`.
+ */
 export interface Employer {
-  /** URL slug. */
+  /** Unique; names the employer's in-section state. */
   id: string;
-  /** Group-block label, ≤ 10 (200 DI rule). */
-  short: string;
-  /** Sublevel title, 200 %, ≤ 26. */
+  /** Top-row tab legend, ≤ 7 (the 169 DI OSB pitch). */
+  tab: string;
+  /** Header, 150 %, ≤ 30. */
   name: string;
-  /** Group-block status, for example "2021-2024", ≤ 10. */
+  /** Under the header, left. */
+  location: string;
+  /** Under the header, right, for example "2019-2023". */
   span: string;
+  /** Newest first; 1 to 4. */
   roles: Role[];
 }
 
 export interface Role {
-  /** Sublevel item legend "   CODE", ≤ 6. */
-  code: string;
-  /** Main-list status column, ≤ 13. */
+  /** Role list, ≤ 27. */
   title: string;
-  /** Main-list name column, ≤ 10. */
+  /** Role list, for example "2021-NOW"; ≤ 9. */
   span: string;
-  location: string;
-  /** Prose; paged at 17 rows × 29 chars (square tier). */
+  /** Short highlights, word-wrapped to 38 chars. They fit under the role list: 14 rows when there are 4 roles. */
   bullets: string[];
 }
 
