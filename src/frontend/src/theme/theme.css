@@ -1,45 +1,84 @@
 /*
  * Theme tokens (docs/design.md section 4.8). `data-theme` on <html> is "day" or "night"; the pre-paint script sets it
  * before first paint from the stored override or the OS colour scheme. Without JavaScript there is no attribute and
- * the day tokens apply. Each group (bezel, lip, OSB, knob and placard, screen, emissive, toggle, plain view) has its
- * own variables, so a theme can restyle one group (for example with textures) without touching the others.
+ * the day tokens apply. Each group (bezel, lip, OSB, knob and placard, panel lighting, screen, emissive, toggle, plain
+ * view) has its own variables, so a theme can restyle one group without touching the others.
+ *
+ * The bezel parts are baked images (section 4.5) in public/materials/, built by scripts/materials/. `@2x` files are
+ * 2 px per DI and `@3x` files 3 px per DI: `image-set()` offers them as 1x and 2x, so any DPR above 1 takes `@3x`
+ * (src/theme/materials.ts mirrors this for the preloads). Each theme swaps the whole set: the night bakes have their
+ * own darker, cooler light, so they are not the day images dimmed.
  */
 
 :root,
 :root[data-theme="day"] {
-  /* Bezel face: satin dark charcoal with a subtle top light [bzl §3] and (ours) a faint static grain. */
-  --bezel-face-top: #383a3b;
-  --bezel-face-bottom: #2b2d2e;
+  /* Bezel face: satin charcoal paint over powder-coat grain, with light wear [bzl §3], and a subtle top light. The
+     colour is the tile's mean, drawn until the tile arrives. */
+  --bezel-face: #2f302f;
   --bezel-sheen: rgb(255 255 255 / 0.035);
-  --bezel-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.55 -0.2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+  --bezel-tile: image-set(
+    url("/materials/bezel-tile-day.avif") type("image/avif"),
+    url("/materials/bezel-tile-day.webp") type("image/webp")
+  );
 
-  /* The recessed ring round the glass [bzl §3]. */
-  --lip-ring: #252626;
-  --lip-highlight: rgb(255 255 255 / 0.07);
+  /* The step down to the glass [bzl §3]: light and shade only, so the face tile shows through. */
+  --lip-light: image-set(
+    url("/materials/lip-9slice-day@2x.avif") type("image/avif") 1x,
+    url("/materials/lip-9slice-day@3x.avif") type("image/avif") 2x,
+    url("/materials/lip-9slice-day@2x.webp") type("image/webp") 1x,
+    url("/materials/lip-9slice-day@3x.webp") type("image/webp") 2x
+  );
 
-  /* OSB caps: blank and dark [bzl §3]; the pressed colour is ours. */
-  --osb-cap: #282829;
-  --osb-cap-pressed: #222223;
-  --osb-cap-sheen: rgb(255 255 255 / 0.025);
-  --osb-cap-highlight: rgb(255 255 255 / 0.09);
+  /* OSB caps in their wells, blank and dark [bzl §3]; the pressed cap sits deeper (ours). */
+  --osb-up: image-set(
+    url("/materials/osb-up-day@2x.avif") type("image/avif") 1x,
+    url("/materials/osb-up-day@3x.avif") type("image/avif") 2x,
+    url("/materials/osb-up-day@2x.webp") type("image/webp") 1x,
+    url("/materials/osb-up-day@3x.webp") type("image/webp") 2x
+  );
+  --osb-down: image-set(
+    url("/materials/osb-down-day@2x.avif") type("image/avif") 1x,
+    url("/materials/osb-down-day@3x.avif") type("image/avif") 2x,
+    url("/materials/osb-down-day@2x.webp") type("image/webp") 1x,
+    url("/materials/osb-down-day@3x.webp") type("image/webp") 2x
+  );
 
-  /* BRT and CONT knobs and their placards [bzl §3]. */
-  --knob-skirt: #222427;
-  --knob-face-light: #3a3e43;
-  --knob-face-mid: #25282c;
-  --knob-face-dark: #181a1d;
-  --knob-ring: #e4e6e6;
-  --knob-knurl: rgb(255 255 255 / 0.09);
-  --knob-pointer: #f2f2f2;
-  --placard: #404242;
-  --placard-ink: #ecedeb;
+  /* BRT and CONT knobs [bzl §3]: the cast shadow, the knurled body and the key light. */
+  --knob-base: image-set(
+    url("/materials/knob-base-day@2x.avif") type("image/avif") 1x,
+    url("/materials/knob-base-day@3x.avif") type("image/avif") 2x,
+    url("/materials/knob-base-day@2x.webp") type("image/webp") 1x,
+    url("/materials/knob-base-day@3x.webp") type("image/webp") 2x
+  );
+  --knob-body: image-set(
+    url("/materials/knob-body-day@2x.avif") type("image/avif") 1x,
+    url("/materials/knob-body-day@3x.avif") type("image/avif") 2x,
+    url("/materials/knob-body-day@2x.webp") type("image/webp") 1x,
+    url("/materials/knob-body-day@3x.webp") type("image/webp") 2x
+  );
+  --knob-light: image-set(
+    url("/materials/knob-light-day@2x.avif") type("image/avif") 1x,
+    url("/materials/knob-light-day@3x.avif") type("image/avif") 2x,
+    url("/materials/knob-light-day@2x.webp") type("image/webp") 1x,
+    url("/materials/knob-light-day@3x.webp") type("image/webp") 2x
+  );
+  /* The white ring on the skirt and the index line: paint, so the key light shades them. */
+  --knob-ink: #e2e3e0;
+  /* The placard is a near-black plate with white caps, as on the DCS bezel [bzl §3]. */
+  --placard: #1c1d1d;
+  --placard-edge: rgb(255 255 255 / 0.07);
+  --placard-ink: #e6e7e4;
+
+  /* Night panel lighting (ours): off by day. */
+  --panel-light: transparent;
+  --panel-halo: transparent;
+  --panel-glow: 0;
 
   /* The unlit screen (ours): near-black with a trace of green, and a darker vignette edge. */
   --screen-tint: #0a0d0a;
   --screen-edge: #050605;
 
-  /* Emissive symbology (section 6.2): the halo's falloff multiplier, and the optional bloom (section 6.3), off. */
-  --ddi-halo-spread: 1;
+  /* The optional bloom behind the symbology (section 6.3): off by day. */
   --ddi-bloom-display: none;
   --ddi-bloom-opacity: 0;
 
@@ -54,37 +93,70 @@
   --plain-toggle-ink: #4a4e4a;
 }
 
-/* Night: a dark cockpit. The bezel is near-black and the symbology glows more. */
+/* Night: a dark cockpit. The bezel is near-black, the controls are NVG panel-lit and the symbology blooms. */
 :root[data-theme="night"] {
-  --bezel-face-top: #141516;
-  --bezel-face-bottom: #0b0c0c;
+  --bezel-face: #141615;
   --bezel-sheen: rgb(255 255 255 / 0.015);
-  --bezel-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.55 -0.2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+  --bezel-tile: image-set(
+    url("/materials/bezel-tile-night.avif") type("image/avif"),
+    url("/materials/bezel-tile-night.webp") type("image/webp")
+  );
 
-  --lip-ring: #070808;
-  --lip-highlight: rgb(255 255 255 / 0.05);
+  --lip-light: image-set(
+    url("/materials/lip-9slice-night@2x.avif") type("image/avif") 1x,
+    url("/materials/lip-9slice-night@3x.avif") type("image/avif") 2x,
+    url("/materials/lip-9slice-night@2x.webp") type("image/webp") 1x,
+    url("/materials/lip-9slice-night@3x.webp") type("image/webp") 2x
+  );
 
-  --osb-cap: #161718;
-  --osb-cap-pressed: #0c0c0d;
-  --osb-cap-sheen: rgb(255 255 255 / 0.012);
-  --osb-cap-highlight: rgb(255 255 255 / 0.07);
+  --osb-up: image-set(
+    url("/materials/osb-up-night@2x.avif") type("image/avif") 1x,
+    url("/materials/osb-up-night@3x.avif") type("image/avif") 2x,
+    url("/materials/osb-up-night@2x.webp") type("image/webp") 1x,
+    url("/materials/osb-up-night@3x.webp") type("image/webp") 2x
+  );
+  --osb-down: image-set(
+    url("/materials/osb-down-night@2x.avif") type("image/avif") 1x,
+    url("/materials/osb-down-night@3x.avif") type("image/avif") 2x,
+    url("/materials/osb-down-night@2x.webp") type("image/webp") 1x,
+    url("/materials/osb-down-night@3x.webp") type("image/webp") 2x
+  );
 
-  --knob-skirt: #0e0f11;
-  --knob-face-light: #222528;
-  --knob-face-mid: #15171a;
-  --knob-face-dark: #0b0c0e;
-  --knob-ring: #8b8e8e;
-  --knob-knurl: rgb(255 255 255 / 0.05);
-  --knob-pointer: #a9acab;
-  --placard: #1c1d1d;
-  --placard-ink: #a2a5a3;
+  --knob-base: image-set(
+    url("/materials/knob-base-night@2x.avif") type("image/avif") 1x,
+    url("/materials/knob-base-night@3x.avif") type("image/avif") 2x,
+    url("/materials/knob-base-night@2x.webp") type("image/webp") 1x,
+    url("/materials/knob-base-night@3x.webp") type("image/webp") 2x
+  );
+  --knob-body: image-set(
+    url("/materials/knob-body-night@2x.avif") type("image/avif") 1x,
+    url("/materials/knob-body-night@3x.avif") type("image/avif") 2x,
+    url("/materials/knob-body-night@2x.webp") type("image/webp") 1x,
+    url("/materials/knob-body-night@3x.webp") type("image/webp") 2x
+  );
+  --knob-light: image-set(
+    url("/materials/knob-light-night@2x.avif") type("image/avif") 1x,
+    url("/materials/knob-light-night@3x.avif") type("image/avif") 2x,
+    url("/materials/knob-light-night@2x.webp") type("image/webp") 1x,
+    url("/materials/knob-light-night@3x.webp") type("image/webp") 2x
+  );
+  /* The ring, the index and the placard caps are panel-lit, so they take the NVG green. */
+  --knob-ink: var(--panel-light);
+  --placard: #0c0d0d;
+  --placard-edge: rgb(255 255 255 / 0.03);
+  --placard-ink: var(--panel-light);
+
+  /* NVG panel lighting (ours): a slightly yellow green, kept well below the symbology's #1E8C00 so the display stays
+     the brightest thing in view. It reads as a soft edge-lit glow: a dim core plus a faint halo. */
+  --panel-light: #45611d;
+  --panel-halo: rgb(69 97 29 / 0.5);
+  --panel-glow: 1;
 
   --screen-tint: #070907;
   --screen-edge: #030403;
 
-  --ddi-halo-spread: 2.2;
   --ddi-bloom-display: inline;
-  --ddi-bloom-opacity: 0.6;
+  --ddi-bloom-opacity: 0.3;
 
   /* A mid grey: it stands out on the near-black bezel without glaring in a dark room. */
   --theme-toggle-ink: #8f9290;

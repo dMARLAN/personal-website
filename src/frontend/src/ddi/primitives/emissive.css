@@ -1,6 +1,7 @@
 /*
- * The stroke model from docs/design.md section 6.2. Widths are in CSS px through --k (px per DI). The theme sets
- * --ddi-halo-spread (how much of the falloff the halo covers) and the bloom tokens (section 6.3).
+ * The stroke model from docs/design.md section 6.2. Widths are in CSS px through --k (px per DI). The core and the halo
+ * are the same in both themes; the theme only sets the bloom tokens (section 6.3). No filter ever touches the core or
+ * the halo, so the strokes stay crisp.
  */
 .ddi-core,
 .ddi-halo,
@@ -15,14 +16,13 @@
   stroke-width: max(1px, calc(1.45 * var(--k)));
 }
 
+/* Core plus the DCS falloff: a tight soft edge hugging the stroke. */
 .ddi-halo {
-  stroke-width: calc(
-    max(1px, calc(1.45 * var(--k))) + var(--ddi-halo-spread) * max(0.6px, calc(0.91 * var(--k)))
-  );
+  stroke-width: calc(max(1px, calc(1.45 * var(--k))) + max(0.6px, calc(0.91 * var(--k))));
   opacity: var(--ddi-halo);
 }
 
-/* A blurred copy under the halo, like DCS's engine bloom. The filter rasterizes only when the page changes. */
+/* A faint, wide, blurred copy behind the halo, like DCS's engine bloom. It rasterizes only when the page changes. */
 .ddi-bloom {
   display: var(--ddi-bloom-display);
   stroke-width: max(2px, calc(4 * var(--k)));

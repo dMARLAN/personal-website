@@ -170,15 +170,44 @@ PB anchors come from `MPD_PB_defs.lua` [fnd §5.2]:
 
 ### 4.5 Bezel appearance
 
-These are the day values. Section 4.8 gives the night values; every colour is a theme token.
+The bezel is drawn from baked, lit images (ours), not CSS gradients. `scripts/materials/` bakes them from CC0
+ambientCG textures (README, "Bezel materials") into `src/frontend/public/materials/`. DCS was only a visual
+reference. The colours below are the day values the bakes are matched to, in linear light, on flat unshadowed parts.
 
 | Element | Value | Source |
 |---|---|---|
-| Face | `#2F302F`, satin, a subtle top-light gradient from `#383a3b` to `#2b2d2e` | [bzl §3] |
-| OSB cap | `#282829`, blank. Pressed: offset 2 DI inward and `#222223`, with no transition. | [bzl §3, §1] (the pressed values are ours) |
-| Knobs | `#222427`, with a white ring on the skirt | [bzl §3] |
-| Placards | `#404242` with white upper-case text in a condensed sans (Barlow Condensed 500, OFL, through `next/font`) | [bzl §3] (font ours) |
+| Face | `#2F302F` satin paint over powder-coat grain, with light chips, scratches and grime, plus a faint top light | [bzl §3] (texture ours) |
+| OSB cap | `#282829`, blank, raised in a shallow well with a polished bevel. Pressed: `#222223`, 1.8 DI deeper, no transition. | [bzl §3, §1] (the pressed values are ours) |
+| Knobs | `#222427`, fluted grip, knurled shoulder, a white ring on the skirt and a white index line | [bzl §3] |
+| Placards | `#1C1D1D`, near-black as in DCS, with white upper-case text in a condensed sans (Barlow Condensed 500, OFL, through `next/font`) | [bzl §3] (font ours) |
 | Screws | none (ours: they would only clutter a slim band) | |
+
+**Light (ours).** Every bake shares one key light from the top left and above, plus a sky fill, so the parts agree.
+The night bakes use a weaker, cooler key with almost no specular, and every colour drops by the face's ratio
+(face `#141615`). A theme swaps the whole image set; night is not the day set dimmed.
+
+**Assets (ours).** Each part ships as AVIF, with WebP as a fallback. Parts come at `@2x` (2 px per DI) and `@3x`
+(3 px per DI). CSS `image-set()` offers them as 1x and 2x, so any DPR above 1 takes `@3x`.
+
+| Asset | Size | Drawn as |
+|---|---|---|
+| `bezel-tile-{theme}` | 1024 px, seamless | The face background, tiled at `calc(689 * var(--k))`, so the paint keeps one physical scale at every viewport size |
+| `lip-9slice-{theme}` | 380 DI box | The lip ring's `border-image`: light and shade only, so the face tile shows through. The 182 DI corner slice (47.89 %) is drawn 182 DI wide, so it follows the screen radius plus the lip |
+| `osb-up-{theme}`, `osb-down-{theme}` | `OSB_ART` = 48 DI | The OSB's `::before`, cap and well together. The pressed image replaces the 2 DI translate: moving the cap would move its well too |
+| `knob-base`, `-body`, `-light`-`{theme}` | `KNOB_ART` = 4/3 of the knob | Static cast shadow; the knurled body, which turns with `--knob-angle`; static key light. The body is lit along the view axis, so its shading does not depend on the angle |
+| `knob-index-mask`, `knob-ring-mask` | `KNOB_ART` | Masks tinted with `--knob-ink`. The index turns with the body; the ring is static |
+| `osb-glow-mask` | `OSB_ART` | Night only: where panel light leaks from the gap round each cap |
+
+**Night panel lighting (ours).** The OSB gaps, the knob ring and index, and the placard caps are lit in NVG green
+`#45611d`, a slightly yellow green set well below the symbology's `#1E8C00`, so the display stays the brightest
+thing in view. It reads as a soft edge-lit glow: the ring, index and caps sit above the key-light layer with a
+half-strength 1.6 DI halo, and the OSB glow mask adds at opacity 0.4 (`plus-lighter`). By day the ring, index and
+caps are white paint under the key light. The placard is `#0C0D0D` at night.
+
+**Loading (ours).** A visitor fetches one format at one density for one theme. A first paint is 39–49 KB of AVIF:
+day is 42 KB at `@2x` and 49 KB at `@3x`, night 39 KB at `@3x`. The pre-paint script preloads the resolved theme's
+first-paint files. A hidden layer loads the pressed OSB image after first paint. A theme switch decodes the new set before it flips `data-theme`, waiting at most 400 ms, so the bezel
+never flashes bare. Every material box is sized in DI, so nothing shifts when an image arrives.
 
 ### 4.6 Swappable frame
 
@@ -229,23 +258,25 @@ to dim the scene.
   the theme and sets `data-theme` on `<html>` before first paint, and CSS picks the icon from that attribute,
   so a reload never flashes. Without JavaScript there is no attribute and the day tokens apply.
 - **Tokens.** `src/theme/theme.css` holds one block per theme (`:root[data-theme="day"]`,
-  `:root[data-theme="night"]`), split into groups: bezel (`--bezel-*`, including `--bezel-texture`), lip ring
-  (`--lip-*`), OSB (`--osb-*`), knob and placard (`--knob-*`, `--placard*`), screen (`--screen-*`), emissive
-  (`--ddi-halo-spread`, `--ddi-bloom-*`), toggle and focus (`--theme-toggle-ink`, `--focus-ring`) and plain view
-  (`--plain-*`). A later theme change, such as textures or night panel lighting, edits one group.
+  `:root[data-theme="night"]`), split into groups: bezel (`--bezel-face`, `--bezel-sheen`, `--bezel-tile`), lip
+  ring (`--lip-light`), OSB (`--osb-up`, `--osb-down`), knob and placard (`--knob-*`, `--placard*`), night panel
+  lighting (`--panel-*`), screen (`--screen-*`), emissive (`--ddi-bloom-*`), toggle and focus
+  (`--theme-toggle-ink`, `--focus-ring`) and plain view (`--plain-*`). The bezel, lip, OSB and knob tokens point
+  at the baked images of section 4.5; each theme has its own set. A later theme change edits one group.
 - **Toggle contrast.** The ink is a light neutral on each bezel, not a black/white flip: `#d0d2d0` on the day
-  face top `#383a3b` (7.5:1) and a mid grey `#8f9290` on the night face top `#141516` (5.8:1), so it does not
+  face `#2f302f` (8.7:1) and a mid grey `#8f9290` on the night face `#141615` (5.8:1), so it does not
   glare in a dark room. In plain view it uses `--plain-toggle-ink`.
 
 | Token group | Day | Night |
 |---|---|---|
-| Bezel face | `#383a3b` → `#2b2d2e`, grain 0.16 | `#141516` → `#0b0c0c`, grain 0.07 |
-| Lip ring | `#252626` | `#070808` |
-| OSB cap / pressed | `#282829` / `#222223` | `#161718` / `#0c0c0d` |
-| Knob skirt / ring / pointer | `#222427` / `#e4e6e6` / `#f2f2f2` | `#0e0f11` / `#8b8e8e` / `#a9acab` |
-| Placard / ink | `#404242` / `#ecedeb` | `#1c1d1d` / `#a2a5a3` |
+| Bezel face (tile mean) | `#2f302f`, `bezel-tile-day` | `#141615`, `bezel-tile-night` |
+| Lip ring, OSB caps, knobs | `*-day` bakes | `*-night` bakes |
+| Knob ring and index ink | `#e2e3e0` | panel light `#45611d` |
+| Placard / ink | `#1c1d1d` / `#e6e7e4` | `#0c0d0d` / panel light `#45611d` |
+| Panel lighting / halo | off | `#45611d` / `rgb(69 97 29 / 0.5)` |
 | Screen centre / edge | `#0a0d0a` / `#050605` | `#070907` / `#030403` |
-| Halo spread, bloom | 1, off | 2.2, on at opacity 0.6 |
+| Symbology halo | DCS falloff (section 6.2) | the same: night does not widen it |
+| Bloom | off | on at opacity 0.3 (section 6.3) |
 | Plain view background / text | `#f5f6f4` / `#1c1f1c` | `#0f120f` / `#dfe5db` |
 
 ---
@@ -398,13 +429,13 @@ The soft edge is two strokes of the same geometry and needs no filter:
 .ddi-core, .ddi-halo { fill: none; stroke: #1E8C00; stroke-linecap: round; stroke-linejoin: round;
                        vector-effect: non-scaling-stroke; }
 .ddi-core { stroke-width: max(1px, calc(1.45 * var(--k))); }
-.ddi-halo { stroke-width: calc(max(1px, calc(1.45 * var(--k)))
-                               + var(--ddi-halo-spread) * max(0.6px, calc(0.91 * var(--k))));
+.ddi-halo { stroke-width: calc(max(1px, calc(1.45 * var(--k))) + max(0.6px, calc(0.91 * var(--k))));
             opacity: var(--ddi-halo); }
 ```
 
-- `--ddi-halo-spread` is 1 by day, which is the DCS falloff, and 2.2 at night (ours): the halo widens to
-  about 3.5 DI so the symbology glows.
+- The core and the halo are the same in both themes: the halo is always the DCS falloff, 2.36 DI. Night does
+  not widen it; the night glow comes only from the faint bloom (section 6.3). No filter touches the core or the
+  halo, so the strokes stay crisp.
 
 - The halo at half opacity, ending halfway along the falloff, approximates the shader's linear falloff.
 - The primitives never set `stroke-width`, so the two `<use>` instances can style it.
@@ -416,11 +447,13 @@ The soft edge is two strokes of the same geometry and needs no filter:
 Both effects are off by day.
 
 - **Bloom (on in the night theme, ours).** This imitates DCS's engine-wide post-process bloom, which is not part
-  of the module [fnd §4.3]. `EmissiveLayer` always renders a third `<use>` behind the halo, 4 DI wide, filtered
-  by one shared `feGaussianBlur` (`BLOOM_BLUR`, stdDeviation 8 DI). The theme tokens `--ddi-bloom-display` and
-  `--ddi-bloom-opacity` hide it by day and show it at opacity 0.6 at night; the emissive layer's opacity scales
-  it with the gain. The filter sits on static groups, so it rasterizes only when the page changes. The radar
-  page leaves its moving contacts out of it.
+  of the module [fnd §4.3]. `EmissiveLayer` renders a third `<use>` behind the halo, 4 DI wide, filtered by one
+  shared `feGaussianBlur` (`BLOOM_BLUR`, stdDeviation 8 DI). The theme tokens `--ddi-bloom-display` and
+  `--ddi-bloom-opacity` hide it by day and show it at a faint opacity 0.3 at night; the emissive layer's opacity
+  scales it with the gain. It is a wide, dim wash, not a wider halo, so the strokes keep their DCS edge. The
+  filter sits on static groups, so it rasterizes only when the page changes. Animated symbology goes in a
+  screen's `live` layer, an `EmissiveLayer` with `bloom={false}`: the radar's moving contacts never re-run the
+  blur.
 - **Glass smudge (`SMUDGE_ENABLED`, not built).** This is our own procedural texture, not ED's. Its alpha is at most
   40/255 with a mean near 7/255, and it is masked by a fixed top-left reflection gradient. It sits above the
   emissive layer with normal blending and does not change with any control. Smudges in DCS only show in

@@ -5,7 +5,7 @@
  */
 
 html {
-  background: var(--bezel-face-bottom);
+  background: var(--bezel-face);
 }
 
 html:not([data-view="plain"]) body {
@@ -16,11 +16,12 @@ html:not([data-view="plain"]) body {
   position: fixed;
   inset: 0;
   overflow: hidden;
-  /* The satin face with a subtle top light [bzl §3], and (ours) a faint static grain so it reads as a material. */
+  /* The painted face [bzl §3] with a subtle top light. The tile is 689 DI, so the paint grain and wear keep one
+     physical scale at every viewport size (section 4.5). */
   background:
-    var(--bezel-texture),
     radial-gradient(120% 70% at 50% 0%, var(--bezel-sheen), transparent 70%),
-    linear-gradient(var(--bezel-face-top), var(--bezel-face-bottom));
+    var(--bezel-tile) 0 0 / calc(689 * var(--k)) repeat,
+    var(--bezel-face);
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -41,17 +42,31 @@ html:not([data-view="plain"]) body {
     inset 0 calc(2 * var(--k)) calc(3 * var(--k)) rgb(0 0 0 / 0.55);
 }
 
-/* The recessed ring round the glass [bzl §3]: dark, with its lower wall catching the top light. */
+/*
+ * The recessed ring round the glass [bzl §3]: a baked 9-slice of light and shade over the face tile, a worn convex
+ * edge, a chamfer and a darker floor. Its corner slice is the 182 DI corner of a 380 DI image (bake_lip.py), drawn
+ * 182 DI wide, so the rounded corners land exactly on the screen's.
+ */
 .ddi-frame::before {
   content: "";
   position: absolute;
   inset: calc((var(--band) - var(--lip)) * var(--k));
-  border-radius: calc((var(--screen-radius) + var(--lip)) * var(--k));
-  background: var(--lip-ring);
-  box-shadow:
-    inset 0 calc(-1.5 * var(--k)) calc(1 * var(--k)) var(--lip-highlight),
-    0 calc(1.5 * var(--k)) 0 rgb(255 255 255 / 0.05),
-    0 calc(-1 * var(--k)) calc(1 * var(--k)) rgb(0 0 0 / 0.45);
+  border: 0 solid transparent;
+  border-image-source: var(--lip-light);
+  border-image-slice: 47.89%;
+  border-image-width: calc((var(--screen-radius) + var(--lip)) * var(--k));
+  pointer-events: none;
+}
+
+/* Loads the pressed OSB image after first paint, so the first press never flashes. It draws nothing visible. */
+.ddi-frame::after {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  background: var(--osb-down);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .ddi-emissive {
@@ -188,32 +203,53 @@ html:not([data-view="plain"]) body {
   top: calc(100% - var(--cap-centre) * var(--k));
 }
 
-/* A blank cap in a shallow well: a dark line along its upper edge and a highlight along its lower edge [bzl §3]. */
+/*
+ * A blank cap in its shallow well [bzl §3], baked with the well (section 4.5). The image is OSB_ART square, centred on
+ * the cap box, so it overhangs the box on every side.
+ */
 .ddi-osb {
   display: block;
+  border: 0;
+  padding: 0;
   border-radius: calc(var(--cap-radius) * var(--k));
-  background:
-    linear-gradient(var(--osb-cap-sheen), rgb(0 0 0 / 0.06)),
-    var(--osb-cap);
-  box-shadow:
-    inset 0 calc(1 * var(--k)) calc(1 * var(--k)) rgb(0 0 0 / 0.5),
-    inset 0 calc(-1 * var(--k)) calc(1 * var(--k)) var(--osb-cap-highlight),
-    0 0 0 calc(1.5 * var(--k)) rgb(0 0 0 / 0.22),
-    0 calc(1.5 * var(--k)) calc(3 * var(--k)) rgb(0 0 0 / 0.35);
+  background: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* DCS snaps the cap to the pressed position with no animation [bzl §1]. */
-.ddi-osb:active,
-.ddi-osb[data-pressed] {
-  translate: calc(var(--in-x) * var(--press) * var(--k))
-    calc(var(--in-y) * var(--press) * var(--k));
-  background: var(--osb-cap-pressed);
-  box-shadow:
-    inset 0 calc(1 * var(--k)) calc(1.5 * var(--k)) rgb(0 0 0 / 0.6),
-    inset 0 calc(-0.5 * var(--k)) calc(1 * var(--k)) var(--osb-cap-sheen),
-    0 0 0 calc(1.5 * var(--k)) rgb(0 0 0 / 0.3);
+.ddi-osb::before,
+.ddi-osb::after {
+  content: "";
+  position: absolute;
+  inset: calc((var(--cap) - var(--osb-art)) / 2 * var(--k));
+  pointer-events: none;
+}
+
+.ddi-osb::before {
+  background: var(--osb-up) center / 100% 100% no-repeat;
+}
+
+/* DCS snaps the cap down with no animation [bzl §1]. The pressed image sits deeper in the same well, so nothing moves. */
+.ddi-osb:active::before,
+.ddi-osb[data-pressed]::before {
+  background-image: var(--osb-down);
+}
+
+/* Night panel lighting leaks through the gap round the cap: a soft green edge, not an outline. */
+.ddi-osb::after {
+  background: var(--panel-light);
+  mask: image-set(
+      url("/materials/osb-glow-mask@3x.avif") type("image/avif"),
+      url("/materials/osb-glow-mask@3x.webp") type("image/webp")
+    )
+    center / 100% 100% no-repeat;
+  opacity: calc(var(--panel-glow) * 0.4);
+  mix-blend-mode: plus-lighter;
+}
+
+/* Only the night theme needs the glow mask: by day the layer is not drawn, so the mask is never fetched. */
+:root:not([data-theme="night"]) .ddi-osb::after {
+  display: none;
 }
 
 /* A page island's OSB (section 12) fills its slot. The slot carries the placement and the press direction. */
@@ -256,11 +292,6 @@ html:not([data-view="plain"]) body {
   cursor: grabbing;
 }
 
-/* The pointer tracks the drag directly. */
-.ddi-knob[data-dragging] .ddi-knob-pointer {
-  transition: none;
-}
-
 .ddi-knob-left {
   left: calc(var(--band) * var(--k) / 2);
 }
@@ -278,13 +309,16 @@ html:not([data-view="plain"]) body {
   pointer-events: none;
 }
 
+/* A near-black plate, as on the DCS bezel [bzl §3]. Its shadow falls down and right, away from the top-left key. */
 .ddi-placard circle,
 .ddi-placard rect {
   fill: var(--placard);
+  stroke: var(--placard-edge);
+  stroke-width: 0.6;
 }
 
 .ddi-placard {
-  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5));
+  filter: drop-shadow(0.8px 1.2px 1.2px rgb(0 0 0 / 0.55));
 }
 
 /* Barlow Condensed caps are about 0.7 em, so 12 DI caps need a 17.1 DI font. */
@@ -295,53 +329,84 @@ html:not([data-view="plain"]) body {
   fill: var(--placard-ink);
 }
 
-.ddi-knob-shadow {
-  fill: rgb(0 0 0 / 0.5);
-  filter: blur(1px);
+/* The baked knob (section 4.5): five layers, each KNOB_ART square and centred on the knob. */
+.ddi-knob-art {
+  position: absolute;
+  inset: calc((var(--knob) - var(--knob-art)) / 2 * var(--k));
+  pointer-events: none;
 }
 
-.ddi-knob-skirt {
-  fill: var(--knob-skirt);
+.ddi-knob-art > i {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.ddi-knob-base {
+  background-image: var(--knob-base);
+}
+
+/* The body and the index turn; the light, ring and shadow stay put, so the highlight stays top left. */
+.ddi-knob-body,
+.ddi-knob-index {
+  rotate: var(--knob-angle);
+  /* DCS anim speed 16, about 60 ms [bzl §7]. */
+  transition: rotate 60ms linear;
+}
+
+.ddi-knob-body {
+  background-image: var(--knob-body);
+}
+
+.ddi-knob-index,
+.ddi-knob-ring {
+  background-color: var(--knob-ink);
+  mask-position: center;
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+.ddi-knob-index {
+  mask-image: image-set(
+    url("/materials/knob-index-mask@3x.avif") type("image/avif"),
+    url("/materials/knob-index-mask@3x.webp") type("image/webp")
+  );
 }
 
 .ddi-knob-ring {
-  fill: none;
-  stroke: var(--knob-ring);
-  stroke-width: 1.5;
+  mask-image: image-set(
+    url("/materials/knob-ring-mask@3x.avif") type("image/avif"),
+    url("/materials/knob-ring-mask@3x.webp") type("image/webp")
+  );
 }
 
-.ddi-knob-knurl {
-  stroke: var(--knob-knurl);
-  stroke-width: 1;
+.ddi-knob-light {
+  background-image: var(--knob-light);
 }
 
-.ddi-knob-face-light {
-  stop-color: var(--knob-face-light);
+/* The pointer tracks the drag directly. */
+.ddi-knob[data-dragging] :is(.ddi-knob-body, .ddi-knob-index) {
+  transition: none;
 }
 
-.ddi-knob-face-mid {
-  stop-color: var(--knob-face-mid);
+/*
+ * Night panel lighting: the ring, the index and the placard caps are lit from inside, so they sit above the key-light
+ * layer and carry a faint halo. The green stays dimmer than the symbology.
+ */
+:root[data-theme="night"] :is(.ddi-knob-index, .ddi-knob-ring) {
+  z-index: 1;
+  filter: drop-shadow(0 0 calc(1.6 * var(--k)) var(--panel-halo));
 }
 
-.ddi-knob-face-dark {
-  stop-color: var(--knob-face-dark);
-}
-
-.ddi-knob-face {
-  stroke: rgb(0 0 0 / 0.5);
-  stroke-width: 1;
-}
-
-.ddi-knob-pointer {
-  stroke: var(--knob-pointer);
-  stroke-width: 2.4;
-  stroke-linecap: round;
-  /* DCS anim speed 16, about 60 ms [bzl §7]. */
-  transition: transform 60ms linear;
+:root[data-theme="night"] .ddi-placard-label {
+  filter: drop-shadow(0 0 1.6px var(--panel-halo));
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ddi-knob-pointer {
+  .ddi-knob-body,
+  .ddi-knob-index {
     transition: none;
   }
 }
@@ -436,6 +501,9 @@ html[data-view="plain"] .ddi-frame {
 }
 
 html[data-view="plain"] .ddi-frame::before,
+html[data-view="plain"] .ddi-frame::after,
+html[data-view="plain"] .ddi-osb::before,
+html[data-view="plain"] .ddi-osb::after,
 html[data-view="plain"] .ddi-screen,
 html[data-view="plain"] .ddi-controls,
 html[data-view="plain"] .ddi-osb[aria-hidden="true"],
@@ -481,10 +549,7 @@ html[data-view="plain"] .ddi-osb {
   width: auto;
   height: auto;
   margin: 0;
-  translate: none;
   border-radius: 0;
-  background: none;
-  box-shadow: none;
   color: var(--plain-link);
   text-decoration: underline;
   text-underline-offset: 3px;
