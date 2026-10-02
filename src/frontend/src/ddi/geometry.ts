@@ -148,7 +148,7 @@ export function pbEdge(pb: Pb): Edge {
 
 // MPD_PB_defs.lua [fnd §5.2]
 const PB_ROW_START = -336;
-const PB_ROW_PITCH = 169;
+export const PB_ROW_PITCH = 169;
 const PB_COLUMN_TOP = 307;
 const PB_COLUMN_PITCH = 167;
 const PB_EDGE = PB_LEGEND.edge;

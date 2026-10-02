@@ -383,24 +383,35 @@ halo = h(CONT) + (1 − h(CONT)) · 0.5 · max(0, 2·BRT − 1)
 A first-time visitor sees one screen that explains the bezel. It is not a multi-step tour.
 
 - **Look.** A 60 % black layer dims the viewport. The OSBs and the knobs rise above it, so they stay lit. Corner
-  brackets, like a HUD target box, mark the four OSB rows and columns, BRT, CONT and the theme toggle. PB18 gets a
-  full outline. Each callout is a short label in the placard font (Barlow Condensed caps) in a brighter cut of the
-  symbology green, underlined by its leader line:
+  brackets, like a HUD target box, mark six single controls: one OSB, PB18, BRT, CONT, the homepage link and the
+  theme toggle. Each bracket is a square centred on its control that clears the control's visible edge by 3 DI: the
+  OSB well (48 DI), the knob's placard collar (56 DI) or the 28 px corner button. Each callout is a short label in the
+  placard font (Barlow Condensed caps) in a brighter cut of the symbology green, underlined by its leader line:
 
   | Control | Label | Leader |
   |---|---|---|
-  | OSBs | Press the buttons to navigate | Level, from the left column between PB4 and PB5 |
+  | One OSB | Press the buttons to navigate | Along the band, then down midway to the next row position, between the legends |
   | PB18 | MENU switches TAC and SUPT | Along the band, then up midway to PB17, clear of the legends and the title box |
   | BRT, CONT | Brightness / Contrast, drag or scroll | 45° up and inward from each corner |
-  | Theme toggle | Day / night | 45° down and inward, below the top-row legends |
+  | Homepage link | Standard homepage | 45° down and inward, below the top-row legends |
+  | Theme toggle | Day / night | 45° down and inward, parallel to the homepage link's, one row lower |
 
-  A centred panel holds the dialog's name ("Quick start"), "Any press closes this guide" and a "Got it" button.
+  The marked OSB is the leftmost top-row OSB with a legend on TAC (PB6 `RESUME` today). `tutorial/highlight.ts`
+  derives it from the registry, so it stays a live button when the menu changes. Its label sits one row below the
+  theme toggle's, so the top labels never meet on a narrow viewport. It was the four OSB rows and columns, which put
+  the brackets of one box a whole edge apart.
+
+  A centred panel holds the dialog's name ("Quick start"), "Press any button to begin" and a "Got it" button.
 - **Layout.** Every bracket and leader is DI × `--k` from the PB anchors and the bezel constants, the same as the
-  frame. The toggle's callout uses its px placement. Nothing is measured, so the callouts track the controls at
-  every viewport size.
-- **Closing.** The first press anywhere closes it for good: any pointer press, any key except Tab and the
-  modifiers, or the wheel on a knob. The listeners only observe, so the press also does its normal job: an OSB
-  still navigates and a knob still turns. The overlay takes no pointers except its panel.
+  frame. The corner buttons' brackets and callouts use their px placement from `theme/corner.ts`. Nothing is
+  measured, so the callouts track the controls at every viewport size.
+- **Closing.** It closes for good on the first press of a real control: any OSB, BRT or CONT, the theme toggle, the
+  homepage link or "Got it". A press counts by primary pointer press, by the keys that work the control (Enter or
+  Space on a focused button, an arrow key, Home or End on a focused knob) or by the wheel on a knob. Escape anywhere
+  also closes it, as users expect of a dialog. A press on the glass, the dimmed backdrop or empty bezel does nothing,
+  and so does any other key. It was any press anywhere, which closed it before a visitor had read it. The listeners
+  only observe, so the press also does its normal job: an OSB still navigates and a knob still turns. The overlay
+  takes no pointers except its panel.
 - **Persistence.** The close stores `localStorage["ddi:tutorial:v1"] = "done"`. Only that exact value counts.
   Blocked storage reads as done, since a close could never persist and the overlay would return on every page.
   The pre-paint script sets `<html data-tutorial="open">` and CSS shows the overlay only then, so a returning

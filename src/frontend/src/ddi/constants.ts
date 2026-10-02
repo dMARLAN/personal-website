@@ -70,6 +70,11 @@ export const LIP_RING = 8;
 export const OSB_LIP_GAP = (BAND - LIP_RING - OSB_CAP) / 2;
 /** (ours) BRT and CONT, sized to the 64 × 64 corner cell. */
 export const KNOB_DIAMETER = 50;
+/**
+ * (ours) The radius of the placard collar round each knob: the knob's outer edge. The placard is a collar with a tab
+ * that points inward along the bottom band, the teardrop shape of the DCS bezel [bzl §3].
+ */
+export const KNOB_COLLAR_RADIUS = KNOB_DIAMETER / 2 + 3;
 /** (ours) The baked knob layers' side: 4/3 of the knob, centred on it, so the cast shadow fits (bake_knob.py). */
 export const KNOB_ART = (KNOB_DIAMETER * 4) / 3;
 /** (ours) BRT and CONT placards: a rounded rect with condensed caps 12 DI high [bzl §3]. */

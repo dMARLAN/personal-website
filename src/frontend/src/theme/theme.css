@@ -174,7 +174,8 @@
 .ddi-home-link {
   position: fixed;
   z-index: 20;
-  /* corner.ts sets --corner-inset: centred in the top-right bezel corner cell, at least 4px from the edges. */
+  /* corner.ts sets --corner-inset, --corner-button and --corner-gap. The inset centres the toggle in the top-right
+     bezel corner cell, at least 4px from the edges. */
   top: var(--corner-inset);
   right: var(--corner-inset);
   display: grid;
@@ -189,7 +190,7 @@
 
 /* One button width and a gap to the left of the toggle. */
 .ddi-home-link {
-  right: calc(var(--corner-inset) + var(--corner-button) + 8px);
+  right: calc(var(--corner-inset) + var(--corner-button) + var(--corner-gap));
 }
 
 .theme-toggle:focus-visible,

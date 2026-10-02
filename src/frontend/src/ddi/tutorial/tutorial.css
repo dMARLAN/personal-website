@@ -32,9 +32,22 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  /* The theme toggle's 28 px button (ThemeToggle.tsx), centred in the top-right corner cell but 4 px from the edges. */
-  --t-theme-centre: calc(max(4px, calc((var(--band) * var(--k) - 28px) / 2)) + 14px);
-  --t-theme-half: 18px;
+  --t-label-size: max(12px, calc(18 * var(--k)));
+  /* The corner buttons, from corner.ts: the toggle's centre is this far from the top and right edges. */
+  --t-corner-centre: calc(var(--corner-inset) + var(--corner-button) / 2);
+  --t-corner-pitch: calc(var(--corner-button) + var(--corner-gap));
+  --t-home-centre: calc(var(--t-corner-centre) + var(--t-corner-pitch));
+  --t-corner-half: calc(var(--corner-button) / 2 + var(--t-gap) * var(--k));
+  /*
+   * The callout shelves at the top, as distances below the viewport top. The homepage link's label clears two-line
+   * top-row legends, which reach 168 DI. The toggle's lands at least one button pitch lower, so the two parallel
+   * leaders stay apart and the labels line up on the right. The marked OSB's lands lower again, so on a narrow
+   * viewport, where the top labels share a line of sight, it never meets them.
+   */
+  --t-label-step: max(var(--t-corner-pitch), 2 * var(--t-label-size));
+  --t-home-shelf: max(var(--t-corner-centre) + var(--t-corner-half) + 24px, 220 * var(--k));
+  --t-theme-shelf: calc(var(--t-home-shelf) + var(--t-label-step));
+  --t-osb-shelf: calc(var(--t-theme-shelf) + var(--t-label-step));
 }
 
 :root[data-tutorial="open"] .ddi-tutorial {
@@ -73,10 +86,14 @@
   filter: drop-shadow(0 0 3px var(--tutorial-glow));
 }
 
+/* Each bracket is a square of side 2 × --half, centred on its control, which it clears by --t-gap DI. */
 .ddi-bracket {
-  --tick: max(6px, calc(14 * var(--k)));
+  --tick: max(5px, calc(12 * var(--k)));
   --weight: 2px;
+  --side: calc(2 * var(--half));
   position: absolute;
+  width: var(--side);
+  height: var(--side);
   background:
     linear-gradient(var(--tutorial-ink) 0 0) left top / var(--tick) var(--weight),
     linear-gradient(var(--tutorial-ink) 0 0) left top / var(--weight) var(--tick),
@@ -89,68 +106,51 @@
   background-repeat: no-repeat;
 }
 
-.ddi-bracket-top,
-.ddi-bracket-bottom {
-  left: calc(50% + var(--t-row-left) * var(--k));
-  width: calc((var(--t-row-right) - var(--t-row-left)) * var(--k));
-  height: calc(2 * var(--t-osb-half) * var(--k));
-}
-
-.ddi-bracket-top {
-  top: calc((var(--cap-centre) - var(--t-osb-half)) * var(--k));
-}
-
-.ddi-bracket-bottom {
-  top: calc(100% - (var(--cap-centre) + var(--t-osb-half)) * var(--k));
-}
-
-.ddi-bracket-left,
-.ddi-bracket-right {
-  top: calc(50% - var(--t-column-top) * var(--k));
-  width: calc(2 * var(--t-osb-half) * var(--k));
-  height: calc((var(--t-column-top) - var(--t-column-bottom)) * var(--k));
-}
-
-.ddi-bracket-left {
-  left: calc((var(--cap-centre) - var(--t-osb-half)) * var(--k));
-}
-
-.ddi-bracket-right {
-  left: calc(100% - (var(--cap-centre) + var(--t-osb-half)) * var(--k));
-}
-
-/* PB18 is the one OSB singled out, so it gets a full outline inside the bottom row's brackets. */
+.ddi-bracket-osb,
 .ddi-bracket-menu {
-  left: calc(50% + (var(--t-menu-x) - var(--t-osb-half)) * var(--k));
-  top: calc(100% - (var(--cap-centre) + var(--t-osb-half)) * var(--k));
-  width: calc(2 * var(--t-osb-half) * var(--k));
-  height: calc(2 * var(--t-osb-half) * var(--k));
-  border: 1.5px solid var(--tutorial-ink);
-  border-radius: max(3px, calc(8 * var(--k)));
-  background: none;
+  --half: calc(var(--t-osb-half) * var(--k));
+}
+
+/* The marked OSB, in the top row. */
+.ddi-bracket-osb {
+  left: calc(50% + var(--t-osb-x) * var(--k) - var(--half));
+  top: calc(var(--cap-centre) * var(--k) - var(--half));
+}
+
+/* PB18, bottom centre. */
+.ddi-bracket-menu {
+  left: calc(50% + var(--t-menu-x) * var(--k) - var(--half));
+  top: calc(100% - var(--cap-centre) * var(--k) - var(--half));
 }
 
 .ddi-bracket-brt,
 .ddi-bracket-cont {
-  top: calc(100% - (var(--band) / 2 + var(--t-knob-half)) * var(--k));
-  width: calc(2 * var(--t-knob-half) * var(--k));
-  height: calc(2 * var(--t-knob-half) * var(--k));
+  --half: calc(var(--t-knob-half) * var(--k));
+  top: calc(100% - var(--band) * var(--k) / 2 - var(--half));
 }
 
 .ddi-bracket-brt {
-  left: calc((var(--band) / 2 - var(--t-knob-half)) * var(--k));
+  left: calc(var(--band) * var(--k) / 2 - var(--half));
 }
 
 .ddi-bracket-cont {
-  left: calc(100% - (var(--band) / 2 + var(--t-knob-half)) * var(--k));
+  left: calc(100% - var(--band) * var(--k) / 2 - var(--half));
+}
+
+/* The corner buttons are px, not DI (corner.ts); their brackets keep the same DI gap. */
+.ddi-bracket-home,
+.ddi-bracket-theme {
+  --half: var(--t-corner-half);
+  --tick: 6px;
+  top: calc(var(--t-corner-centre) - var(--half));
+}
+
+.ddi-bracket-home {
+  left: calc(100% - var(--t-home-centre) - var(--half));
 }
 
 .ddi-bracket-theme {
-  --tick: 6px;
-  top: calc(var(--t-theme-centre) - var(--t-theme-half));
-  left: calc(100% - var(--t-theme-centre) - var(--t-theme-half));
-  width: calc(2 * var(--t-theme-half));
-  height: calc(2 * var(--t-theme-half));
+  left: calc(100% - var(--t-corner-centre) - var(--half));
 }
 
 /* ---- Callouts: each <li> is a zero-size anchor where its leader leaves the bracket ------------------------------ */
@@ -178,7 +178,7 @@
   position: absolute;
   padding-bottom: 2px;
   border-bottom: 1px solid var(--tutorial-ink);
-  font-size: max(12px, calc(18 * var(--k)));
+  font-size: var(--t-label-size);
   line-height: 1.2;
   white-space: nowrap;
   text-shadow: 0 0 6px rgb(0 0 0 / 0.9);
@@ -193,6 +193,7 @@
 /* A diagonal leader: a 1.5 px line across a square box, bottom left to top right. */
 .ddi-callout-brt .ddi-callout-leader,
 .ddi-callout-cont .ddi-callout-leader,
+.ddi-callout-home .ddi-callout-leader,
 .ddi-callout-theme .ddi-callout-leader {
   width: var(--leader);
   height: var(--leader);
@@ -214,25 +215,31 @@
   );
 }
 
-/* The OSBs: a level leader from the left column, between PB4 and PB5, into the glass. */
-.ddi-callout-osbs {
-  --leader: calc(250 * var(--k));
-  left: calc((var(--cap-centre) + var(--t-osb-half)) * var(--k));
-  top: calc(50% - var(--t-column-gap) * var(--k));
+/*
+ * The marked OSB: an elbow leader, level along the band, then down midway to the next row position, between the
+ * legends. The label sits in the elbow's foot.
+ */
+.ddi-callout-osb {
+  --leader: calc(var(--t-osb-shelf) - var(--cap-centre) * var(--k));
+  left: calc(50% + (var(--t-osb-x) + var(--t-osb-half)) * var(--k));
+  top: calc(var(--cap-centre) * var(--k));
 }
 
-.ddi-callout-osbs .ddi-callout-leader {
+.ddi-callout-osb .ddi-callout-leader {
   left: 0;
-  top: -1px;
-  width: var(--leader);
-  height: 1px;
-  background: var(--tutorial-ink);
+  top: 0;
+  width: calc((var(--t-osb-riser) - var(--t-osb-half)) * var(--k));
+  height: var(--leader);
+  border-top: 1px solid var(--tutorial-ink);
+  border-right: 1px solid var(--tutorial-ink);
+  translate: 0 -0.5px;
 }
 
-.ddi-callout-osbs .ddi-callout-label {
-  left: var(--leader);
-  bottom: 0;
-  translate: 0 1px;
+.ddi-callout-osb .ddi-callout-label {
+  left: calc((var(--t-osb-riser) - var(--t-osb-half)) * var(--k));
+  top: var(--leader);
+  translate: 0 -100%;
+  padding-left: 0.4em;
 }
 
 /* PB18: an elbow leader, level along the band, then up between the MENU and PB17 legends. */
@@ -293,19 +300,29 @@
   text-align: right;
 }
 
-/* The theme toggle: a diagonal leader down and inward from the bracket's lower-left corner, below the top row. */
+/* The homepage link and the theme toggle: parallel diagonal leaders down and inward from each bracket's corner. */
+.ddi-callout-home,
 .ddi-callout-theme {
-  /* Long enough that the label clears two-line top-row legends: they reach 168 DI below the viewport top. */
-  --leader: max(24px, calc(220 * var(--k) - var(--t-theme-centre) - var(--t-theme-half)));
-  left: calc(100% - var(--t-theme-centre) - var(--t-theme-half));
-  top: calc(var(--t-theme-centre) + var(--t-theme-half));
+  top: calc(var(--t-corner-centre) + var(--t-corner-half));
 }
 
+.ddi-callout-home {
+  --leader: calc(var(--t-home-shelf) - var(--t-corner-centre) - var(--t-corner-half));
+  left: calc(100% - var(--t-home-centre) - var(--t-corner-half));
+}
+
+.ddi-callout-theme {
+  --leader: calc(var(--t-theme-shelf) - var(--t-corner-centre) - var(--t-corner-half));
+  left: calc(100% - var(--t-corner-centre) - var(--t-corner-half));
+}
+
+.ddi-callout-home .ddi-callout-leader,
 .ddi-callout-theme .ddi-callout-leader {
   right: 0;
   top: 0;
 }
 
+.ddi-callout-home .ddi-callout-label,
 .ddi-callout-theme .ddi-callout-label {
   right: var(--leader);
   top: var(--leader);

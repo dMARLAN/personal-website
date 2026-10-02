@@ -1,16 +1,18 @@
 "use client";
 
-import { KNOB_DIAMETER, KNOB_WHEEL_STEP_PX, PLACARD } from "../constants";
+import {
+  KNOB_COLLAR_RADIUS,
+  KNOB_DIAMETER,
+  KNOB_WHEEL_STEP_PX,
+  PLACARD,
+} from "../constants";
 import { type Knob as KnobName, type Step } from "./state";
 import { dispatchControls } from "./store";
 import { useKnobDrag } from "./useKnobDrag";
 import { useWheelSteps } from "./useWheelSteps";
 
 const RADIUS = KNOB_DIAMETER / 2;
-// (ours) The placard is a collar round the knob with a tab that points inward along the bottom band, the teardrop
-// shape of the DCS bezel [bzl §3].
-const PLACARD_COLLAR = RADIUS + 3;
-const PLACARD_END = PLACARD_COLLAR + PLACARD.width;
+const PLACARD_END = KNOB_COLLAR_RADIUS + PLACARD.width;
 
 /**
  * The baked knob (docs/design.md section 4.5), bottom to top: the cast shadow, the knurled body and the index line,
@@ -116,7 +118,7 @@ export function Knob({
         aria-hidden="true"
       >
         <g className="ddi-placard">
-          <circle r={PLACARD_COLLAR} />
+          <circle r={KNOB_COLLAR_RADIUS} />
           <rect
             x={corner === "left" ? 0 : -PLACARD_END}
             y={-PLACARD.height / 2}
@@ -127,7 +129,7 @@ export function Knob({
         </g>
         <text
           className="ddi-placard-label"
-          x={(sign * (PLACARD_COLLAR + PLACARD_END)) / 2}
+          x={(sign * (KNOB_COLLAR_RADIUS + PLACARD_END)) / 2}
           y={PLACARD.capHeight / 2}
           textAnchor="middle"
         >
