@@ -1,6 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useSyncExternalStore } from "react";
+import { densityFor, themeMaterials } from "./materials";
 import {
   NIGHT_QUERY,
   THEME_STORAGE_KEY,
@@ -10,6 +11,9 @@ import {
   resolveTheme,
   type Theme,
 } from "./theme";
+
+/** (ours) The longest a theme switch waits for the new theme's materials before it flips anyway. */
+const MATERIALS_WAIT_MS = 400;
 
 const listeners = new Set<() => void>();
 
@@ -43,8 +47,36 @@ function serverSnapshot(): Theme {
   return "day";
 }
 
+/**
+ * Fetches and decodes a theme's materials, so the switch draws them at once instead of flashing the bare bezel
+ * colour. A failed image must not block the switch (a decode can reject, for one, when the browser lacks AVIF), and
+ * a slow network waits at most MATERIALS_WAIT_MS.
+ */
+function materialsReady(theme: Theme): Promise<unknown> {
+  const decoded = themeMaterials(theme, densityFor(devicePixelRatio)).map(
+    (url) => {
+      const image = new Image();
+      image.src = url;
+      return Promise.resolve().then(() => image.decode());
+    },
+  );
+  return Promise.race([
+    Promise.allSettled(decoded),
+    new Promise((resolve) => setTimeout(resolve, MATERIALS_WAIT_MS)),
+  ]);
+}
+
+// Only the latest switch applies, so two quick presses never land out of order.
+let latestSwitch = 0;
+
 function publish(): void {
-  applyTheme(document.documentElement, snapshot());
+  const theme = snapshot();
+  const thisSwitch = ++latestSwitch;
+  void materialsReady(theme).then(() => {
+    if (thisSwitch === latestSwitch) {
+      applyTheme(document.documentElement, theme);
+    }
+  });
   listeners.forEach((listener) => listener());
 }
 
@@ -75,7 +107,8 @@ export function toggleTheme(): void {
 
 /**
  * The current theme. The server snapshot is day, so hydration matches the server HTML; the pre-paint script has
- * already set `data-theme`, and the CSS draws from that attribute, not from this value.
+ * already set `data-theme`, and the CSS draws from that attribute, not from this value. A switch updates this value at
+ * once and `data-theme` once the new theme's materials are decoded.
  */
 export function useTheme(): Theme {
   const theme = useSyncExternalStore(subscribe, snapshot, serverSnapshot);

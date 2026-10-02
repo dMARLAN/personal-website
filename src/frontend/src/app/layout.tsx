@@ -19,11 +19,11 @@ export const metadata: Metadata = {
   description: `The personal website of ${SITE_NAME}.`,
 };
 
-// The bezel's lower face colour per theme (theme.css). It follows the OS, not the visitor's override.
+// The bezel face colour per theme (--bezel-face in theme.css). It follows the OS, not the visitor's override.
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#2b2d2e" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0c0c" },
+    { media: "(prefers-color-scheme: light)", color: "#2f302f" },
+    { media: "(prefers-color-scheme: dark)", color: "#141615" },
   ],
   colorScheme: "dark",
 };

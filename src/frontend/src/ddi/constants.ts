@@ -56,14 +56,19 @@ export const BAND = 64;
 /** (ours) Cap side and corner radius. The real cap:pitch ratio is 0.56 and the radius 14 % of the side [bzl §3]. */
 export const OSB_CAP = 42;
 export const OSB_CAP_RADIUS = 6;
-/** (ours) How far a pressed cap moves toward the glass. DCS snaps the cap with no animation [bzl §1]. */
-export const OSB_PRESS_OFFSET = 2;
+/**
+ * (ours) The baked OSB image's side: the cap plus its well, centred on the cap box. The pressed image sits deeper in
+ * the same well, so a press moves nothing (scripts/materials/bake_osb.py).
+ */
+export const OSB_ART = 48;
 /** The recessed ring around the glass [bzl §3]. */
 export const LIP_RING = 8;
 /** (ours) The clear gap between a cap and the lip ring: what is left of the band once the cap is centred in it. */
 export const OSB_LIP_GAP = (BAND - LIP_RING - OSB_CAP) / 2;
 /** (ours) BRT and CONT, sized to the 64 × 64 corner cell. */
 export const KNOB_DIAMETER = 50;
+/** (ours) The baked knob layers' side: 4/3 of the knob, centred on it, so the cast shadow fits (bake_knob.py). */
+export const KNOB_ART = (KNOB_DIAMETER * 4) / 3;
 /** (ours) BRT and CONT placards: a rounded rect with condensed caps 12 DI high [bzl §3]. */
 export const PLACARD = { width: 46, height: 22, capHeight: 12 } as const;
 /** (ours) Holds the deepest edge-attached element, the BIT group rule (x −503 to −303) [pgB §3]. */

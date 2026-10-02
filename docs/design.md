@@ -170,15 +170,44 @@ PB anchors come from `MPD_PB_defs.lua` [fnd §5.2]:
 
 ### 4.5 Bezel appearance
 
-These are the day values. Section 4.8 gives the night values; every colour is a theme token.
+The bezel is drawn from baked, lit images (ours), not CSS gradients. `scripts/materials/` bakes them from CC0
+ambientCG textures (README, "Bezel materials") into `src/frontend/public/materials/`. DCS was only a visual
+reference. The colours below are the day values the bakes are matched to, in linear light, on flat unshadowed parts.
 
 | Element | Value | Source |
 |---|---|---|
-| Face | `#2F302F`, satin, a subtle top-light gradient from `#383a3b` to `#2b2d2e` | [bzl §3] |
-| OSB cap | `#282829`, blank. Pressed: offset 2 DI inward and `#222223`, with no transition. | [bzl §3, §1] (the pressed values are ours) |
-| Knobs | `#222427`, with a white ring on the skirt | [bzl §3] |
-| Placards | `#404242` with white upper-case text in a condensed sans (Barlow Condensed 500, OFL, through `next/font`) | [bzl §3] (font ours) |
+| Face | `#2F302F` satin paint over powder-coat grain, with light chips, scratches and grime, plus a faint top light | [bzl §3] (texture ours) |
+| OSB cap | `#282829`, blank, raised in a shallow well with a polished bevel. Pressed: `#222223`, 1.8 DI deeper, no transition. | [bzl §3, §1] (the pressed values are ours) |
+| Knobs | `#222427`, fluted grip, knurled shoulder, a white ring on the skirt and a white index line | [bzl §3] |
+| Placards | `#1C1D1D`, near-black as in DCS, with white upper-case text in a condensed sans (Barlow Condensed 500, OFL, through `next/font`) | [bzl §3] (font ours) |
 | Screws | none (ours: they would only clutter a slim band) | |
+
+**Light (ours).** Every bake shares one key light from the top left and above, plus a sky fill, so the parts agree.
+The night bakes use a weaker, cooler key with almost no specular, and every colour drops by the face's ratio
+(face `#141615`). A theme swaps the whole image set; night is not the day set dimmed.
+
+**Assets (ours).** Each part ships as AVIF, with WebP as a fallback. Parts come at `@2x` (2 px per DI) and `@3x`
+(3 px per DI). CSS `image-set()` offers them as 1x and 2x, so any DPR above 1 takes `@3x`.
+
+| Asset | Size | Drawn as |
+|---|---|---|
+| `bezel-tile-{theme}` | 1024 px, seamless | The face background, tiled at `calc(689 * var(--k))`, so the paint keeps one physical scale at every viewport size |
+| `lip-9slice-{theme}` | 380 DI box | The lip ring's `border-image`: light and shade only, so the face tile shows through. The 182 DI corner slice (47.89 %) is drawn 182 DI wide, so it follows the screen radius plus the lip |
+| `osb-up-{theme}`, `osb-down-{theme}` | `OSB_ART` = 48 DI | The OSB's `::before`, cap and well together. The pressed image replaces the 2 DI translate: moving the cap would move its well too |
+| `knob-base`, `-body`, `-light`-`{theme}` | `KNOB_ART` = 4/3 of the knob | Static cast shadow; the knurled body, which turns with `--knob-angle`; static key light. The body is lit along the view axis, so its shading does not depend on the angle |
+| `knob-index-mask`, `knob-ring-mask` | `KNOB_ART` | Masks tinted with `--knob-ink`. The index turns with the body; the ring is static |
+| `osb-glow-mask` | `OSB_ART` | Night only: where panel light leaks from the gap round each cap |
+
+**Night panel lighting (ours).** The OSB gaps, the knob ring and index, and the placard caps are lit in NVG green
+`#45611d`, a slightly yellow green set well below the symbology's `#1E8C00`, so the display stays the brightest
+thing in view. It reads as a soft edge-lit glow: the ring, index and caps sit above the key-light layer with a
+half-strength 1.6 DI halo, and the OSB glow mask adds at opacity 0.4 (`plus-lighter`). By day the ring, index and
+caps are white paint under the key light. The placard is `#0C0D0D` at night.
+
+**Loading (ours).** A visitor fetches one format at one density for one theme. A first paint is 39–49 KB of AVIF:
+day is 42 KB at `@2x` and 49 KB at `@3x`, night 39 KB at `@3x`. The pre-paint script preloads the resolved theme's
+first-paint files. A hidden layer loads the pressed OSB image after first paint. A theme switch decodes the new set before it flips `data-theme`, waiting at most 400 ms, so the bezel
+never flashes bare. Every material box is sized in DI, so nothing shifts when an image arrives.
 
 ### 4.6 Swappable frame
 

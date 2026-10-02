@@ -53,6 +53,29 @@ has per-package variants (`make validate-api`, `make ci-frontend`, ...).
 | `make ci` | What CI runs: `validate` plus the API Docker build and the frontend production build. |
 | `make tilt-up` / `make tilt-down` / `make tilt-reset` | Start / stop / restart the local cluster + Tilt. |
 
+## Bezel materials
+
+The bezel face, OSB caps, BRT/CONT knobs and the lip ring round the glass are baked images in
+`src/frontend/public/materials/` (design §4.5). `scripts/materials/` rebuilds them; the first run downloads the
+source textures into `scripts/materials/.sources/` (gitignored):
+
+```bash
+uv run --no-project --with numpy --with pillow python scripts/materials/bake_all.py
+```
+
+The bezel materials are derived from CC0 textures by [ambientCG](https://ambientcg.com) (Lennart Demes), under
+[CC0 1.0 Universal](https://docs.ambientcg.com/license/):
+
+| Set | Used for |
+|---|---|
+| [Metal029](https://ambientcg.com/a/Metal029) | Bezel paint grain, normals and roughness |
+| [PaintedMetal002](https://ambientcg.com/a/PaintedMetal002) | Bezel wear: chips and scratches |
+| [Plastic012A](https://ambientcg.com/a/Plastic012A) | OSB caps |
+| [Metal027](https://ambientcg.com/a/Metal027) | Knob coat |
+
+Each set's 1K-JPG download is `https://ambientcg.com/get?file=<Set>_1K-JPG.zip`. The knurl, flutes, cap bevels,
+wells and lip profile are procedural. No DCS texture went into any asset; DCS was only a visual reference.
+
 ## Deployment
 
 Production images are built on the home server without a registry, as wedding-website does. The API image comes from

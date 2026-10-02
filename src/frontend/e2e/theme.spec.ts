@@ -26,7 +26,7 @@ function contrast(a: string, b: string): number {
   return (light + 0.05) / (dark + 0.05);
 }
 
-/** The toggle's ink and the bezel colour behind it (the face's top colour, where the button sits). */
+/** The toggle's ink and the bezel colour behind it (the face's mean paint colour, which the tile is matched to). */
 async function toggleColours(
   page: Page,
 ): Promise<{ ink: string; bezel: string }> {
@@ -36,7 +36,7 @@ async function toggleColours(
       throw new Error("no theme toggle");
     }
     const probe = document.createElement("div");
-    probe.style.color = "var(--bezel-face-top)";
+    probe.style.color = "var(--bezel-face)";
     document.body.append(probe);
     const bezel = getComputedStyle(probe).color;
     probe.remove();
@@ -139,7 +139,7 @@ test("a stored override is drawn before any app JavaScript runs, so a reload nev
       document.querySelector(".theme-toggle-sun") ?? document.body,
     ).display,
   }));
-  expect(drawn).toEqual({ background: "rgb(11, 12, 12)", sun: "none" });
+  expect(drawn).toEqual({ background: "rgb(20, 22, 21)", sun: "none" });
 });
 
 test("an invalid stored override is ignored and the OS decides", async ({

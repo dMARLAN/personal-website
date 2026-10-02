@@ -29,6 +29,12 @@ function click(element: HTMLElement): void {
   testing?.fireEvent.click(element);
 }
 
+async function waitForTheme(theme: string): Promise<void> {
+  await testing?.waitFor(() =>
+    expect(document.documentElement.dataset.theme).toBe(theme),
+  );
+}
+
 beforeEach(() => {
   emulateOsNight(false);
 });
@@ -73,11 +79,12 @@ describe("the theme toggle", () => {
     expect(toggle).toHaveAttribute("aria-pressed", "false");
     click(toggle);
     expect(toggle).toHaveAttribute("aria-pressed", "true");
-    expect(document.documentElement.dataset.theme).toBe("night");
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("night");
+    // The attribute follows once the new theme's materials are decoded.
+    await waitForTheme("night");
     click(toggle);
-    expect(document.documentElement.dataset.theme).toBe("day");
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("day");
+    await waitForTheme("day");
   });
 
   it("lets a stored override win over the OS", async () => {

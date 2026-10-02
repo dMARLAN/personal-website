@@ -39,3 +39,7 @@ __pycache__/
 
 # third-party reference figures (copyrighted, local only)
 docs/research/figures/
+
+# bezel material bakes: downloaded CC0 sources and full-size masters (scripts/materials)
+scripts/materials/.sources/
+scripts/materials/.build/

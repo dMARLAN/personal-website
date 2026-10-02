@@ -5,11 +5,12 @@ import {
   FRAME_SCALE_CSS,
   GLASS_HALF,
   GLASS_SHORT,
+  KNOB_ART,
   KNOB_DIAMETER,
   LIP_RING,
   OSB_CAP,
   OSB_CAP_RADIUS,
-  OSB_PRESS_OFFSET,
+  OSB_ART,
   SCREEN_RADIUS,
   VIGNETTE,
 } from "../constants";
@@ -53,8 +54,9 @@ const FRAME_STYLE: React.CSSProperties = {
   "--cap-radius": OSB_CAP_RADIUS,
   // A cap is centred between the viewport edge and the lip ring, so it clears the ring by OSB_LIP_GAP.
   "--cap-centre": (BAND - LIP_RING) / 2,
-  "--press": OSB_PRESS_OFFSET,
+  "--osb-art": OSB_ART,
   "--knob": KNOB_DIAMETER,
+  "--knob-art": KNOB_ART,
   "--vignette-blur": VIGNETTE.blur,
   "--vignette-spread": VIGNETTE.spread,
 };

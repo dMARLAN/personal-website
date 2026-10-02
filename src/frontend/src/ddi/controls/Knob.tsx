@@ -1,6 +1,5 @@
 "use client";
 
-import { useId } from "react";
 import { KNOB_DIAMETER, KNOB_WHEEL_STEP_PX, PLACARD } from "../constants";
 import { type Knob as KnobName, type Step } from "./state";
 import { dispatchControls } from "./store";
@@ -13,52 +12,20 @@ const RADIUS = KNOB_DIAMETER / 2;
 const PLACARD_COLLAR = RADIUS + 3;
 const PLACARD_END = PLACARD_COLLAR + PLACARD.width;
 
-/** A point `radius` from the knob centre at `degrees` clockwise from up, in SVG coordinates. */
-function polar(radius: number, degrees: number): [number, number] {
-  const radians = (degrees * Math.PI) / 180;
-  return [radius * Math.sin(radians), -radius * Math.cos(radians)];
-}
-
 /**
- * A dark knurled knob with a white ring on the skirt and a pointer that rotates with `pointerVariable` [bzl §3]. Its
- * colours are theme tokens (`--knob-*`).
+ * The baked knob (docs/design.md section 4.5), bottom to top: the cast shadow, the knurled body and the index line,
+ * which turn with `--knob-angle`, then the painted ring and the key light, which stay put so the highlight never
+ * turns with the knob. `frame.css` gives each layer its theme's image.
  */
-function KnobBody({
-  pointerVariable,
-}: {
-  pointerVariable: `--${string}`;
-}): React.JSX.Element {
-  const gradientId = `ddi-knob-face-${useId().replace(/[^\w-]/g, "")}`;
-  const knurl = Array.from({ length: 40 }, (_, index) => {
-    const [x1, y1] = polar(RADIUS * 0.78, index * 9);
-    const [x2, y2] = polar(RADIUS * 0.86, index * 9);
-    return `M${x1.toFixed(2)},${y1.toFixed(2)} L${x2.toFixed(2)},${y2.toFixed(2)}`;
-  }).join(" ");
+function KnobLayers(): React.JSX.Element {
   return (
-    <g className="ddi-knob-body">
-      <defs>
-        <radialGradient id={gradientId} cx="0.38" cy="0.3" r="0.8">
-          <stop className="ddi-knob-face-light" offset="0" />
-          <stop className="ddi-knob-face-mid" offset="0.55" />
-          <stop className="ddi-knob-face-dark" offset="1" />
-        </radialGradient>
-      </defs>
-      <circle className="ddi-knob-shadow" r={RADIUS} cy={RADIUS * 0.08} />
-      <circle className="ddi-knob-skirt" r={RADIUS} />
-      <circle className="ddi-knob-ring" r={RADIUS * 0.9} />
-      <path className="ddi-knob-knurl" d={knurl} />
-      <circle
-        className="ddi-knob-face"
-        r={RADIUS * 0.74}
-        fill={`url(#${gradientId})`}
-      />
-      <g
-        className="ddi-knob-pointer"
-        style={{ transform: `rotate(var(${pointerVariable}))` }}
-      >
-        <line x1={0} y1={-RADIUS * 0.2} x2={0} y2={-RADIUS * 0.92} />
-      </g>
-    </g>
+    <span className="ddi-knob-art" aria-hidden="true">
+      <i className="ddi-knob-base" />
+      <i className="ddi-knob-body" />
+      <i className="ddi-knob-index" />
+      <i className="ddi-knob-ring" />
+      <i className="ddi-knob-light" />
+    </span>
   );
 }
 
@@ -79,6 +46,12 @@ const ARROW_STEPS: Readonly<Record<string, Step>> = {
 };
 
 const END_STOPS: Readonly<Record<string, number>> = { Home: 0, End: 1 };
+
+/** The pre-paint script and the controls store set each knob's angle on <html>; the knob's layers read it here. */
+const KNOB_ANGLE: Readonly<Record<KnobName, React.CSSProperties>> = {
+  brt: { "--knob-angle": "var(--ddi-brt-angle)" },
+  cont: { "--knob-angle": "var(--ddi-cont-angle)" },
+};
 
 /**
  * BRT or CONT (design sections 5.3 and 5.4): a slider from 0 to 1. Dragging right turns it up and left turns it
@@ -131,6 +104,7 @@ export function Knob({
       aria-valuetext={`${percent}%`}
       data-dragging={drag.dragging || undefined}
       data-testid={`ddi-${knob}`}
+      style={KNOB_ANGLE[knob]}
       onWheel={onWheel}
       onKeyDown={onKeyDown}
       onClick={onClick}
@@ -159,8 +133,8 @@ export function Knob({
         >
           {placard}
         </text>
-        <KnobBody pointerVariable={`--ddi-${knob}-angle`} />
       </svg>
+      <KnobLayers />
     </div>
   );
 }
