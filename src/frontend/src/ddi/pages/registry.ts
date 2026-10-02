@@ -106,7 +106,7 @@ export const PAGES: Readonly<Record<PageId, PageDef>> = {
     kind: "showcase",
     menu: { on: "SUPT", pb: 12, legend: ["ENG"] },
     label: "Home server, simulated",
-    available: false,
+    available: true,
   },
 };
 
