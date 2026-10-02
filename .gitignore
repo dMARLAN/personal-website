@@ -1,0 +1,25 @@
+# agent-library sync (managed symlinks)
+.claude/skills/*
+.claude/commands/*
+.claude/fragments/*
+.agents/skills/*
+
+# Claude Code local state
+**/.claude/settings.local.json
+.claude/sessions
+.claude/worktrees/
+.claude/scheduled_tasks.lock
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# deps / build
+node_modules/
+.venv/
+
+# editor / OS
+.idea/
+.vscode/*
+.DS_Store
