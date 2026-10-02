@@ -591,7 +591,7 @@ legend is on TAC, the section takes that OSB.
 | About | TGT DATA OWNSHIP [pgB §11] | It is a profile card: label/value rows, a 5-row list and IFF lines. None of its values has a controller, so every slot is free content. The bottom-left quadrant is empty in DCS and holds the bio. | `/about` | TAC PB20 `ABOUT` (TGT DATA's position) |
 | Resume | S/W CONFIGURATION [pgB §3] | A 2 × 12 name/value table suits skills and qualifications. Its only action OSB, PB20 (`OVRD`), becomes the PDF download. | `/resume` | TAC PB6 `RESUME` |
 | Work history | BIT FAILURES plus sublevels [pgB §3] | It has eight OSB-anchored group blocks (label, rule, status) that lead to sublevels. These become employers. The 17-row name/status list becomes the role timeline. `PAGE` (PB16) is a real pager. | `/work` (employer sublevels and pages are in-section state, ours) | TAC PB7 `WORK` |
-| Projects | STORES [pgA §1] | The exact wingform with 9 stations. Each station is a project. The top row (PB6–10) is a category tab bar that boxes the selection. `STEP` (PB13) cycles stations. `DATA` (PB17) opens the description. | `/projects` (the selected station and DATA are in-section state, ours) | TAC PB5 `PROJECTS` (STORES' position) |
+| Projects | STORES [pgA §1] | The exact wingform with 9 stations. Each station is a project. The top row (PB6–10) is a category tab bar that boxes the selection. `STEP` (PB13) cycles stations. `DATA` (PB17) opens the description. | `/projects` (the selected station and DATA are in-section state, ours) | TAC PB10 `PROJECTS` (ours: STORES' PB5 collides with the stacked `RDR`/`ATTK` legend at PB4) |
 | Contact | MIDS [pgB §6] | Label/value rows with colon alignment, and an empty cautions slot for feedback. Its `XMIT` OSB becomes "send mail". | `/contact` | TAC PB8 `CONTACT` |
 | Links | UFC BU [pgB §12] | A 12-row channel table with a selection box. The keypad digits on the OSBs select a row. `ENT` opens it. | `/links` | TAC PB9 `LINKS` |
 | Radar (showcase) | RDR ATTK, RWS [hog §4], [gpg §16] | The real format, with fake moving contacts. | `/radar` | TAC PB4 `RDR`/`ATTK` (real) |
@@ -634,16 +634,19 @@ we never build stay hidden.
 | 1 | `AZ/EL` (later) | — |
 | 2 | — | `HSI` (later) |
 | 4 | `RDR` `ATTK` (two columns, x −500 and −475) | — |
-| 5 | `PROJECTS` (8 letters, y 190–424, which clears `ATTK` because it is in a different column) | — |
+| 5 | — (STORES' real slot; `PROJECTS` stacked there collides with `RDR` at PB4) | — |
 | 6 | `RESUME` | — |
 | 7 | `WORK` | — |
-| 8 | `CONTACT` | — |
+| 8 | `CONTACT` | `BIT` |
 | 9 | `LINKS` | — |
+| 10 | `PROJECTS` (ours) | — |
+| 11 | — | `CHKLST` |
 | 12 | — | `ENG` |
 | 13 | `SA` (later) | — |
+| 15 | — | `FCS` |
 | 17 | `EW` (later) | — |
 | 18 | `MENU` → SUPT, in place (title `TAC`, boxed) | `MENU` → TAC, in place (title `SUPT`, boxed) |
-| 20 | `ABOUT` | — |
+| 20 | `ABOUT` | `FUEL` |
 
 Row legends fit their pitch. The longest, `CONTACT`, is 134 DI wide on a 169 DI pitch.
 

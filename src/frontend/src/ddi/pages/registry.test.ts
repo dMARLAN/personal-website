@@ -135,7 +135,7 @@ describe("the page registry", () => {
       { kind: "link", href: "/radar" },
     ]);
     expect(legends).toContainEqual([
-      5,
+      10,
       ["PROJECTS"],
       { kind: "link", href: "/projects" },
     ]);
