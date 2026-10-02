@@ -27,10 +27,13 @@ export interface SwConfigRow {
   value: string;
 }
 
+/** A `null` row is blank, as the left column's ATARS slot is in DCS. */
+export type SwConfigSlot = SwConfigRow | null;
+
 export interface SwConfigProps {
   title: readonly [string, string];
-  left: readonly SwConfigRow[];
-  right: readonly SwConfigRow[];
+  left: readonly SwConfigSlot[];
+  right: readonly SwConfigSlot[];
 }
 
 /** The y of row `index` (0-based). */
@@ -42,34 +45,36 @@ function Column({
   rows,
   x,
 }: {
-  rows: readonly SwConfigRow[];
+  rows: readonly SwConfigSlot[];
   x: number;
 }): React.JSX.Element {
   return (
     <>
-      {rows.map(({ name, value }, index) => (
-        <g key={`${index}-${name}`}>
-          <StrokeText
-            text={name}
-            font={SW_CONFIG.font}
-            align="LeftCenter"
-            pos={[x, swConfigRowY(index)]}
-          />
-          <StrokeText
-            text={value}
-            font={SW_CONFIG.font}
-            align="LeftCenter"
-            pos={[x + SW_CONFIG.valueOffset, swConfigRowY(index)]}
-          />
-        </g>
-      ))}
+      {rows.map((row, index) =>
+        row === null ? null : (
+          <g key={`${index}-${row.name}`}>
+            <StrokeText
+              text={row.name}
+              font={SW_CONFIG.font}
+              align="LeftCenter"
+              pos={[x, swConfigRowY(index)]}
+            />
+            <StrokeText
+              text={row.value}
+              font={SW_CONFIG.font}
+              align="LeftCenter"
+              pos={[x + SW_CONFIG.valueOffset, swConfigRowY(index)]}
+            />
+          </g>
+        ),
+      )}
     </>
   );
 }
 
 /**
  * S/W CONFIGURATION, exact: the two-line title and a 2 × 12 name/value table (render: `dcs-sw-config.*`). Legends
- * are the page's own. Draw it in the symbology square.
+ * are the page's own. Resume and BIT both draw it. Draw it in the symbology square.
  */
 export function SwConfig({
   title,

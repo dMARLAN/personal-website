@@ -112,6 +112,7 @@ describe("the page registry", () => {
       lines,
       action,
     ]);
+    expect(supt).toContainEqual([8, ["BIT"], { kind: "link", href: "/bit" }]);
     expect(supt).toContainEqual([
       11,
       ["CHKLST"],
@@ -202,6 +203,7 @@ describe("the page registry", () => {
       "/fcs",
       "/fuel",
       "/chklst",
+      "/bit",
     ]) {
       expect(urls).toContain(`${SITE_URL}${route}`);
     }
