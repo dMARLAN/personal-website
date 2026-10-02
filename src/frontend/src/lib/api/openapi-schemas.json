@@ -1,0 +1,3702 @@
+{
+  "components": {
+    "schemas": {
+      "AdminSessionInfo": {
+        "properties": {
+          "csrfToken": {
+            "type": "string",
+            "title": "Csrftoken"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expiresat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "csrfToken",
+          "expiresAt"
+        ],
+        "title": "AdminSessionInfo",
+        "description": "Send `csrfToken` as the `X-CSRF-Token` header on every mutating admin request."
+      },
+      "Bit": {
+        "properties": {
+          "checks": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/BitCheck"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/BitItemKey"
+            },
+            "type": "object",
+            "maxProperties": 42,
+            "minProperties": 42,
+            "title": "Checks",
+            "description": "One row per BIT item, every item once.",
+            "x-ui-rules": [
+              "Items with their own legend (ADC, AISI, ALE_47, AUG, AWW4, BCN, CLC, COM1, COM2, CSC, DMS, D_L, FLIR, GPS, HMD, IBS, ICS, IFEI, IFF, ILS, INS, LTDR, MIDS, MU, RALT, RDR, SDC, SMS, TCN) have names of at most 7 characters.",
+              "Only the fuel-low rows (TK2FL, TK3FL) may show NO TEST."
+            ]
+          },
+          "legendNames": {
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 7,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+              "x-ddi-charset": "stroke-font"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/BitLegendKey"
+            },
+            "type": "object",
+            "maxProperties": 6,
+            "minProperties": 6,
+            "title": "Legend names",
+            "description": "The names of the item legends with no list row, ≤ 7 characters each."
+          },
+          "swConfig": {
+            "$ref": "#/components/schemas/SwConfig",
+            "title": "S/W configuration",
+            "description": "The site's own stack, in two columns."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "checks",
+          "legendNames",
+          "swConfig"
+        ],
+        "title": "Bit",
+        "description": "/bit → BIT FAILURES and its sublevels (docs/pages/bit.md); themed mock checks."
+      },
+      "BitCheck": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 9,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Name",
+            "description": "The row's name in the list.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "status": {
+            "$ref": "#/components/schemas/BitCheckStatus",
+            "title": "Status",
+            "description": "The status before any test."
+          },
+          "afterTest": {
+            "$ref": "#/components/schemas/BitCheckStatus",
+            "title": "Status after test",
+            "description": "The status a test resolves to, after IN TEST."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "status",
+          "afterTest"
+        ],
+        "title": "BitCheck"
+      },
+      "BitCheckStatus": {
+        "type": "string",
+        "enum": [
+          "RESTRT",
+          "SF TEST",
+          "OFF",
+          "NOT RDY",
+          "NO TEST",
+          "MUX FAIL",
+          "DEGD+OVRHT",
+          "OVRHT",
+          "DEGD",
+          "OP GO",
+          "GO",
+          "PBIT GO"
+        ],
+        "title": "BitCheckStatus",
+        "description": "`BIT_StatMsgs` [pgB §3] without `IN TEST`, which only a running test shows, plus `NO TEST`."
+      },
+      "BitItemKey": {
+        "type": "string",
+        "enum": [
+          "MC1",
+          "MC2",
+          "FCSA",
+          "FCSB",
+          "RDR",
+          "FLIR",
+          "LTDR",
+          "SMS",
+          "AWW4",
+          "CLC",
+          "WPNS",
+          "CSC",
+          "ICS",
+          "IFF",
+          "D_L",
+          "COM1",
+          "COM2",
+          "MIDS",
+          "INS",
+          "ADC",
+          "ILS",
+          "RALT",
+          "TCN",
+          "AUG",
+          "BCN",
+          "GPS",
+          "LDDI",
+          "RDDI",
+          "MPCD",
+          "HUD",
+          "IFEI",
+          "DMS",
+          "HMD",
+          "SDC",
+          "MU",
+          "AISI",
+          "RWR",
+          "IBS",
+          "ALE_47",
+          "ASPJ",
+          "TK2FL",
+          "TK3FL"
+        ],
+        "title": "BitItemKey",
+        "description": "The DCS equipment items the BIT sublevels list (`EquipItems` in `BIT_defs.lua`), plus the two fuel-low rows."
+      },
+      "BitLegendKey": {
+        "type": "string",
+        "enum": [
+          "FCS",
+          "UFC",
+          "DDI",
+          "DFIRS",
+          "FQTY",
+          "FXFR"
+        ],
+        "title": "BitLegendKey",
+        "description": "Item legends that have no list row of their own."
+      },
+      "Body_adminUploadResume": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_adminUploadResume"
+      },
+      "Channel": {
+        "type": "string",
+        "minLength": 1
+      },
+      "Checklist": {
+        "properties": {
+          "left": {
+            "$ref": "#/components/schemas/LeftChecklistColumn",
+            "title": "Left column",
+            "description": "Up to 6 items of ≤ 13 characters."
+          },
+          "right": {
+            "$ref": "#/components/schemas/RightChecklistColumn",
+            "title": "Right column",
+            "description": "Up to 9 items of ≤ 16 characters."
+          },
+          "weight": {
+            "$ref": "#/components/schemas/ChecklistWeight",
+            "title": "Weight",
+            "description": "The A/C WT line."
+          },
+          "maxNz": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Max NZ",
+            "description": "The MAX NZ value.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "stab": {
+            "$ref": "#/components/schemas/ChecklistStab",
+            "title": "Stabilator",
+            "description": "The STAB POS line."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "left",
+          "right",
+          "weight",
+          "maxNz",
+          "stab"
+        ],
+        "title": "Checklist",
+        "description": "/chklst → CHKLST (docs/pages/chklst.md)."
+      },
+      "ChecklistStab": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 8,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Label",
+            "description": "In place of STAB POS.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "left": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Left",
+            "description": "The left value.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "right": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Right",
+            "description": "The right value.",
+            "x-ddi-charset": "stroke-font"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "left",
+          "right"
+        ],
+        "title": "ChecklistStab"
+      },
+      "ChecklistWeight": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Label",
+            "description": "In place of A/C WT.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "Drawn after the label.",
+            "x-ddi-charset": "stroke-font"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "ChecklistWeight"
+      },
+      "Contact": {
+        "properties": {
+          "email": {
+            "allOf": [
+              {
+                "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$"
+              }
+            ],
+            "type": "string",
+            "maxLength": 40,
+            "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+            "title": "Email",
+            "description": "The first row, after EMAIL:.",
+            "x-ddi-charset": "stroke-font",
+            "x-ui-widget": "email"
+          },
+          "rows": {
+            "prefixItems": [
+              {
+                "$ref": "#/components/schemas/ContactRow"
+              },
+              {
+                "$ref": "#/components/schemas/ContactRow"
+              },
+              {
+                "$ref": "#/components/schemas/ContactRow"
+              }
+            ],
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Rows",
+            "description": "The three rows under the email."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "email",
+          "rows"
+        ],
+        "title": "Contact",
+        "description": "Contact → MIDS (docs/pages/contact.md). The email fills the first row; `rows` fill the other three."
+      },
+      "ContactRow": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 45,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Label",
+            "description": "The row's name.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 45,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "Drawn after the label; the two fit 46 characters together.",
+            "x-ddi-charset": "stroke-font"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "ContactRow",
+        "x-ddi-combined-length": {
+          "fields": [
+            "label",
+            "value"
+          ],
+          "gap": 0,
+          "maxLength": 46
+        }
+      },
+      "ContentSection": {
+        "type": "string",
+        "enum": [
+          "profile",
+          "resume",
+          "work",
+          "projects",
+          "contact",
+          "links",
+          "server",
+          "fuel",
+          "fcs",
+          "checklist",
+          "bit",
+          "radar",
+          "mumi"
+        ],
+        "title": "ContentSection",
+        "description": "One stored document each. The value is the `SiteContent` field and the database key."
+      },
+      "Drafts": {
+        "properties": {
+          "profile": {
+            "$ref": "#/components/schemas/SectionDraft_Profile_",
+            "title": "Profile"
+          },
+          "resume": {
+            "$ref": "#/components/schemas/SectionDraft_Resume_",
+            "title": "Resume"
+          },
+          "work": {
+            "$ref": "#/components/schemas/SectionDraft_Work_",
+            "title": "Work"
+          },
+          "projects": {
+            "$ref": "#/components/schemas/SectionDraft_Projects_",
+            "title": "Projects"
+          },
+          "contact": {
+            "$ref": "#/components/schemas/SectionDraft_Contact_",
+            "title": "Contact"
+          },
+          "links": {
+            "$ref": "#/components/schemas/SectionDraft_Links_",
+            "title": "Links"
+          },
+          "server": {
+            "$ref": "#/components/schemas/SectionDraft_ServerStats_",
+            "title": "Server"
+          },
+          "fuel": {
+            "$ref": "#/components/schemas/SectionDraft_FuelReserves_",
+            "title": "Fuel"
+          },
+          "fcs": {
+            "$ref": "#/components/schemas/SectionDraft_FlightControls_",
+            "title": "Fcs"
+          },
+          "checklist": {
+            "$ref": "#/components/schemas/SectionDraft_Checklist_",
+            "title": "Checklist"
+          },
+          "bit": {
+            "$ref": "#/components/schemas/SectionDraft_Bit_",
+            "title": "Bit"
+          },
+          "radar": {
+            "$ref": "#/components/schemas/SectionDraft_RadarScene_",
+            "title": "Radar"
+          },
+          "mumi": {
+            "$ref": "#/components/schemas/SectionDraft_MissionData_",
+            "title": "Mumi"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Drafts",
+        "description": "Every section that has a draft, keyed as `GET /api/content` keys sections.\n\nA section without a draft is left out of the JSON rather than sent as null, so the schema has no null."
+      },
+      "DrainMotion": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "drain",
+            "title": "Motion",
+            "description": "Drains, then refills at once."
+          },
+          "low": {
+            "$ref": "#/components/schemas/Fraction",
+            "title": "Low",
+            "description": "The level it drains to, 0 (empty) to 1 (full)."
+          },
+          "periodSeconds": {
+            "$ref": "#/components/schemas/Period",
+            "title": "Period",
+            "description": "Seconds from full to low."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "low",
+          "periodSeconds"
+        ],
+        "title": "DrainMotion",
+        "description": "Drains from full to `low` over the period, then refills at once."
+      },
+      "Employer": {
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Slug",
+            "title": "ID",
+            "description": "The URL slug, lower case words joined by hyphens; unique per employer."
+          },
+          "tab": {
+            "type": "string",
+            "maxLength": 7,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Tab",
+            "description": "The employer's top-row legend.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Name",
+            "description": "Drawn large above the roles.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 37,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Location",
+            "description": "The subline's left part.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "span": {
+            "type": "string",
+            "maxLength": 37,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Span",
+            "description": "The subline's right part; with the location it fits 38 characters.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/Role"
+            },
+            "type": "array",
+            "maxItems": 4,
+            "minItems": 1,
+            "title": "Roles",
+            "description": "1 to 4 roles, newest first.",
+            "x-ui-new-item": {
+              "bullets": [],
+              "span": "2020-2026",
+              "title": "ROLE"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "tab",
+          "name",
+          "location",
+          "span",
+          "roles"
+        ],
+        "title": "Employer",
+        "x-ddi-combined-length": {
+          "fields": [
+            "location",
+            "span"
+          ],
+          "gap": 0,
+          "maxLength": 38
+        },
+        "x-ui-rules": [
+          "Every role's highlights, wrapped at 38 characters, fit 17 rows with 1 role, 16 with 2, 15 with 3 and 14 with 4."
+        ]
+      },
+      "FcsAoa": {
+        "properties": {
+          "left": {
+            "type": "string",
+            "maxLength": 5,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Left",
+            "description": "The left readout.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "right": {
+            "type": "string",
+            "maxLength": 5,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Right",
+            "description": "The right readout.",
+            "x-ddi-charset": "stroke-font"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "left",
+          "right"
+        ],
+        "title": "FcsAoa"
+      },
+      "FcsArrow": {
+        "type": "string",
+        "enum": [
+          "up",
+          "down",
+          "left",
+          "right"
+        ],
+        "title": "FcsArrow"
+      },
+      "FcsFailure": {
+        "properties": {
+          "table": {
+            "$ref": "#/components/schemas/FcsTable",
+            "title": "Table",
+            "description": "Which channel table."
+          },
+          "row": {
+            "type": "integer",
+            "maximum": 10,
+            "minimum": 0,
+            "title": "Row",
+            "description": "The table row, from 0 at the top."
+          },
+          "channel": {
+            "type": "integer",
+            "maximum": 4,
+            "minimum": 1,
+            "title": "Channel",
+            "description": "The channel, 1 to 4."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "table",
+          "row",
+          "channel"
+        ],
+        "title": "FcsFailure",
+        "description": "One X in a channel table: that channel has failed.",
+        "x-ui-rules": [
+          "The bottom table has rows 0 to 10, each with channels 1 to 4.",
+          "The top tables have rows 0 to 6. Rows 0, 3 and 4 have channels 1 and 4 on the left table, 2 and 3 on the right; the other rows have all four."
+        ]
+      },
+      "FcsStatusRow": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 5,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Label",
+            "description": "The row's name beside the table.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "meaning": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Meaning",
+            "description": "What the row stands for, for screen readers."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "meaning"
+        ],
+        "title": "FcsStatusRow"
+      },
+      "FcsSurface": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 4,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Label",
+            "description": "The surface's name, e.g. LEF.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "left": {
+            "$ref": "#/components/schemas/FcsSurfaceSide",
+            "title": "Left",
+            "description": "The left surface."
+          },
+          "right": {
+            "$ref": "#/components/schemas/FcsSurfaceSide",
+            "title": "Right",
+            "description": "The right surface."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "left",
+          "right"
+        ],
+        "title": "FcsSurface"
+      },
+      "FcsSurfaceSide": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "The deflection readout.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "arrow": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FcsArrow"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arrow",
+            "description": "The arrow beside the value, or none."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "arrow"
+        ],
+        "title": "FcsSurfaceSide"
+      },
+      "FcsTable": {
+        "type": "string",
+        "enum": [
+          "left",
+          "right",
+          "bottom"
+        ],
+        "title": "FcsTable"
+      },
+      "FlightControls": {
+        "properties": {
+          "surfaces": {
+            "prefixItems": [
+              {
+                "$ref": "#/components/schemas/FcsSurface"
+              },
+              {
+                "$ref": "#/components/schemas/FcsSurface"
+              },
+              {
+                "$ref": "#/components/schemas/FcsSurface"
+              },
+              {
+                "$ref": "#/components/schemas/FcsSurface"
+              },
+              {
+                "$ref": "#/components/schemas/FcsSurface"
+              }
+            ],
+            "type": "array",
+            "maxItems": 5,
+            "minItems": 5,
+            "title": "Surfaces",
+            "description": "LEF, TEF, AIL, RUD and STAB, in that order."
+          },
+          "statusRows": {
+            "items": {
+              "$ref": "#/components/schemas/FcsStatusRow"
+            },
+            "type": "array",
+            "maxItems": 11,
+            "minItems": 11,
+            "title": "Status rows",
+            "description": "The 11 rows beside the bottom table."
+          },
+          "channels": {
+            "prefixItems": [
+              {
+                "$ref": "#/components/schemas/Channel"
+              },
+              {
+                "$ref": "#/components/schemas/Channel"
+              },
+              {
+                "$ref": "#/components/schemas/Channel"
+              },
+              {
+                "$ref": "#/components/schemas/Channel"
+              }
+            ],
+            "type": "array",
+            "maxItems": 4,
+            "minItems": 4,
+            "title": "Channels",
+            "description": "What channels 1 to 4 stand for, for screen readers."
+          },
+          "failures": {
+            "items": {
+              "$ref": "#/components/schemas/FcsFailure"
+            },
+            "type": "array",
+            "title": "Failures",
+            "description": "The channel cells drawn with an X.",
+            "x-ui-new-item": {
+              "channel": 1,
+              "row": 0,
+              "table": "bottom"
+            }
+          },
+          "gLimit": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "G limit",
+            "description": "The G limit readout.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "aoa": {
+            "$ref": "#/components/schemas/FcsAoa",
+            "title": "AOA",
+            "description": "The two angle-of-attack readouts."
+          },
+          "blinCode": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "BLIN code",
+            "description": "The BLIN code line.",
+            "x-ddi-charset": "stroke-font"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "surfaces",
+          "statusRows",
+          "channels",
+          "failures",
+          "gLimit",
+          "aoa",
+          "blinCode"
+        ],
+        "title": "FlightControls",
+        "description": "/fcs → FCS (docs/pages/fcs.md); fake data."
+      },
+      "Fraction": {
+        "type": "number",
+        "maximum": 1,
+        "minimum": 0
+      },
+      "FuelMotion": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/WaveMotion"
+          },
+          {
+            "$ref": "#/components/schemas/DrainMotion"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "drain": "#/components/schemas/DrainMotion",
+            "wave": "#/components/schemas/WaveMotion"
+          }
+        }
+      },
+      "FuelReserves": {
+        "properties": {
+          "tanks": {
+            "items": {
+              "$ref": "#/components/schemas/FuelTank"
+            },
+            "type": "array",
+            "maxItems": 9,
+            "minItems": 9,
+            "title": "Tanks",
+            "description": "All nine tanks, each once.",
+            "x-ui-unique-by": [
+              "id"
+            ]
+          },
+          "bingo": {
+            "$ref": "#/components/schemas/Pounds",
+            "title": "Bingo",
+            "description": "The BINGO readout in pounds, ≤ 4 digits."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tanks",
+          "bingo"
+        ],
+        "title": "FuelReserves",
+        "description": "/fuel → FUEL (docs/pages/fuel.md); fake \"energy\" reserves."
+      },
+      "FuelTank": {
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/FuelTankId",
+            "title": "Tank",
+            "description": "Which tank box this is; each tank appears once."
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 22,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Label",
+            "description": "Drawn in the tank's box; how much fits depends on the box.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "The name for screen readers, for example \"Coffee\"."
+          },
+          "capacity": {
+            "type": "integer",
+            "maximum": 9999,
+            "minimum": 1,
+            "title": "Capacity",
+            "description": "Pounds when full, ≤ 4 digits."
+          },
+          "motion": {
+            "$ref": "#/components/schemas/FuelMotion",
+            "title": "Motion",
+            "description": "How the level moves over time."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "name",
+          "capacity",
+          "motion"
+        ],
+        "title": "FuelTank",
+        "x-ui-rules": [
+          "The label fits 22 characters on tk1, leftFeed, rightFeed and tk4, 9 on the wing tanks and 14 on the external tanks."
+        ]
+      },
+      "FuelTankId": {
+        "type": "string",
+        "enum": [
+          "tk1",
+          "leftFeed",
+          "rightFeed",
+          "tk4",
+          "leftWing",
+          "rightWing",
+          "leftExternal",
+          "centreline",
+          "rightExternal"
+        ],
+        "title": "FuelTankId"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HostReadings": {
+        "additionalProperties": {
+          "type": "number",
+          "minimum": 0
+        },
+        "propertyNames": {
+          "$ref": "#/components/schemas/ServerMetric"
+        },
+        "type": "object",
+        "maxProperties": 13,
+        "minProperties": 13
+      },
+      "IdField": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "The field's value.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "meaning": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Meaning",
+            "description": "What the value stands for, for screen readers; not drawn."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "meaning"
+        ],
+        "title": "IdField",
+        "description": "One ID field, over its 200 DI rule."
+      },
+      "LeftChecklistColumn": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 4,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Title",
+            "description": "The column's heading, ≤ 4 characters.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "meaning": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Meaning",
+            "description": "What the heading means, for screen readers; not drawn."
+          },
+          "items": {
+            "items": {
+              "type": "string",
+              "maxLength": 13,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+              "x-ddi-charset": "stroke-font"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "title": "Items",
+            "description": "Up to 6 items, ≤ 13 characters each.",
+            "x-ui-new-item": "ITEM"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "meaning",
+          "items"
+        ],
+        "title": "LeftChecklistColumn",
+        "description": "≤ 6 items of ≤ 13 characters, so they clear the right column."
+      },
+      "LeftField": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 7,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Label",
+            "description": "The field's name.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 7,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "Drawn after the label.",
+            "x-ddi-charset": "stroke-font"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "LeftField",
+        "description": "PROG block, left column: label and value each ≤ 7 (F100, 130 DI columns)."
+      },
+      "LinkEntry": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 8,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Name",
+            "description": "Written in normal case: the glass upper-cases it and screen readers keep it.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "tag": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Tag",
+            "description": "The short tag after the name.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^(https://|/)\\S*$",
+            "title": "URL",
+            "description": "An external https URL, or a path on this site such as /api/resume.pdf.",
+            "x-ui-widget": "url"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "tag",
+          "url"
+        ],
+        "title": "LinkEntry"
+      },
+      "LinkKind": {
+        "type": "string",
+        "enum": [
+          "REPO",
+          "DEMO"
+        ],
+        "title": "LinkKind",
+        "description": "The DATA sublevel legend: `REPO` at PB16, `DEMO` at PB19."
+      },
+      "Links": {
+        "properties": {
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/LinkEntry"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Links",
+            "description": "1 to 10 links, one per keypad digit.",
+            "x-ui-new-item": {
+              "name": "Name",
+              "tag": "TAG",
+              "url": "https://example.com"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "links"
+        ],
+        "title": "Links",
+        "description": "Links → UFC BU (docs/pages/links.md): one row per keypad digit."
+      },
+      "LoadErrors": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "maxLength": 15,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "The errors after ERRORS:.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "meaning": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Meaning",
+            "description": "What the value stands for, for screen readers; not drawn."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "meaning"
+        ],
+        "title": "LoadErrors",
+        "description": "The ERRORS list from the last load, a character clear of `ERRORS:`. A new load clears it."
+      },
+      "LoadoutRow": {
+        "type": "string",
+        "maxLength": 17,
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+        "x-ddi-charset": "stroke-font"
+      },
+      "LoginRequest": {
+        "properties": {
+          "password": {
+            "type": "string",
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "title": "LoginRequest"
+      },
+      "MissileStore": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "missile",
+            "title": "Kind",
+            "description": "The store's symbol on the wingform."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "MissileStore"
+      },
+      "MissionData": {
+        "properties": {
+          "muId": {
+            "$ref": "#/components/schemas/MuId",
+            "title": "MU ID",
+            "description": "The memory unit, on the long rule."
+          },
+          "loadedMuId": {
+            "type": "string",
+            "maxLength": 15,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Loaded MU ID",
+            "description": "The MU ID once the load completes: the console the load opens.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "idFields": {
+            "prefixItems": [
+              {
+                "$ref": "#/components/schemas/IdField"
+              },
+              {
+                "$ref": "#/components/schemas/IdField"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "ID fields",
+            "description": "The two ID fields, ≤ 10 characters each."
+          },
+          "mc": {
+            "$ref": "#/components/schemas/VersionField",
+            "title": "MC",
+            "description": "The mission computer version."
+          },
+          "sms": {
+            "$ref": "#/components/schemas/VersionField",
+            "title": "SMS",
+            "description": "The stores management version."
+          },
+          "errors": {
+            "$ref": "#/components/schemas/LoadErrors",
+            "title": "Errors",
+            "description": "The errors from the last load."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "muId",
+          "loadedMuId",
+          "idFields",
+          "mc",
+          "sms",
+          "errors"
+        ],
+        "title": "MissionData",
+        "description": "/mumi → MUMI (docs/pages/mumi.md); the site's deployment as fake mission data."
+      },
+      "MuId": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "maxLength": 15,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "The MU ID before a load.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "meaning": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Meaning",
+            "description": "What the value stands for, for screen readers; not drawn."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "meaning"
+        ],
+        "title": "MuId",
+        "description": "The memory unit, on the 570 DI rule."
+      },
+      "Ownship": {
+        "properties": {
+          "heading": {
+            "type": "integer",
+            "maximum": 359,
+            "minimum": 0,
+            "title": "Heading",
+            "description": "Degrees magnetic, shown as three digits."
+          },
+          "airspeed": {
+            "type": "integer",
+            "maximum": 999,
+            "minimum": 0,
+            "title": "Airspeed",
+            "description": "Knots calibrated, ≤ 3 digits."
+          },
+          "mach": {
+            "type": "string",
+            "maxLength": 4,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Mach",
+            "description": "Shown as written, for example 0.90.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "altitude": {
+            "type": "integer",
+            "maximum": 99999,
+            "minimum": 1000,
+            "title": "Altitude",
+            "description": "Feet."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "heading",
+          "airspeed",
+          "mach",
+          "altitude"
+        ],
+        "title": "Ownship"
+      },
+      "PairStore": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "pair",
+            "title": "Kind",
+            "description": "The store's symbol on the wingform."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "PairStore"
+      },
+      "Period": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "Pounds": {
+        "type": "integer",
+        "maximum": 9999,
+        "minimum": 0
+      },
+      "Profile": {
+        "properties": {
+          "badge": {
+            "type": "string",
+            "maxLength": 18,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Badge",
+            "description": "The line under the name at the top.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "status": {
+            "prefixItems": [
+              {
+                "$ref": "#/components/schemas/StatusRow"
+              },
+              {
+                "$ref": "#/components/schemas/StatusRow"
+              },
+              {
+                "$ref": "#/components/schemas/StatusRow"
+              },
+              {
+                "$ref": "#/components/schemas/StatusRow"
+              },
+              {
+                "$ref": "#/components/schemas/StatusRow"
+              }
+            ],
+            "type": "array",
+            "maxItems": 5,
+            "minItems": 5,
+            "title": "Status rows",
+            "description": "The five rows of the top-left status quadrant."
+          },
+          "loadout": {
+            "prefixItems": [
+              {
+                "$ref": "#/components/schemas/LoadoutRow"
+              },
+              {
+                "$ref": "#/components/schemas/LoadoutRow"
+              },
+              {
+                "$ref": "#/components/schemas/LoadoutRow"
+              },
+              {
+                "$ref": "#/components/schemas/LoadoutRow"
+              },
+              {
+                "$ref": "#/components/schemas/LoadoutRow"
+              }
+            ],
+            "type": "array",
+            "maxItems": 5,
+            "minItems": 5,
+            "title": "Loadout",
+            "description": "The five rows of the stores quadrant, ≤ 17 characters each."
+          },
+          "footer": {
+            "type": "string",
+            "maxLength": 19,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Footer",
+            "description": "The fuel and gun line across the middle.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "tags": {
+            "prefixItems": [
+              {
+                "$ref": "#/components/schemas/TagRow"
+              },
+              {
+                "$ref": "#/components/schemas/TagRow"
+              },
+              {
+                "$ref": "#/components/schemas/TagRow"
+              }
+            ],
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Tags",
+            "description": "The three rows of the IFF quadrant."
+          },
+          "bio": {
+            "type": "string",
+            "maxLength": 170,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Bio",
+            "description": "Fills the bottom-left quadrant, wrapped to 9 rows of 18 characters.",
+            "x-ddi-charset": "stroke-font",
+            "x-ddi-wrap": {
+              "chars": 18,
+              "rows": 9
+            },
+            "x-ui-widget": "textarea"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "badge",
+          "status",
+          "loadout",
+          "footer",
+          "tags",
+          "bio"
+        ],
+        "title": "Profile",
+        "description": "About → TGT DATA OWNSHIP (docs/pages/about.md).\n\nThe `header` slot is the site name: the frontend fills it from `SITE_NAME`, so it is not stored here."
+      },
+      "Project": {
+        "properties": {
+          "slug": {
+            "$ref": "#/components/schemas/Slug",
+            "title": "Slug",
+            "description": "The URL slug, lower case words joined by hyphens; unique per project."
+          },
+          "station": {
+            "type": "integer",
+            "maximum": 9,
+            "minimum": 1,
+            "title": "Station",
+            "description": "The wingform station, 1 to 9; unique per project."
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 22,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Name",
+            "description": "Drawn above the PROG block.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Code",
+            "description": "The station's type text on the wingform.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "store": {
+            "$ref": "#/components/schemas/ProjectStore",
+            "title": "Store",
+            "description": "The symbol the station draws."
+          },
+          "status": {
+            "$ref": "#/components/schemas/ProjectStatus",
+            "title": "Status",
+            "description": "The station's status word."
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "The legend of one of the categories above.",
+            "x-ui-options-from": "categories/*/legend"
+          },
+          "fields": {
+            "$ref": "#/components/schemas/ProjectFields",
+            "title": "PROG fields",
+            "description": "The two columns of the PROG block."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 335,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Description",
+            "description": "The DATA sublevel, wrapped to 7 rows of 47 characters.",
+            "x-ddi-charset": "stroke-font",
+            "x-ddi-wrap": {
+              "chars": 47,
+              "rows": 7
+            },
+            "x-ui-widget": "textarea"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectLink"
+            },
+            "type": "array",
+            "maxItems": 2,
+            "title": "Links",
+            "description": "At most one REPO and one DEMO link.",
+            "x-ui-new-item": {
+              "kind": "REPO",
+              "url": "https://github.com/"
+            },
+            "x-ui-unique-by": [
+              "kind"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "slug",
+          "station",
+          "name",
+          "code",
+          "store",
+          "status",
+          "category",
+          "fields",
+          "description",
+          "links"
+        ],
+        "title": "Project",
+        "x-ui-rules": [
+          "Stations 1, 4, 6 and 9 carry only a missile; station 5 a rack or a tank; stations 2, 3, 7 and 8 any store."
+        ]
+      },
+      "ProjectCategory": {
+        "properties": {
+          "legend": {
+            "type": "string",
+            "maxLength": 7,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Legend",
+            "description": "The top-row button legend; unique.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "The category's name for screen readers; not drawn."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "legend",
+          "name"
+        ],
+        "title": "ProjectCategory"
+      },
+      "ProjectFields": {
+        "properties": {
+          "left": {
+            "items": {
+              "$ref": "#/components/schemas/LeftField"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "Left column",
+            "description": "Up to 5 rows; label and value ≤ 7 each.",
+            "x-ui-new-item": {
+              "label": "LABEL",
+              "value": "VALUE"
+            }
+          },
+          "right": {
+            "items": {
+              "$ref": "#/components/schemas/RightField"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "Right column",
+            "description": "Up to 5 rows; label ≤ 7, value ≤ 15.",
+            "x-ui-new-item": {
+              "label": "LABEL",
+              "value": "VALUE"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "left",
+          "right"
+        ],
+        "title": "ProjectFields"
+      },
+      "ProjectLink": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/LinkKind",
+            "title": "Kind",
+            "description": "Which DATA legend opens it: REPO or DEMO."
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^https://\\S+$",
+            "title": "URL",
+            "description": "An https URL.",
+            "x-ui-widget": "url"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "url"
+        ],
+        "title": "ProjectLink"
+      },
+      "ProjectStatus": {
+        "type": "string",
+        "enum": [
+          "RDY",
+          "STBY",
+          "DEGD",
+          "HUNG"
+        ],
+        "title": "ProjectStatus",
+        "description": "Words from the DCS `Status_Set` (STORES.lua line 9)."
+      },
+      "ProjectStore": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/MissileStore"
+          },
+          {
+            "$ref": "#/components/schemas/PairStore"
+          },
+          {
+            "$ref": "#/components/schemas/RackStore"
+          },
+          {
+            "$ref": "#/components/schemas/TankStore"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "missile": "#/components/schemas/MissileStore",
+            "pair": "#/components/schemas/PairStore",
+            "rack": "#/components/schemas/RackStore",
+            "tank": "#/components/schemas/TankStore"
+          }
+        }
+      },
+      "Projects": {
+        "properties": {
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectCategory"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "minItems": 1,
+            "title": "Categories",
+            "description": "1 to 5 categories, one per top-row button; each needs at least one project.",
+            "x-ui-new-item": {
+              "legend": "NEW",
+              "name": "New category"
+            },
+            "x-ui-unique-by": [
+              "legend"
+            ]
+          },
+          "projects": {
+            "items": {
+              "$ref": "#/components/schemas/Project"
+            },
+            "type": "array",
+            "maxItems": 9,
+            "minItems": 1,
+            "title": "Projects",
+            "description": "1 to 9 projects, one per wingform station.",
+            "x-ui-new-item": {
+              "category": "NEW",
+              "code": "NEW",
+              "description": "What the project is.",
+              "fields": {
+                "left": [],
+                "right": []
+              },
+              "links": [],
+              "name": "NEW PROJECT",
+              "slug": "new-project",
+              "station": 2,
+              "status": "STBY",
+              "store": {
+                "kind": "missile"
+              }
+            },
+            "x-ui-unique-by": [
+              "slug",
+              "station"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "categories",
+          "projects"
+        ],
+        "title": "Projects",
+        "description": "Projects → STORES (docs/pages/projects.md): one category per top-row OSB (PB6–10), one project per station."
+      },
+      "QualificationColumn": {
+        "properties": {
+          "heading": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Heading",
+            "description": "The column's heading for screen readers; not drawn."
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/QualificationRow"
+            },
+            "type": "array",
+            "maxItems": 12,
+            "title": "Rows",
+            "description": "Up to 12 qualifications, top first.",
+            "x-ui-new-item": {
+              "name": "QUAL",
+              "value": "VALUE"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "heading",
+          "rows"
+        ],
+        "title": "QualificationColumn"
+      },
+      "QualificationRow": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Name",
+            "description": "The row's short label.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 12,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "Drawn after the name.",
+            "x-ddi-charset": "stroke-font"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "title": "QualificationRow",
+        "description": "Right column: the value must end before the side legends (x = 470), so ≤ 12."
+      },
+      "RackStore": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "rack",
+            "title": "Kind",
+            "description": "The store's symbol on the wingform."
+          },
+          "amount": {
+            "type": "integer",
+            "maximum": 99,
+            "minimum": 1,
+            "title": "Amount",
+            "description": "The number of parts the project ships as; two digits at most."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "amount"
+        ],
+        "title": "RackStore"
+      },
+      "RadarContact": {
+        "properties": {
+          "range": {
+            "type": "number",
+            "maximum": 80,
+            "exclusiveMinimum": 0,
+            "title": "Range",
+            "description": "Nautical miles, within the 80 NM scale."
+          },
+          "azimuth": {
+            "type": "number",
+            "maximum": 70,
+            "minimum": -70,
+            "title": "Azimuth",
+            "description": "Degrees off the nose, right positive."
+          },
+          "speed": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "title": "Speed",
+            "description": "Knots, relative to our aircraft."
+          },
+          "track": {
+            "type": "number",
+            "exclusiveMaximum": 360,
+            "minimum": 0,
+            "title": "Track",
+            "description": "Degrees clockwise from our nose: 180 flies straight at us."
+          },
+          "altitude": {
+            "type": "integer",
+            "maximum": 99999,
+            "minimum": 0,
+            "title": "Altitude",
+            "description": "Feet. The contact flies level, so the elevation bars decide which scans see it."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "range",
+          "azimuth",
+          "speed",
+          "track",
+          "altitude"
+        ],
+        "title": "RadarContact",
+        "description": "A contact at t = 0, moving in a straight line relative to our aircraft."
+      },
+      "RadarScene": {
+        "properties": {
+          "ownship": {
+            "$ref": "#/components/schemas/Ownship",
+            "description": "Our aircraft's readouts."
+          },
+          "weapon": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Weapon",
+            "description": "The priority air-to-air weapon and its count, for example 9X 2.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "contacts": {
+            "items": {
+              "$ref": "#/components/schemas/RadarContact"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "minItems": 3,
+            "title": "Contacts",
+            "description": "3 to 6 contacts.",
+            "x-ui-new-item": {
+              "altitude": 20000,
+              "azimuth": 0,
+              "range": 40,
+              "speed": 500,
+              "track": 180
+            }
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ownship",
+          "weapon",
+          "contacts"
+        ],
+        "title": "RadarScene",
+        "description": "/radar → RDR ATTK in RWS (docs/pages/radar.md); fake data."
+      },
+      "Resume": {
+        "properties": {
+          "title": {
+            "prefixItems": [
+              {
+                "$ref": "#/components/schemas/TitleLine"
+              },
+              {
+                "$ref": "#/components/schemas/TitleLine"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Title",
+            "description": "Two lines drawn large at the top, ≤ 24 characters each."
+          },
+          "left": {
+            "$ref": "#/components/schemas/SkillColumn",
+            "title": "Left column",
+            "description": "Skills: name ≤ 6, value ≤ 15."
+          },
+          "right": {
+            "$ref": "#/components/schemas/QualificationColumn",
+            "title": "Right column",
+            "description": "Qualifications: name ≤ 6, value ≤ 12."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "left",
+          "right"
+        ],
+        "title": "Resume",
+        "description": "Resume → S/W CONFIGURATION (docs/pages/resume.md). The PDF is uploaded separately (`PUT /api/admin/resume`)."
+      },
+      "RevalidationStatus": {
+        "type": "string",
+        "enum": [
+          "done",
+          "failed"
+        ],
+        "title": "RevalidationStatus",
+        "description": "Whether Next.js accepted the revalidation call after a write. The write itself is saved either way."
+      },
+      "RightChecklistColumn": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 4,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Title",
+            "description": "The column's heading, ≤ 4 characters.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "meaning": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Meaning",
+            "description": "What the heading means, for screen readers; not drawn."
+          },
+          "items": {
+            "items": {
+              "type": "string",
+              "maxLength": 16,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+              "x-ddi-charset": "stroke-font"
+            },
+            "type": "array",
+            "maxItems": 9,
+            "title": "Items",
+            "description": "Up to 9 items, ≤ 16 characters each.",
+            "x-ui-new-item": "ITEM"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "meaning",
+          "items"
+        ],
+        "title": "RightChecklistColumn",
+        "description": "≤ 9 items of ≤ 16 characters, so they stay inside the glass."
+      },
+      "RightField": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 7,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Label",
+            "description": "The field's name.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 15,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "Drawn after the label.",
+            "x-ddi-charset": "stroke-font"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "RightField",
+        "description": "PROG block, right column: label ≤ 7, value ≤ 15."
+      },
+      "Role": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 27,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Title",
+            "description": "The role's job title.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "span": {
+            "type": "string",
+            "maxLength": 9,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Span",
+            "description": "The dates, for example 2021-2024.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "bullets": {
+            "items": {
+              "type": "string",
+              "maxLength": 662,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+              "x-ddi-charset": "stroke-font",
+              "x-ddi-wrap": {
+                "chars": 38,
+                "rows": 17
+              },
+              "x-ui-widget": "textarea"
+            },
+            "type": "array",
+            "maxItems": 17,
+            "title": "Highlights",
+            "description": "Wrapped at 38 characters; the employer's roles share the page's rows.",
+            "x-ui-new-item": "New highlight."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "span",
+          "bullets"
+        ],
+        "title": "Role"
+      },
+      "SavedResume": {
+        "properties": {
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "size": {
+            "type": "integer",
+            "title": "Size"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "etag",
+          "size",
+          "revalidation"
+        ],
+        "title": "SavedResume"
+      },
+      "SavedSection_Bit_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Bit"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt",
+          "revalidation"
+        ],
+        "title": "SavedSection[Bit]"
+      },
+      "SavedSection_Checklist_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Checklist"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt",
+          "revalidation"
+        ],
+        "title": "SavedSection[Checklist]"
+      },
+      "SavedSection_Contact_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Contact"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt",
+          "revalidation"
+        ],
+        "title": "SavedSection[Contact]"
+      },
+      "SavedSection_FlightControls_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/FlightControls"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt",
+          "revalidation"
+        ],
+        "title": "SavedSection[FlightControls]"
+      },
+      "SavedSection_FuelReserves_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/FuelReserves"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt",
+          "revalidation"
+        ],
+        "title": "SavedSection[FuelReserves]"
+      },
+      "SavedSection_Links_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Links"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt",
+          "revalidation"
+        ],
+        "title": "SavedSection[Links]"
+      },
+      "SavedSection_MissionData_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/MissionData"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt",
+          "revalidation"
+        ],
+        "title": "SavedSection[MissionData]"
+      },
+      "SavedSection_Profile_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Profile"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt",
+          "revalidation"
+        ],
+        "title": "SavedSection[Profile]"
+      },
+      "SavedSection_Projects_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Projects"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt",
+          "revalidation"
+        ],
+        "title": "SavedSection[Projects]"
+      },
+      "SavedSection_RadarScene_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/RadarScene"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt",
+          "revalidation"
+        ],
+        "title": "SavedSection[RadarScene]"
+      },
+      "SavedSection_Resume_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Resume"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt",
+          "revalidation"
+        ],
+        "title": "SavedSection[Resume]"
+      },
+      "SavedSection_ServerStats_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/ServerStats"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt",
+          "revalidation"
+        ],
+        "title": "SavedSection[ServerStats]"
+      },
+      "SavedSection_Work_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Work"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          },
+          "revalidation": {
+            "$ref": "#/components/schemas/RevalidationStatus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt",
+          "revalidation"
+        ],
+        "title": "SavedSection[Work]"
+      },
+      "SectionDraft_Bit_": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/Bit"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "updatedAt"
+        ],
+        "title": "SectionDraft[Bit]"
+      },
+      "SectionDraft_Checklist_": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/Checklist"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "updatedAt"
+        ],
+        "title": "SectionDraft[Checklist]"
+      },
+      "SectionDraft_Contact_": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/Contact"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "updatedAt"
+        ],
+        "title": "SectionDraft[Contact]"
+      },
+      "SectionDraft_FlightControls_": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/FlightControls"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "updatedAt"
+        ],
+        "title": "SectionDraft[FlightControls]"
+      },
+      "SectionDraft_FuelReserves_": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/FuelReserves"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "updatedAt"
+        ],
+        "title": "SectionDraft[FuelReserves]"
+      },
+      "SectionDraft_Links_": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/Links"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "updatedAt"
+        ],
+        "title": "SectionDraft[Links]"
+      },
+      "SectionDraft_MissionData_": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/MissionData"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "updatedAt"
+        ],
+        "title": "SectionDraft[MissionData]"
+      },
+      "SectionDraft_Profile_": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/Profile"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "updatedAt"
+        ],
+        "title": "SectionDraft[Profile]"
+      },
+      "SectionDraft_Projects_": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/Projects"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "updatedAt"
+        ],
+        "title": "SectionDraft[Projects]"
+      },
+      "SectionDraft_RadarScene_": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/RadarScene"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "updatedAt"
+        ],
+        "title": "SectionDraft[RadarScene]"
+      },
+      "SectionDraft_Resume_": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/Resume"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "updatedAt"
+        ],
+        "title": "SectionDraft[Resume]"
+      },
+      "SectionDraft_ServerStats_": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/ServerStats"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "updatedAt"
+        ],
+        "title": "SectionDraft[ServerStats]"
+      },
+      "SectionDraft_Work_": {
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/Work"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content",
+          "updatedAt"
+        ],
+        "title": "SectionDraft[Work]"
+      },
+      "SectionState_Bit_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Bit"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt"
+        ],
+        "title": "SectionState[Bit]"
+      },
+      "SectionState_Checklist_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Checklist"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt"
+        ],
+        "title": "SectionState[Checklist]"
+      },
+      "SectionState_Contact_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Contact"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt"
+        ],
+        "title": "SectionState[Contact]"
+      },
+      "SectionState_FlightControls_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/FlightControls"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt"
+        ],
+        "title": "SectionState[FlightControls]"
+      },
+      "SectionState_FuelReserves_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/FuelReserves"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt"
+        ],
+        "title": "SectionState[FuelReserves]"
+      },
+      "SectionState_Links_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Links"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt"
+        ],
+        "title": "SectionState[Links]"
+      },
+      "SectionState_MissionData_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/MissionData"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt"
+        ],
+        "title": "SectionState[MissionData]"
+      },
+      "SectionState_Profile_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Profile"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt"
+        ],
+        "title": "SectionState[Profile]"
+      },
+      "SectionState_Projects_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Projects"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt"
+        ],
+        "title": "SectionState[Projects]"
+      },
+      "SectionState_RadarScene_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/RadarScene"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt"
+        ],
+        "title": "SectionState[RadarScene]"
+      },
+      "SectionState_Resume_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Resume"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt"
+        ],
+        "title": "SectionState[Resume]"
+      },
+      "SectionState_ServerStats_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/ServerStats"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt"
+        ],
+        "title": "SectionState[ServerStats]"
+      },
+      "SectionState_Work_": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/Work"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updatedat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "etag",
+          "updatedAt"
+        ],
+        "title": "SectionState[Work]"
+      },
+      "ServerHost": {
+        "properties": {
+          "header": {
+            "type": "string",
+            "maxLength": 9,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Header",
+            "description": "The column header, in place of LEFT EPE.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "The host's name for screen readers."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "header",
+          "name"
+        ],
+        "title": "ServerHost"
+      },
+      "ServerMetric": {
+        "type": "string",
+        "enum": [
+          "inletTemp",
+          "cpu",
+          "ram",
+          "cpuTemp",
+          "power",
+          "fan",
+          "memPressure",
+          "throughput",
+          "jitter",
+          "diskTemp",
+          "loadAvg",
+          "disk",
+          "uptime"
+        ],
+        "title": "ServerMetric",
+        "description": "`SERVER_METRICS` in the frontend: the 13 ENG rows, top row first."
+      },
+      "ServerRow": {
+        "properties": {
+          "metric": {
+            "$ref": "#/components/schemas/ServerMetric",
+            "title": "Metric",
+            "description": "Which reading the row shows."
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Label",
+            "description": "The centre label, as wide as INLET TEMP.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name",
+            "description": "The row's name for screen readers."
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit",
+            "description": "The unit for screen readers; empty for a bare number."
+          },
+          "decimals": {
+            "type": "integer",
+            "maximum": 3,
+            "minimum": 0,
+            "title": "Decimals",
+            "description": "Digits after the decimal point."
+          },
+          "suffix": {
+            "type": "string",
+            "maxLength": 5,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Suffix",
+            "description": "Drawn right after the value, for example D for days; may be empty.",
+            "x-ddi-charset": "stroke-font"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metric",
+          "label",
+          "name",
+          "unit",
+          "decimals",
+          "suffix"
+        ],
+        "title": "ServerRow"
+      },
+      "ServerSnapshot": {
+        "properties": {
+          "hosts": {
+            "prefixItems": [
+              {
+                "$ref": "#/components/schemas/HostReadings"
+              },
+              {
+                "$ref": "#/components/schemas/HostReadings"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Hosts",
+            "description": "One reading per metric for each host, left host first."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "hosts"
+        ],
+        "title": "ServerSnapshot",
+        "description": "Both hosts' readings at one moment, left host first."
+      },
+      "ServerStats": {
+        "properties": {
+          "hosts": {
+            "prefixItems": [
+              {
+                "$ref": "#/components/schemas/ServerHost"
+              },
+              {
+                "$ref": "#/components/schemas/ServerHost"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Hosts",
+            "description": "The two columns, left host first."
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/ServerRow"
+            },
+            "type": "array",
+            "maxItems": 13,
+            "minItems": 13,
+            "title": "Rows",
+            "description": "One row per metric, in this order: inletTemp, cpu, ram, cpuTemp, power, fan, memPressure, throughput, jitter, diskTemp, loadAvg, disk, uptime.",
+            "x-ui-rules": [
+              "Rows follow the metric order, one per metric."
+            ]
+          },
+          "baseline": {
+            "$ref": "#/components/schemas/ServerSnapshot",
+            "title": "Baseline",
+            "description": "The readings the page starts from and drifts around."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "hosts",
+          "rows",
+          "baseline"
+        ],
+        "title": "ServerStats",
+        "description": "/server → ENG (docs/pages/eng.md); fake data.",
+        "x-ui-rules": [
+          "Each baseline value, with its row's decimals and suffix, fits 6 characters."
+        ]
+      },
+      "SiteContent": {
+        "properties": {
+          "profile": {
+            "$ref": "#/components/schemas/Profile"
+          },
+          "resume": {
+            "$ref": "#/components/schemas/Resume"
+          },
+          "work": {
+            "$ref": "#/components/schemas/Work"
+          },
+          "projects": {
+            "$ref": "#/components/schemas/Projects"
+          },
+          "contact": {
+            "$ref": "#/components/schemas/Contact"
+          },
+          "links": {
+            "$ref": "#/components/schemas/Links"
+          },
+          "server": {
+            "$ref": "#/components/schemas/ServerStats"
+          },
+          "fuel": {
+            "$ref": "#/components/schemas/FuelReserves"
+          },
+          "fcs": {
+            "$ref": "#/components/schemas/FlightControls"
+          },
+          "checklist": {
+            "$ref": "#/components/schemas/Checklist"
+          },
+          "bit": {
+            "$ref": "#/components/schemas/Bit"
+          },
+          "radar": {
+            "$ref": "#/components/schemas/RadarScene"
+          },
+          "mumi": {
+            "$ref": "#/components/schemas/MissionData"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "profile",
+          "resume",
+          "work",
+          "projects",
+          "contact",
+          "links",
+          "server",
+          "fuel",
+          "fcs",
+          "checklist",
+          "bit",
+          "radar",
+          "mumi"
+        ],
+        "title": "SiteContent",
+        "description": "Every section, as `GET /api/content` returns it."
+      },
+      "SkillColumn": {
+        "properties": {
+          "heading": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Heading",
+            "description": "The column's heading for screen readers; not drawn."
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/SkillRow"
+            },
+            "type": "array",
+            "maxItems": 12,
+            "title": "Rows",
+            "description": "Up to 12 skills, top first.",
+            "x-ui-new-item": {
+              "name": "SKILL",
+              "value": "VALUE"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "heading",
+          "rows"
+        ],
+        "title": "SkillColumn"
+      },
+      "SkillRow": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Name",
+            "description": "The row's short label.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 15,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "Drawn after the name.",
+            "x-ddi-charset": "stroke-font"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "title": "SkillRow",
+        "description": "Left column: the value must end before the right column (x = 80), so ≤ 15."
+      },
+      "Slug": {
+        "type": "string",
+        "maxLength": 40,
+        "minLength": 1,
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      },
+      "StatusRow": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 7,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Label",
+            "description": "Left of the row, colon included, e.g. ROLE:.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 9,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "Right of the label.",
+            "x-ddi-charset": "stroke-font"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "StatusRow",
+        "description": "A status-quadrant row: label ≤ 7 including the colon, value ≤ 9."
+      },
+      "SwConfig": {
+        "properties": {
+          "left": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/SwConfigEntry"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array",
+            "maxItems": 12,
+            "minItems": 12,
+            "title": "Left column",
+            "description": "12 rows; null is a blank row.",
+            "x-ui-rules": [
+              "Row 4 stays blank (null), as the ATARS slot is in DCS."
+            ]
+          },
+          "right": {
+            "items": {
+              "$ref": "#/components/schemas/SwConfigEntry"
+            },
+            "type": "array",
+            "maxItems": 12,
+            "minItems": 12,
+            "title": "Right column",
+            "description": "12 rows."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "left",
+          "right"
+        ],
+        "title": "SwConfig",
+        "description": "S/W CONFIGURATION: the site's own stack. `null` is a blank row."
+      },
+      "SwConfigEntry": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 6,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Name",
+            "description": "The component's name.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 8,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "Its version, ≤ 8 characters.",
+            "x-ddi-charset": "stroke-font"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "title": "SwConfigEntry"
+      },
+      "TagRow": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 16,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Label",
+            "description": "The tag's name.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 16,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "Drawn after the label and a space; the whole row fits 18 characters.",
+            "x-ddi-charset": "stroke-font"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "TagRow",
+        "description": "An IFF-quadrant row, drawn as `label value` in ≤ 18 characters.",
+        "x-ddi-combined-length": {
+          "fields": [
+            "label",
+            "value"
+          ],
+          "gap": 1,
+          "maxLength": 18
+        }
+      },
+      "TankStore": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "tank",
+            "title": "Kind",
+            "description": "The store's symbol on the wingform."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "TankStore"
+      },
+      "TitleLine": {
+        "type": "string",
+        "maxLength": 24,
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+        "x-ddi-charset": "stroke-font"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VersionField": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9 +'()*%,°./\\\\?:#=_^@-]*$",
+            "title": "Value",
+            "description": "The version string.",
+            "x-ddi-charset": "stroke-font"
+          },
+          "meaning": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Meaning",
+            "description": "What the value stands for, for screen readers; not drawn."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "meaning"
+        ],
+        "title": "VersionField",
+        "description": "The MC or SMS value, a character clear of its label and the vertical rule."
+      },
+      "WaveMotion": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "wave",
+            "title": "Motion",
+            "description": "A slow sine."
+          },
+          "level": {
+            "$ref": "#/components/schemas/Fraction",
+            "title": "Level",
+            "description": "The level at the start, 0 (empty) to 1 (full)."
+          },
+          "swing": {
+            "$ref": "#/components/schemas/Fraction",
+            "title": "Swing",
+            "description": "How far the level moves either way, 0 to 1."
+          },
+          "periodSeconds": {
+            "$ref": "#/components/schemas/Period",
+            "title": "Period",
+            "description": "Seconds per cycle."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "level",
+          "swing",
+          "periodSeconds"
+        ],
+        "title": "WaveMotion",
+        "description": "A slow sine: `level` at t = 0, ± `swing`."
+      },
+      "Work": {
+        "properties": {
+          "employers": {
+            "items": {
+              "$ref": "#/components/schemas/Employer"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "minItems": 1,
+            "title": "Employers",
+            "description": "1 to 5 employers, newest first; each gets a top-row tab.",
+            "x-ui-new-item": {
+              "id": "new-employer",
+              "location": "CITY",
+              "name": "EMPLOYER",
+              "roles": [
+                {
+                  "bullets": [],
+                  "span": "2020-2026",
+                  "title": "ROLE"
+                }
+              ],
+              "span": "2020-2026",
+              "tab": "NEW"
+            },
+            "x-ui-unique-by": [
+              "id"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "employers"
+        ],
+        "title": "Work",
+        "description": "Work history (docs/pages/work.md): one employer per top-row tab (PB6–10), newest first."
+      }
+    }
+  }
+}
