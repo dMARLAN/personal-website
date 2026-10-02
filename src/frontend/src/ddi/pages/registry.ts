@@ -10,7 +10,8 @@ export type PageId =
   | "contact"
   | "links"
   | "radar"
-  | "server";
+  | "server"
+  | "bit";
 
 /** The two menus. Both live at `/`: they are in-section state, not URLs (docs/design.md section 9.4). */
 export const MENU_NAMES = ["TAC", "SUPT"] as const;
@@ -107,6 +108,14 @@ export const PAGES: Readonly<Record<PageId, PageDef>> = {
     menu: { on: "SUPT", pb: 12, legend: ["ENG"] },
     label: "Home server, simulated",
     available: false,
+  },
+  bit: {
+    id: "bit",
+    path: "/bit",
+    kind: "showcase",
+    menu: { on: "SUPT", pb: 8, legend: ["BIT"] },
+    label: "Built-in test, simulated",
+    available: true,
   },
 };
 
