@@ -60,6 +60,15 @@ api_config = decode_yaml(read_file('k8s/api/configmap.yaml'))
 api_config['data']['APP_CORS_ORIGINS'] = str(encode_json(['http://%s:3000' % host for host in DEV_HOSTS]))
 k8s_yaml(encode_yaml(api_config))
 
+# Dev-only Secret built from the template. Admin login needs an argon2 hash in your shell's ADMIN_AUTH_PASSWORD_HASH
+# (`make -C src/api hash-password`); without one, login answers 503. The revalidation secret is a
+# fixed dev placeholder shared by the API and the frontend.
+api_secrets = decode_yaml(read_file('k8s/api/secret.example.yaml'))
+api_secrets['stringData']['ADMIN_AUTH_PASSWORD_HASH'] = os.getenv('ADMIN_AUTH_PASSWORD_HASH', '')
+api_secrets['stringData']['REVALIDATE_SECRET'] = 'dev-revalidate-secret'
+k8s_yaml(encode_yaml(api_secrets))
+
+k8s_yaml('k8s/api/pvc.yaml')
 k8s_yaml('k8s/api/deployment.yaml')
 k8s_yaml('k8s/api/service.yaml')
 
@@ -74,7 +83,11 @@ k8s_yaml('k8s/frontend/service.yaml')
 
 k8s_resource(
     'personal-website-api',
-    objects=['personal-website-api-config:configmap'],
+    objects=[
+        'personal-website-api-config:configmap',
+        'personal-website-api-secrets:secret',
+        'personal-website-api-data:persistentvolumeclaim',
+    ],
     port_forwards='0.0.0.0:8000:8000',
 )
 k8s_resource(

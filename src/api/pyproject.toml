@@ -4,13 +4,27 @@ version = "0.1.0"
 description = "Personal website API"
 requires-python = ">=3.14"
 dependencies = [
+    "aiosqlite>=0.22.1",
+    "alembic>=1.20.0",
+    "argon2-cffi>=25.1.0",
+    "click>=8.5.0",
     "dependency-injector>=4.49.1",
     "fastapi>=0.142.2",
+    "httpx2>=2.13.1",
     "pydantic>=2.13.5",
     "pydantic-settings>=2.15.0",
+    "python-multipart>=0.0.32",
+    "sqlalchemy[asyncio]>=2.1.2",
     "uvicorn>=0.54.0",
 ]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 addopts = ["--import-mode=importlib"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[dependency-groups]
+dev = [
+    "pytest-asyncio>=1.4.0",
+]

@@ -21,13 +21,13 @@
 
 # Repo Overview
 
-Chad's personal website, served at <https://chad.hambley.org>. It is a skeleton: a placeholder page plus an API that
-serves only `GET /health`.
+Chad's personal website, served at <https://chad.hambley.org>: an F/A-18C DDI frontend whose content the API stores in
+SQLite and Chad edits in `/admin` (`docs/design.md` section 13).
 
 | Path             | What it is                                                                 |
 |------------------|----------------------------------------------------------------------------|
 | `pyproject.toml` | uv workspace root + shared Ruff/Pyright config (py314, line 120)           |
-| `src/api`        | `personal-website-api`: FastAPI application with a DI container            |
+| `src/api`        | `personal-website-api`: FastAPI + SQLite (content, admin auth, resume PDF) |
 | `src/frontend`   | Next.js App Router frontend (outside the uv workspace)                     |
 | `k8s/`           | Local-dev Kubernetes manifests (kind cluster via ctlptl)                   |
 | `Tiltfile`       | Local dev orchestration: builds images, deploys k8s, Generate Types button |

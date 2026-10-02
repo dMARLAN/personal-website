@@ -21,3 +21,9 @@ spec:
         env:
         - name: API_INTERNAL_URL
           value: "http://personal-website-api:8000"
+        # Checks the API's calls to /api/revalidate (docs/design.md section 13).
+        - name: REVALIDATE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: personal-website-api-secrets
+              key: REVALIDATE_SECRET

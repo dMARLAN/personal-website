@@ -39,7 +39,7 @@ Goals:
   selector is left out (ours, section 5.2).
 - A day and a night appearance for the whole site, following the OS by default (ours, section 4.8).
 - Every section has its own URL. Content is server-rendered and readable without JavaScript.
-- Content lives in typed data files.
+- Content is typed, edited in `/admin` and stored by the API (section 13).
 - Static pages ship no per-frame work. Only the radar page animates.
 
 Non-goals:
@@ -50,7 +50,7 @@ Non-goals:
 - Scanlines, flicker, phosphor persistence, warm-up, power-off fade, distortion and noise. DCS models none of
   them [fnd §4.4].
 - A mobile-specific layout. Mobile only needs to work.
-- A contact form, live server stats, and any API route other than `/health`.
+- A contact form and live server stats. The API serves content and admin routes only (section 13).
 
 ## 3. Resolved research conflicts
 
@@ -725,7 +725,9 @@ Because in-section state has no URL, the semantic layer of each section lists th
 
 ## 11. Content schema
 
-Content lives in `src/frontend/src/content/*.ts`. Each file exports typed constants. Rendering code imports
+The stored content and its validation live in the API (section 13): its Pydantic models are the source of truth,
+and the frontend generates its types from them. Until the frontend switches to the API, content lives in
+`src/frontend/src/content/*.ts`. Each file exports typed constants. Rendering code imports
 from `content/` and never the other way round. Limits come from each format's geometry. They are measured
 with `geometry.measure()` at the square tier and enforced by tests. Upper-casing happens at render time, and
 the semantic layer keeps the original case.
@@ -903,14 +905,96 @@ All positions are DCS DI. "Edge" means the element goes in an edge strip.
 
 </details>
 
-## 13. API
+## 13. API (ours)
 
-- Today the API serves only `GET /health`. The site does not call it at runtime.
-- Future uses:
-  - `GET /stats` for live home-server metrics on `/server`. The frontend would read it at request time and
-    lose static generation for that one route.
-  - `POST /contact`. It needs text entry, which the glass cannot take, so the form would live in the plain
-    view only.
+The API owns the site's content. Chad edits it in `/admin`; FastAPI validates and stores it in SQLite on a
+persistent volume; Next.js fetches it and re-renders a page when the API tells it the page changed.
+
+### 13.1 Storage
+
+- SQLite (WAL, `busy_timeout` 5 s) at `$STORAGE_DATA_DIR/site.db`, with the resume PDF beside it as
+  `resume.pdf`. One API replica owns the file (`Recreate` deployment, RWO volume). Alembic migrates at startup.
+- **One JSON document per section** (`content_section` row: section, document, etag, updated_at). Each section is
+  edited as one form and saved whole, its shape is deeply nested with fixed-length tuples, and nothing queries
+  inside it, so normalised tables (about 25 of them) would add joins and migrations for no gain. Pydantic
+  validates every write; a schema change ships with an Alembic data migration that rewrites the affected rows.
+- At startup, any section without a row gets its seed document (`src/api/src/seed/content.py`, the placeholder
+  content transcribed from the old `src/frontend/src/content/*.ts`), and an empty volume gets the placeholder PDF.
+- Backup: `make backup-api` (pod in the current kube context) or `make -C src/api backup` (local). Both use
+  SQLite's online backup API, the same as `sqlite3 site.db ".backup out.db"`.
+
+### 13.2 Content schema and display limits
+
+The Pydantic models in `src/api/src/content/` are the source of truth; the frontend generates its types from
+`/openapi.json` (`npm run openapi:gen`). JSON keys are camelCase. They mirror section 11's types, with three
+differences: list sections are wrapped in an object (`work.employers`, `links.links`, `projects.categories` and
+`projects.projects`, `bit.checks`/`legendNames`/`swConfig`); `Profile.header` is not stored (the page draws
+`SITE_NAME`); `Resume.pdfPath` is gone (the PDF comes from `GET /api/resume.pdf`).
+
+Writes enforce what the glass can draw: every drawn string uses only the stroke font's glyphs (A–Z, 0–9, space,
+`-+'()*%,°./\?:#=_^@`; lower case is fine, the glass upper-cases it), fits its slot's character budget, and
+wrapped text (bio, highlights, descriptions) fits its rows. Counts and cross-field rules follow the frontend's
+content-fit tests (for example 1–5 employers with 1–4 roles, unique project stations, stores a station can draw).
+
+### 13.3 Endpoints
+
+| Method and path | Auth | What it does |
+|---|---|---|
+| `GET /health` | none | Liveness. |
+| `GET /api/content` | none | `SiteContent`: every section. `ETag`, `Cache-Control: public, no-cache`; `If-None-Match` → 304. |
+| `GET /api/resume.pdf` | none | The PDF, `inline`, with `ETag`, `Last-Modified`, `nosniff`; 304 on a match; 404 if none. |
+| `POST /api/admin/login` | none | Body `{password}`. Sets the session cookie; returns `{csrfToken, expiresAt}`. 401 wrong password, 429 throttled (`Retry-After`), 503 no hash configured. |
+| `GET /api/admin/session` | session | `{csrfToken, expiresAt}`, so a reloaded admin page can recover its CSRF token. |
+| `POST /api/admin/logout` | session + CSRF | Deletes the session and clears the cookie. 204. |
+| `GET /api/admin/content/{section}` | session | `{document, etag, updatedAt}` for one section. |
+| `PUT /api/admin/content/{section}` | session + CSRF | Body: the whole document. Optional `If-Match: "<etag>"` → 412 if it changed. 422 if it cannot render. Returns `{document, etag, updatedAt, revalidation: "done" \| "failed"}`. |
+| `PUT /api/admin/resume` | session + CSRF | Multipart `file`: `application/pdf`, starting `%PDF-`, ≤ 10 MB (415 / 413 otherwise). Returns `{etag, size, revalidation}`. |
+
+`{section}` is one of `profile`, `resume`, `work`, `projects`, `contact`, `links`, `server`, `fuel`, `fcs`,
+`checklist`, `bit`, `radar`. Each has its own route pair and `operationId` (`adminGetProfile`,
+`adminPutProfile`, …), so every document is exactly typed in the generated client. Errors are
+`{"detail": "<CODE>"}`, or FastAPI's validation list for 422.
+
+### 13.4 Auth
+
+- `/admin` and `/api/admin/*` are reachable only over Tailscale: the public ingress blocks both prefixes
+  (configured in the homeserver repo). The password is the second factor.
+- One user. `ADMIN_AUTH_PASSWORD_HASH` holds an argon2 hash (`make -C src/api hash-password`); no plaintext
+  password exists anywhere. Unset means login is disabled (503).
+- Server-side sessions: a random 256-bit token in the cookie `pw_admin_session` (`HttpOnly; Secure;
+  SameSite=Strict; Path=/api/admin`; 12 h). The database stores only its sha256, so logout and expiry are real.
+  Being server-side, it needs no signing secret.
+- CSRF: every mutating admin request needs `X-CSRF-Token` equal to the session's token (returned by login and
+  `GET /api/admin/session`), else 403. SameSite=Strict and the JSON-only login body are a second layer.
+- Login throttling: 5 failed logins from one client IP lock it for the rest of a 15-minute sliding window (429,
+  even with the right password). In process memory, which is the whole picture with one replica.
+
+### 13.5 Revalidation contract
+
+After every successful admin write the API calls the Next.js on-demand revalidation route:
+
+```
+POST $REVALIDATE_URL                       # dev cluster: http://personal-website-frontend:3000/api/revalidate
+Authorization: Bearer $REVALIDATE_SECRET   # shared secret; the frontend reads it from personal-website-api-secrets
+Content-Type: application/json
+
+{"paths": ["/about"]}
+```
+
+- The frontend route must compare the bearer token in constant time, answer 401 on a mismatch, call
+  `revalidatePath(path)` for each path, and answer 2xx (for example `{"revalidated": true}`).
+- Paths per section: profile `/about`, resume `/resume`, work `/work`, projects `/projects`, contact `/contact`,
+  links `/links`, server `/server`, fuel `/fuel`, fcs `/fcs`, checklist `/chklst`, bit `/bit`, radar `/radar`. A
+  PDF upload revalidates `/resume`.
+- Timeout 5 s. A failure does not undo the save: the PUT answers 200 with `revalidation: "failed"`, and the API
+  logs it, so the admin can retry by saving again.
+
+### 13.6 Later
+
+- `GET /stats` for live home-server metrics on `/server`. The frontend would read it at request time and lose
+  static generation for that one route.
+- `POST /contact`. It needs text entry, which the glass cannot take, so the form would live in the plain view
+  only.
 
 ## 14. Performance
 
