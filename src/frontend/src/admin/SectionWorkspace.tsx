@@ -20,12 +20,13 @@ import {
 } from "@/components/ui/resizable";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { livePageUrl } from "@/preview/paths";
 import { ConflictDialog } from "./ConflictDialog";
 import { isDirty, visibleServerIssues, type SectionEdit } from "./consoleState";
 import { fieldId } from "./form/FormContext";
 import { SchemaForm } from "./form/SchemaForm";
 import { formatEditor, JsonEditor } from "./json/JsonEditor";
-import { PreviewPanel } from "./preview/PreviewPanel";
+import { PreviewPanel, type AutosaveStatus } from "./preview/PreviewPanel";
 import type { JsonValue } from "./schema/jsonSchema";
 import { jsonEqual, type Pointer } from "./schema/pointer";
 import { sectionModel } from "./schema/sectionModel";
@@ -68,6 +69,19 @@ export function sectionStatus(edit: SectionEdit): SectionStatus {
     canPublish:
       !jsonEqual(edit.value, edit.live.document) && edit.busy === null,
   };
+}
+
+/** What the preview reports about the stored draft. */
+function autosaveStatus(edit: SectionEdit): AutosaveStatus {
+  if (edit.busy === "autosave" || edit.busy === "draft") {
+    return { kind: "saving" };
+  }
+  if (edit.autosaveFailure !== null) {
+    return { kind: "failed", message: edit.autosaveFailure };
+  }
+  return edit.draftSavedAt === null
+    ? { kind: "live" }
+    : { kind: "saved", at: edit.draftSavedAt };
 }
 
 /** One section: the sticky action bar, the form (or the JSON editor) and the preview slot, side by side. */
@@ -160,7 +174,7 @@ export function SectionWorkspace({
           </Label>
         </div>
         <Button variant="ghost" size="sm" asChild>
-          <a href={path} target="_blank" rel="noreferrer">
+          <a href={livePageUrl(path)} target="_blank" rel="noreferrer">
             View live
             <ExternalLinkIcon aria-hidden />
             <span className="sr-only">{path} (opens in a new tab)</span>
@@ -221,7 +235,7 @@ export function SectionWorkspace({
         </div>
       </header>
       <ResizablePanelGroup orientation="horizontal" className="min-h-0 flex-1">
-        <ResizablePanel id="editor" defaultSize="62" minSize="35">
+        <ResizablePanel id="editor" defaultSize="54" minSize="35">
           <div className="flex h-full min-h-0 flex-col">
             {issues.length === 0 ? null : (
               <IssueSummary
@@ -293,12 +307,13 @@ export function SectionWorkspace({
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle aria-label="Resize the preview" />
-        <ResizablePanel id="preview" defaultSize="38" minSize="20">
+        <ResizablePanel id="preview" defaultSize="46" minSize="20">
           <PreviewPanel
-            section={section.id}
-            draft={edit.value}
-            valid={clientIssues.length === 0}
-            livePath={path}
+            section={section}
+            revision={edit.revision}
+            paused={issues.length > 0}
+            autosave={autosaveStatus(edit)}
+            onSignIn={api.showSignIn}
           />
         </ResizablePanel>
       </ResizablePanelGroup>

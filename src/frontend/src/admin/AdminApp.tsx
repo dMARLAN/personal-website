@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { getSession, logout, type SessionInfo } from "./api";
 import { isDirty } from "./consoleState";
 import { LoginForm } from "./LoginForm";
+import { exitPreview } from "./preview/draftMode";
 import { ResumePdf } from "./ResumePdf";
 import { isSectionId, sectionInfo } from "./sections";
 import {
@@ -49,7 +50,8 @@ export function AdminApp(): React.JSX.Element {
 
   return (
     <TooltipProvider>
-      <main>
+      {/* Named, so axe tells it apart from the <main> of the page in the preview frame. */}
+      <main aria-label="Site admin">
         {auth.kind === "checking" ? (
           <div className="flex min-h-dvh flex-col items-center justify-center gap-3 text-sm text-muted-foreground">
             <h1 className="sr-only">Site admin</h1>
@@ -67,6 +69,7 @@ export function AdminApp(): React.JSX.Element {
             expiresAt={auth.session.expiresAt}
             onSignOut={async (keptEdits) => {
               await logout(auth.session.csrfToken);
+              await exitPreview();
               setAuth({
                 kind: "signed-out",
                 notice: keptEdits
