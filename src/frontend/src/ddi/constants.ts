@@ -7,6 +7,7 @@ export const FONT_IDS = [
   "F150_WIDE",
   "F150_X_WIDE",
   "BIT",
+  "F120_FCS",
 ] as const;
 
 export type FontId = (typeof FONT_IDS)[number];
@@ -32,6 +33,8 @@ export const FONTS: Readonly<Record<FontId, FontMetrics>> = {
   F150_WIDE: { width: 18, height: 30, interchar: 9, interline: 12 },
   F150_X_WIDE: { width: 24, height: 30, interchar: 9, interline: 12 },
   BIT: { width: 14, height: 24, interchar: 6, interline: 8 },
+  // FCS.lua `customStringDef`: 120 % glyphs with interchar 14, for the SV labels and the surface block.
+  F120_FCS: { width: 14, height: 24, interchar: 14, interline: 6 },
 };
 
 /** `addStrokeArc` splits a full turn into at most this many segments. */

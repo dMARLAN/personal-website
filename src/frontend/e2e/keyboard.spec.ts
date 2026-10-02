@@ -4,8 +4,14 @@ test("the keyboard reaches the skip link, the OSBs, the knobs, then the theme to
   page,
 }) => {
   await page.goto("/");
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Text view" })).toBeFocused();
+  // The semantic layer's links to shipped pages come next, in DOM order (design section 10.2).
+  for (const link of await page.locator("main a[href]").all()) {
+    await page.keyboard.press("Tab");
+    await expect(link).toBeFocused();
+  }
   const order = [
-    page.getByRole("link", { name: "Text view" }),
     page.getByRole("button", { name: "Support menu" }),
     page.getByRole("slider", { name: "Brightness" }),
     page.getByRole("slider", { name: "Contrast" }),

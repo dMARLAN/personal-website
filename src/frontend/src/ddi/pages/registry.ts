@@ -10,7 +10,10 @@ export type PageId =
   | "contact"
   | "links"
   | "radar"
-  | "server";
+  | "server"
+  | "fcs"
+  | "fuel"
+  | "chklst";
 
 /** The two menus. Both live at `/`: they are in-section state, not URLs (docs/design.md section 9.4). */
 export const MENU_NAMES = ["TAC", "SUPT"] as const;
@@ -108,12 +111,46 @@ export const PAGES: Readonly<Record<PageId, PageDef>> = {
     label: "Home server, simulated",
     available: false,
   },
+  fcs: {
+    id: "fcs",
+    path: "/fcs",
+    kind: "showcase",
+    menu: { on: "SUPT", pb: 15, legend: ["FCS"] },
+    label: "Flight controls, simulated",
+    available: true,
+  },
+  fuel: {
+    id: "fuel",
+    path: "/fuel",
+    kind: "showcase",
+    menu: { on: "SUPT", pb: 20, legend: ["FUEL"] },
+    label: "Fuel, simulated",
+    available: true,
+  },
+  chklst: {
+    id: "chklst",
+    path: "/chklst",
+    kind: "showcase",
+    menu: { on: "SUPT", pb: 11, legend: ["CHKLST"] },
+    label: "Pre-flight checklist",
+    available: true,
+  },
 };
 
 export const ALL_PAGES: readonly PageDef[] = Object.values(PAGES);
 
 /** PB18 is `MENU` on every page [fnd §5.5]. On the menu it toggles TAC and SUPT in place; elsewhere it opens `/` (TAC). */
 export const MENU_PB: Pb = 18;
+
+/** PB18 `MENU` on a section or showcase page: it opens `/`, which shows TAC (docs/design.md section 9.4). */
+export function menuLinkLegend(): LegendSpec {
+  return {
+    pb: MENU_PB,
+    lines: ["MENU"],
+    label: MENU_LABELS.TAC,
+    action: { kind: "link", href: PAGES.menu.path },
+  };
+}
 
 function linkLegend(
   page: PageDef,

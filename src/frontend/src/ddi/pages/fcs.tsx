@@ -1,0 +1,31 @@
+import { FLIGHT_CONTROLS } from "@/content/fcs";
+import { FcsFormat } from "../formats/fcs";
+import type { DdiScreens } from "../frame/types";
+import { menuLinkLegend } from "./registry";
+
+/** /fcs: the real FCS format with playful system-health data. BLIN and AOA are real legends, inert here. */
+export function fcsScreens(): DdiScreens {
+  return {
+    initial: "FCS",
+    screens: {
+      FCS: {
+        legends: [
+          {
+            pb: 2,
+            lines: ["BLIN"],
+            label: "BLIN codes",
+            action: { kind: "inert" },
+          },
+          {
+            pb: 16,
+            lines: ["AOA"],
+            label: "Angle of attack",
+            action: { kind: "inert" },
+          },
+          menuLinkLegend(),
+        ],
+        symbology: <FcsFormat {...FLIGHT_CONTROLS} />,
+      },
+    },
+  };
+}
