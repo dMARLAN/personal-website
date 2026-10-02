@@ -1,6 +1,8 @@
 export interface EmissiveLayerProps {
   /** Unique within the page: the `<use>` elements reference the geometry by this id. */
   id: string;
+  /** False leaves the layer out of the optional bloom, for content that changes every frame. */
+  bloom?: boolean;
   children: React.ReactNode;
 }
 
@@ -12,6 +14,7 @@ export interface EmissiveLayerProps {
  */
 export function EmissiveLayer({
   id,
+  bloom = true,
   children,
 }: EmissiveLayerProps): React.JSX.Element {
   return (
@@ -19,7 +22,7 @@ export function EmissiveLayer({
       <defs>
         <g id={id}>{children}</g>
       </defs>
-      <use href={`#${id}`} className="ddi-bloom" />
+      {bloom && <use href={`#${id}`} className="ddi-bloom" />}
       <use href={`#${id}`} className="ddi-halo" />
       <use href={`#${id}`} className="ddi-core" />
     </>

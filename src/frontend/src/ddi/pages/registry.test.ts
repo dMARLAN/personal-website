@@ -130,6 +130,11 @@ describe("the page registry", () => {
       action,
     ]);
     expect(legends).toContainEqual([
+      4,
+      ["RDR", "ATTK"],
+      { kind: "link", href: "/radar" },
+    ]);
+    expect(legends).toContainEqual([
       5,
       ["PROJECTS"],
       { kind: "link", href: "/projects" },
@@ -204,6 +209,7 @@ describe("the page registry", () => {
       "/fuel",
       "/chklst",
       "/bit",
+      "/radar",
     ]) {
       expect(urls).toContain(`${SITE_URL}${route}`);
     }

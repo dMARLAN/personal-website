@@ -102,7 +102,7 @@ export const PAGES: Readonly<Record<PageId, PageDef>> = {
     kind: "showcase",
     menu: { on: "TAC", pb: 4, legend: ["RDR", "ATTK"] },
     label: "Radar, simulated",
-    available: false,
+    available: true,
   },
   server: {
     id: "server",
