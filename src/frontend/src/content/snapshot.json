@@ -1,0 +1,1518 @@
+{
+  "profile": {
+    "badge": "PLACEHOLDER",
+    "status": [
+      {
+        "label": "ROLE:",
+        "value": "SW ENGR"
+      },
+      {
+        "label": "BASE:",
+        "value": "TBD"
+      },
+      {
+        "label": "YRS:",
+        "value": "00"
+      },
+      {
+        "label": "STACK:",
+        "value": "TS/PY"
+      },
+      {
+        "label": "STAT:",
+        "value": "ACTIVE"
+      }
+    ],
+    "loadout": [
+      "1 - TYPESCRIPT",
+      "2 - PYTHON",
+      "3 - REACT",
+      "4 - FASTAPI",
+      "5 - KUBERNETES"
+    ],
+    "footer": "99.9 COFFEE 0 BUGS",
+    "tags": [
+      {
+        "label": "SIM:",
+        "value": "DCS F/A-18C"
+      },
+      {
+        "label": "OS:",
+        "value": "LINUX"
+      },
+      {
+        "label": "IDE:",
+        "value": "PYCHARM"
+      }
+    ],
+    "bio": "Placeholder bio. A software engineer who builds web apps and APIs, and flies the Hornet in DCS after hours."
+  },
+  "resume": {
+    "title": [
+      "S/W CONFIGURATION",
+      "PLACEHOLDER"
+    ],
+    "left": {
+      "heading": "Skills",
+      "rows": [
+        {
+          "name": "Python",
+          "value": "Expert 10 yr"
+        },
+        {
+          "name": "TS",
+          "value": "Advanced 7 yr"
+        },
+        {
+          "name": "Go",
+          "value": "Working 3 yr"
+        },
+        {
+          "name": "SQL",
+          "value": "Advanced 9 yr"
+        },
+        {
+          "name": "React",
+          "value": "Advanced 6 yr"
+        },
+        {
+          "name": "APIs",
+          "value": "Expert 9 yr"
+        },
+        {
+          "name": "K8s",
+          "value": "Advanced 5 yr"
+        },
+        {
+          "name": "AWS",
+          "value": "Advanced 7 yr"
+        },
+        {
+          "name": "Docker",
+          "value": "Expert 8 yr"
+        },
+        {
+          "name": "Linux",
+          "value": "Expert 12 yr"
+        },
+        {
+          "name": "CI/CD",
+          "value": "Advanced 7 yr"
+        },
+        {
+          "name": "LLM",
+          "value": "Working 2 yr"
+        }
+      ]
+    },
+    "right": {
+      "heading": "Qualifications",
+      "rows": [
+        {
+          "name": "Degree",
+          "value": "BS Comp Sci"
+        },
+        {
+          "name": "School",
+          "value": "Placeholder"
+        },
+        {
+          "name": "Grad",
+          "value": "2014"
+        },
+        {
+          "name": "Cert",
+          "value": "AWS SA Pro"
+        },
+        {
+          "name": "Cert",
+          "value": "CKA"
+        },
+        {
+          "name": "Lead",
+          "value": "Team of 6"
+        },
+        {
+          "name": "Domain",
+          "value": "Platforms"
+        },
+        {
+          "name": "Domain",
+          "value": "Data eng"
+        },
+        {
+          "name": "Domain",
+          "value": "Dev tools"
+        },
+        {
+          "name": "Remote",
+          "value": "Yes"
+        },
+        {
+          "name": "Langs",
+          "value": "English"
+        },
+        {
+          "name": "Hobby",
+          "value": "DCS F/A-18C"
+        }
+      ]
+    }
+  },
+  "work": {
+    "employers": [
+      {
+        "id": "northwind",
+        "tab": "NWIND",
+        "name": "Northwind Systems",
+        "location": "Remote",
+        "span": "2021-NOW",
+        "roles": [
+          {
+            "title": "Staff Software Engineer",
+            "span": "2023-NOW",
+            "bullets": [
+              "Placeholder: led the move of 40 services to Kubernetes and cut deploy time from 45 to 6 minutes.",
+              "Placeholder: designed the internal developer platform used by 12 teams.",
+              "Placeholder: mentored 5 engineers through promotion."
+            ]
+          },
+          {
+            "title": "Senior Software Engineer",
+            "span": "2021-2023",
+            "bullets": [
+              "Placeholder: built the event pipeline that handles 2 billion events a day.",
+              "Placeholder: replaced a nightly batch job with streaming updates."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "bluefin",
+        "tab": "BLUEFIN",
+        "name": "Bluefin Analytics",
+        "location": "San Diego, CA",
+        "span": "2018-2021",
+        "roles": [
+          {
+            "title": "Senior Software Engineer",
+            "span": "2019-2021",
+            "bullets": [
+              "Placeholder: owned the Python API behind the customer dashboard.",
+              "Placeholder: cut p99 latency by 70 % with query and cache work.",
+              "Placeholder: ran the on-call rotation and its postmortems."
+            ]
+          },
+          {
+            "title": "Software Engineer II",
+            "span": "2018-2019",
+            "bullets": [
+              "Placeholder: shipped the first React front end for the reports product.",
+              "Placeholder: added typed API clients generated from OpenAPI."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "kestrel",
+        "tab": "KESTREL",
+        "name": "Kestrel Labs",
+        "location": "Austin, TX",
+        "span": "2014-2018",
+        "roles": [
+          {
+            "title": "Software Engineer",
+            "span": "2016-2018",
+            "bullets": [
+              "Placeholder: wrote the flight-data ingest service in Go.",
+              "Placeholder: moved CI from a shared server to containers."
+            ]
+          },
+          {
+            "title": "Junior Software Engineer",
+            "span": "2015-2016",
+            "bullets": [
+              "Placeholder: built internal tools for the test team.",
+              "Placeholder: fixed 200 bugs in the legacy reporting code."
+            ]
+          },
+          {
+            "title": "Software Intern",
+            "span": "2014",
+            "bullets": [
+              "Placeholder: automated the nightly regression suite."
+            ]
+          }
+        ]
+      },
+      {
+        "id": "harbor",
+        "tab": "HARBOR",
+        "name": "Harbor Digital",
+        "location": "Portland, OR",
+        "span": "2012-2014",
+        "roles": [
+          {
+            "title": "Web Developer",
+            "span": "2013-2014",
+            "bullets": [
+              "Placeholder: built client sites in PHP and JavaScript.",
+              "Placeholder: set up the first shared Git workflow."
+            ]
+          },
+          {
+            "title": "IT Technician",
+            "span": "2012-2013",
+            "bullets": [
+              "Placeholder: ran the office network and backups."
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "projects": {
+    "categories": [
+      {
+        "legend": "WEB",
+        "name": "Web"
+      },
+      {
+        "legend": "TOOLS",
+        "name": "Tools"
+      },
+      {
+        "legend": "HOMELAB",
+        "name": "Homelab"
+      }
+    ],
+    "projects": [
+      {
+        "slug": "personal-site",
+        "station": 2,
+        "name": "Personal site",
+        "code": "SITE",
+        "store": {
+          "kind": "pair"
+        },
+        "status": "RDY",
+        "category": "WEB",
+        "fields": {
+          "left": [
+            {
+              "label": "LANG",
+              "value": "TS"
+            },
+            {
+              "label": "YEAR",
+              "value": "2026"
+            },
+            {
+              "label": "ROLE",
+              "value": "SOLO"
+            }
+          ],
+          "right": [
+            {
+              "label": "STACK",
+              "value": "NEXT FASTAPI"
+            },
+            {
+              "label": "HOST",
+              "value": "K8S"
+            },
+            {
+              "label": "FONT",
+              "value": "DCS STROKE"
+            }
+          ]
+        },
+        "description": "Placeholder. This website: an F/A-18C DDI drawn in SVG, with a Next.js front end and a FastAPI back end. Every page is a real cockpit format, and the bezel buttons are the only navigation.",
+        "links": [
+          {
+            "kind": "REPO",
+            "url": "https://github.com/example/personal-website"
+          },
+          {
+            "kind": "DEMO",
+            "url": "https://example.com/"
+          }
+        ]
+      },
+      {
+        "slug": "trail-log",
+        "station": 6,
+        "name": "Trail log",
+        "code": "TRAIL",
+        "store": {
+          "kind": "missile"
+        },
+        "status": "DEGD",
+        "category": "WEB",
+        "fields": {
+          "left": [
+            {
+              "label": "LANG",
+              "value": "PY"
+            },
+            {
+              "label": "YEAR",
+              "value": "2023"
+            }
+          ],
+          "right": [
+            {
+              "label": "STACK",
+              "value": "DJANGO LEAFLET"
+            },
+            {
+              "label": "DATA",
+              "value": "GPX"
+            }
+          ]
+        },
+        "description": "Placeholder. A hiking log that imports GPX tracks, draws them on a map and totals distance and climb per season. It still runs, but the map tiles it uses have been retired.",
+        "links": [
+          {
+            "kind": "REPO",
+            "url": "https://github.com/example/trail-log"
+          }
+        ]
+      },
+      {
+        "slug": "squadron-bot",
+        "station": 9,
+        "name": "Squadron bot",
+        "code": "BOT",
+        "store": {
+          "kind": "missile"
+        },
+        "status": "HUNG",
+        "category": "WEB",
+        "fields": {
+          "left": [
+            {
+              "label": "LANG",
+              "value": "TS"
+            },
+            {
+              "label": "YEAR",
+              "value": "2022"
+            }
+          ],
+          "right": [
+            {
+              "label": "API",
+              "value": "DISCORD"
+            },
+            {
+              "label": "USERS",
+              "value": "40"
+            }
+          ]
+        },
+        "description": "Placeholder. A chat bot for a virtual squadron: mission sign-ups, briefing reminders and a sortie board. It is hung on the rail until the chat API it depends on settles down.",
+        "links": [
+          {
+            "kind": "REPO",
+            "url": "https://github.com/example/squadron-bot"
+          }
+        ]
+      },
+      {
+        "slug": "dotfiles",
+        "station": 1,
+        "name": "Dotfiles",
+        "code": "DOTS",
+        "store": {
+          "kind": "missile"
+        },
+        "status": "RDY",
+        "category": "TOOLS",
+        "fields": {
+          "left": [
+            {
+              "label": "LANG",
+              "value": "SH"
+            },
+            {
+              "label": "YEAR",
+              "value": "2019"
+            }
+          ],
+          "right": [
+            {
+              "label": "OS",
+              "value": "LINUX MACOS"
+            },
+            {
+              "label": "SHELL",
+              "value": "ZSH"
+            }
+          ]
+        },
+        "description": "Placeholder. Shell, editor and terminal settings, installed on a new machine with one command. A small test suite boots a clean container and checks that every tool comes up.",
+        "links": [
+          {
+            "kind": "REPO",
+            "url": "https://github.com/example/dotfiles"
+          }
+        ]
+      },
+      {
+        "slug": "code-rules",
+        "station": 4,
+        "name": "Code review rules",
+        "code": "RULES",
+        "store": {
+          "kind": "missile"
+        },
+        "status": "STBY",
+        "category": "TOOLS",
+        "fields": {
+          "left": [
+            {
+              "label": "LANG",
+              "value": "MD"
+            },
+            {
+              "label": "YEAR",
+              "value": "2025"
+            }
+          ],
+          "right": [
+            {
+              "label": "RULES",
+              "value": "40"
+            },
+            {
+              "label": "USE",
+              "value": "AI REVIEW"
+            }
+          ]
+        },
+        "description": "Placeholder. A shared set of code quality rules, one file per rule with a bad and a good example. Review agents load them to check a diff, and people read them as a style guide.",
+        "links": [
+          {
+            "kind": "REPO",
+            "url": "https://github.com/example/code-rules"
+          }
+        ]
+      },
+      {
+        "slug": "dcs-extract",
+        "station": 8,
+        "name": "DCS asset extractor",
+        "code": "DCSX",
+        "store": {
+          "kind": "pair"
+        },
+        "status": "RDY",
+        "category": "TOOLS",
+        "fields": {
+          "left": [
+            {
+              "label": "LANG",
+              "value": "PY"
+            },
+            {
+              "label": "YEAR",
+              "value": "2026"
+            },
+            {
+              "label": "DEPS",
+              "value": "NONE"
+            }
+          ],
+          "right": [
+            {
+              "label": "INPUT",
+              "value": "SVG"
+            },
+            {
+              "label": "OUTPUT",
+              "value": "TS MODULES"
+            }
+          ]
+        },
+        "description": "Placeholder. Reads the stroke font and symbol sheets from a DCS install, snaps every glyph to its cell and writes typed path data that this site draws with.",
+        "links": [
+          {
+            "kind": "REPO",
+            "url": "https://github.com/example/dcs-extract"
+          }
+        ]
+      },
+      {
+        "slug": "home-cluster",
+        "station": 3,
+        "name": "Home cluster",
+        "code": "K8S",
+        "store": {
+          "kind": "rack",
+          "amount": 3
+        },
+        "status": "RDY",
+        "category": "HOMELAB",
+        "fields": {
+          "left": [
+            {
+              "label": "NODES",
+              "value": "3"
+            },
+            {
+              "label": "YEAR",
+              "value": "2024"
+            }
+          ],
+          "right": [
+            {
+              "label": "DIST",
+              "value": "K3S"
+            },
+            {
+              "label": "GITOPS",
+              "value": "FLUX"
+            }
+          ]
+        },
+        "description": "Placeholder. Three small machines running Kubernetes, configured from a Git repository. Every service in the house deploys to it, and a pull request is the only way to change it.",
+        "links": [
+          {
+            "kind": "REPO",
+            "url": "https://github.com/example/home-cluster"
+          }
+        ]
+      },
+      {
+        "slug": "storage",
+        "station": 5,
+        "name": "Network storage",
+        "code": "NAS",
+        "store": {
+          "kind": "tank"
+        },
+        "status": "RDY",
+        "category": "HOMELAB",
+        "fields": {
+          "left": [
+            {
+              "label": "SIZE",
+              "value": "24TB"
+            },
+            {
+              "label": "YEAR",
+              "value": "2021"
+            }
+          ],
+          "right": [
+            {
+              "label": "FS",
+              "value": "ZFS RAIDZ2"
+            },
+            {
+              "label": "BACKUP",
+              "value": "OFFSITE"
+            }
+          ]
+        },
+        "description": "Placeholder. The centreline tank: a storage server that holds photos, backups and media, with snapshots every hour and a nightly copy to a second site.",
+        "links": []
+      },
+      {
+        "slug": "monitoring",
+        "station": 7,
+        "name": "Monitoring stack",
+        "code": "MON",
+        "store": {
+          "kind": "rack",
+          "amount": 4
+        },
+        "status": "STBY",
+        "category": "HOMELAB",
+        "fields": {
+          "left": [
+            {
+              "label": "PARTS",
+              "value": "4"
+            },
+            {
+              "label": "YEAR",
+              "value": "2024"
+            }
+          ],
+          "right": [
+            {
+              "label": "METRIC",
+              "value": "PROMETHEUS"
+            },
+            {
+              "label": "LOGS",
+              "value": "LOKI"
+            },
+            {
+              "label": "ALERT",
+              "value": "PHONE"
+            }
+          ]
+        },
+        "description": "Placeholder. Metrics, logs and alerts for the home cluster, with dashboards for power draw, disk health and how long the last backup took.",
+        "links": [
+          {
+            "kind": "REPO",
+            "url": "https://github.com/example/monitoring"
+          },
+          {
+            "kind": "DEMO",
+            "url": "https://example.com/dashboards"
+          }
+        ]
+      }
+    ]
+  },
+  "contact": {
+    "email": "placeholder@example.com",
+    "rows": [
+      {
+        "label": "LOCATION:",
+        "value": "PLACEHOLDER"
+      },
+      {
+        "label": "TIME ZONE:",
+        "value": "UTC-0 PLACEHOLDER"
+      },
+      {
+        "label": "REPLY:",
+        "value": "WITHIN 2 DAYS"
+      }
+    ]
+  },
+  "links": {
+    "links": [
+      {
+        "name": "GitHub",
+        "tag": "CODE",
+        "url": "https://example.com/github"
+      },
+      {
+        "name": "LinkedIn",
+        "tag": "WORK",
+        "url": "https://example.com/linkedin"
+      },
+      {
+        "name": "Resume",
+        "tag": "PDF",
+        "url": "/resume.pdf"
+      },
+      {
+        "name": "Blog",
+        "tag": "TEXT",
+        "url": "https://example.com/blog"
+      },
+      {
+        "name": "Mastodon",
+        "tag": "SOCIAL",
+        "url": "https://example.com/mastodon"
+      }
+    ]
+  },
+  "server": {
+    "hosts": [
+      {
+        "header": "LEFT NAS",
+        "name": "nas-01 (storage)"
+      },
+      {
+        "header": "RIGHT NUC",
+        "name": "nuc-02 (compute)"
+      }
+    ],
+    "rows": [
+      {
+        "metric": "inletTemp",
+        "label": "INLET TEMP",
+        "name": "Case inlet temperature",
+        "unit": "°C",
+        "decimals": 0,
+        "suffix": ""
+      },
+      {
+        "metric": "cpu",
+        "label": "CPU %",
+        "name": "CPU load",
+        "unit": "%",
+        "decimals": 0,
+        "suffix": ""
+      },
+      {
+        "metric": "ram",
+        "label": "RAM %",
+        "name": "Memory used",
+        "unit": "%",
+        "decimals": 0,
+        "suffix": ""
+      },
+      {
+        "metric": "cpuTemp",
+        "label": "CPU TEMP",
+        "name": "CPU temperature",
+        "unit": "°C",
+        "decimals": 0,
+        "suffix": ""
+      },
+      {
+        "metric": "power",
+        "label": "PWR DRAW",
+        "name": "Power draw",
+        "unit": "W",
+        "decimals": 0,
+        "suffix": ""
+      },
+      {
+        "metric": "fan",
+        "label": "FAN RPM",
+        "name": "Fan speed",
+        "unit": "rpm",
+        "decimals": 0,
+        "suffix": ""
+      },
+      {
+        "metric": "memPressure",
+        "label": "MEM PRESS",
+        "name": "Memory pressure (PSI)",
+        "unit": "%",
+        "decimals": 1,
+        "suffix": ""
+      },
+      {
+        "metric": "throughput",
+        "label": "THRUPUT",
+        "name": "Network throughput",
+        "unit": "Mb/s",
+        "decimals": 0,
+        "suffix": ""
+      },
+      {
+        "metric": "jitter",
+        "label": "JITTER",
+        "name": "Network jitter",
+        "unit": "ms",
+        "decimals": 1,
+        "suffix": ""
+      },
+      {
+        "metric": "diskTemp",
+        "label": "DISK TEMP",
+        "name": "Disk temperature",
+        "unit": "°C",
+        "decimals": 0,
+        "suffix": ""
+      },
+      {
+        "metric": "loadAvg",
+        "label": "LOAD AVG",
+        "name": "Load average (1 minute)",
+        "unit": "",
+        "decimals": 2,
+        "suffix": ""
+      },
+      {
+        "metric": "disk",
+        "label": "DISK %",
+        "name": "Disk used",
+        "unit": "%",
+        "decimals": 0,
+        "suffix": ""
+      },
+      {
+        "metric": "uptime",
+        "label": "UPTIME",
+        "name": "Uptime",
+        "unit": "days",
+        "decimals": 0,
+        "suffix": "D"
+      }
+    ],
+    "baseline": {
+      "hosts": [
+        {
+          "inletTemp": 24.0,
+          "cpu": 18.0,
+          "ram": 62.0,
+          "cpuTemp": 46.0,
+          "power": 38.0,
+          "fan": 820.0,
+          "memPressure": 0.4,
+          "throughput": 312.0,
+          "jitter": 0.4,
+          "diskTemp": 37.0,
+          "loadAvg": 0.72,
+          "disk": 64.0,
+          "uptime": 41.0
+        },
+        {
+          "inletTemp": 27.0,
+          "cpu": 47.0,
+          "ram": 71.0,
+          "cpuTemp": 63.0,
+          "power": 72.0,
+          "fan": 1460.0,
+          "memPressure": 2.1,
+          "throughput": 86.0,
+          "jitter": 0.9,
+          "diskTemp": 41.0,
+          "loadAvg": 3.4,
+          "disk": 23.0,
+          "uptime": 12.0
+        }
+      ]
+    }
+  },
+  "fuel": {
+    "tanks": [
+      {
+        "id": "tk1",
+        "label": "COFFEE",
+        "name": "Coffee",
+        "capacity": 2800,
+        "motion": {
+          "kind": "drain",
+          "low": 0.15,
+          "periodSeconds": 180.0
+        }
+      },
+      {
+        "id": "leftFeed",
+        "label": "FOCUS",
+        "name": "Focus",
+        "capacity": 1200,
+        "motion": {
+          "kind": "wave",
+          "level": 0.8,
+          "swing": 0.15,
+          "periodSeconds": 70.0
+        }
+      },
+      {
+        "id": "rightFeed",
+        "label": "PATIENCE",
+        "name": "Patience",
+        "capacity": 1200,
+        "motion": {
+          "kind": "wave",
+          "level": 0.65,
+          "swing": 0.1,
+          "periodSeconds": 110.0
+        }
+      },
+      {
+        "id": "tk4",
+        "label": "MOTIVATION",
+        "name": "Motivation",
+        "capacity": 3700,
+        "motion": {
+          "kind": "wave",
+          "level": 0.85,
+          "swing": 0.1,
+          "periodSeconds": 150.0
+        }
+      },
+      {
+        "id": "leftWing",
+        "label": "SLEEP",
+        "name": "Sleep",
+        "capacity": 1900,
+        "motion": {
+          "kind": "wave",
+          "level": 0.55,
+          "swing": 0.2,
+          "periodSeconds": 240.0
+        }
+      },
+      {
+        "id": "rightWing",
+        "label": "SNACKS",
+        "name": "Snacks",
+        "capacity": 1900,
+        "motion": {
+          "kind": "wave",
+          "level": 0.7,
+          "swing": 0.25,
+          "periodSeconds": 90.0
+        }
+      },
+      {
+        "id": "leftExternal",
+        "label": "MUSIC",
+        "name": "Music",
+        "capacity": 2200,
+        "motion": {
+          "kind": "wave",
+          "level": 0.9,
+          "swing": 0.08,
+          "periodSeconds": 60.0
+        }
+      },
+      {
+        "id": "centreline",
+        "label": "PTO",
+        "name": "Paid time off",
+        "capacity": 2200,
+        "motion": {
+          "kind": "wave",
+          "level": 0.4,
+          "swing": 0.05,
+          "periodSeconds": 300.0
+        }
+      },
+      {
+        "id": "rightExternal",
+        "label": "HOBBIES",
+        "name": "Hobbies",
+        "capacity": 2200,
+        "motion": {
+          "kind": "wave",
+          "level": 0.6,
+          "swing": 0.12,
+          "periodSeconds": 130.0
+        }
+      }
+    ],
+    "bingo": 2000
+  },
+  "fcs": {
+    "surfaces": [
+      {
+        "label": "LEF",
+        "left": {
+          "value": "0",
+          "arrow": null
+        },
+        "right": {
+          "value": "0",
+          "arrow": null
+        }
+      },
+      {
+        "label": "TEF",
+        "left": {
+          "value": "1",
+          "arrow": "down"
+        },
+        "right": {
+          "value": "1",
+          "arrow": "down"
+        }
+      },
+      {
+        "label": "AIL",
+        "left": {
+          "value": "0",
+          "arrow": null
+        },
+        "right": {
+          "value": "0",
+          "arrow": null
+        }
+      },
+      {
+        "label": "RUD",
+        "left": {
+          "value": "0",
+          "arrow": null
+        },
+        "right": {
+          "value": "0",
+          "arrow": null
+        }
+      },
+      {
+        "label": "STAB",
+        "left": {
+          "value": "1",
+          "arrow": "up"
+        },
+        "right": {
+          "value": "1",
+          "arrow": "up"
+        }
+      }
+    ],
+    "statusRows": [
+      {
+        "label": "DB  R",
+        "meaning": "Database reads"
+      },
+      {
+        "label": "    W",
+        "meaning": "Database writes"
+      },
+      {
+        "label": "    B",
+        "meaning": "Database backups"
+      },
+      {
+        "label": "API",
+        "meaning": "API"
+      },
+      {
+        "label": "AUTH",
+        "meaning": "Sign-in"
+      },
+      {
+        "label": "CACHE",
+        "meaning": "Cache"
+      },
+      {
+        "label": "QUEUE",
+        "meaning": "Job queue"
+      },
+      {
+        "label": "CI/CD",
+        "meaning": "Build and deploy pipeline"
+      },
+      {
+        "label": "DNS",
+        "meaning": "DNS (it is always DNS)"
+      },
+      {
+        "label": "CRON",
+        "meaning": "Scheduled jobs"
+      },
+      {
+        "label": "DEGD",
+        "meaning": "Degraded overall"
+      }
+    ],
+    "channels": [
+      "Laptop",
+      "CI",
+      "Staging",
+      "Production"
+    ],
+    "failures": [
+      {
+        "table": "bottom",
+        "row": 8,
+        "channel": 3
+      },
+      {
+        "table": "bottom",
+        "row": 10,
+        "channel": 3
+      }
+    ],
+    "gLimit": "7.5",
+    "aoa": {
+      "left": "1.0",
+      "right": "1.0"
+    },
+    "blinCode": "53"
+  },
+  "checklist": {
+    "left": {
+      "title": "LAND",
+      "meaning": "End of the working day",
+      "items": [
+        "TESTS PASS",
+        "GIT PUSH",
+        "PR OPENED",
+        "NOTES SAVED",
+        "LAPTOP SHUT",
+        "DESK CLEAR"
+      ]
+    },
+    "right": {
+      "title": "T.O.",
+      "meaning": "Start of the working day",
+      "items": [
+        "COFFEE",
+        "KEYBOARD",
+        "DUAL MONITORS",
+        "CHAIR HEIGHT",
+        "HEADPHONES",
+        "GIT PULL",
+        "CI GREEN",
+        "PINGS LO",
+        "FOCUS MODE"
+      ]
+    },
+    "weight": {
+      "label": "A/C WT",
+      "value": "36533"
+    },
+    "maxNz": "MAX NZ",
+    "stab": {
+      "label": "STAB POS",
+      "left": " 1° NU",
+      "right": " 1° NU"
+    }
+  },
+  "bit": {
+    "checks": {
+      "MC1": {
+        "name": "LINT",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "MC2": {
+        "name": "TYPECHECK",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "FCSA": {
+        "name": "UNIT TEST",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "FCSB": {
+        "name": "FLAKY E2E",
+        "status": "RESTRT",
+        "afterTest": "GO"
+      },
+      "RDR": {
+        "name": "LOGS",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "FLIR": {
+        "name": "METRICS",
+        "status": "PBIT GO",
+        "afterTest": "GO"
+      },
+      "LTDR": {
+        "name": "ALERTS",
+        "status": "OFF",
+        "afterTest": "GO"
+      },
+      "SMS": {
+        "name": "CACHE",
+        "status": "DEGD",
+        "afterTest": "GO"
+      },
+      "AWW4": {
+        "name": "DB",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "CLC": {
+        "name": "BACKUPS",
+        "status": "NOT RDY",
+        "afterTest": "GO"
+      },
+      "WPNS": {
+        "name": "FRI PROD",
+        "status": "NOT RDY",
+        "afterTest": "NOT RDY"
+      },
+      "CSC": {
+        "name": "SLACK",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "ICS": {
+        "name": "EMAIL",
+        "status": "DEGD",
+        "afterTest": "GO"
+      },
+      "IFF": {
+        "name": "REVIEWS",
+        "status": "NOT RDY",
+        "afterTest": "GO"
+      },
+      "D_L": {
+        "name": "STANDUP",
+        "status": "OVRHT",
+        "afterTest": "GO"
+      },
+      "COM1": {
+        "name": "ZOOM",
+        "status": "RESTRT",
+        "afterTest": "GO"
+      },
+      "COM2": {
+        "name": "PAGER",
+        "status": "OFF",
+        "afterTest": "GO"
+      },
+      "MIDS": {
+        "name": "1:1",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "INS": {
+        "name": "GIT",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "ADC": {
+        "name": "MERGE",
+        "status": "MUX FAIL",
+        "afterTest": "GO"
+      },
+      "ILS": {
+        "name": "REBASE",
+        "status": "SF TEST",
+        "afterTest": "GO"
+      },
+      "RALT": {
+        "name": "DNS",
+        "status": "DEGD",
+        "afterTest": "DEGD"
+      },
+      "TCN": {
+        "name": "VPN",
+        "status": "NOT RDY",
+        "afterTest": "GO"
+      },
+      "AUG": {
+        "name": "GREP",
+        "status": "PBIT GO",
+        "afterTest": "GO"
+      },
+      "BCN": {
+        "name": "DOCS",
+        "status": "DEGD",
+        "afterTest": "GO"
+      },
+      "GPS": {
+        "name": "ROUTER",
+        "status": "OP GO",
+        "afterTest": "GO"
+      },
+      "LDDI": {
+        "name": "FLEXBOX",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "RDDI": {
+        "name": "GRID",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "MPCD": {
+        "name": "HTML",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "HUD": {
+        "name": "JS",
+        "status": "DEGD+OVRHT",
+        "afterTest": "GO"
+      },
+      "IFEI": {
+        "name": "A11Y",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "DMS": {
+        "name": "THEME",
+        "status": "PBIT GO",
+        "afterTest": "GO"
+      },
+      "HMD": {
+        "name": "HEADSET",
+        "status": "OFF",
+        "afterTest": "GO"
+      },
+      "SDC": {
+        "name": "COFFEE",
+        "status": "NOT RDY",
+        "afterTest": "GO"
+      },
+      "MU": {
+        "name": "SLEEP",
+        "status": "DEGD",
+        "afterTest": "DEGD"
+      },
+      "AISI": {
+        "name": "DUCK",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "TK2FL": {
+        "name": "MUG 1",
+        "status": "NO TEST",
+        "afterTest": "NO TEST"
+      },
+      "TK3FL": {
+        "name": "MUG 2",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "RWR": {
+        "name": "NPM AUDIT",
+        "status": "DEGD",
+        "afterTest": "DEGD"
+      },
+      "IBS": {
+        "name": "2FA",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "ALE_47": {
+        "name": "TLS",
+        "status": "GO",
+        "afterTest": "GO"
+      },
+      "ASPJ": {
+        "name": "SECRETS",
+        "status": "OP GO",
+        "afterTest": "GO"
+      }
+    },
+    "legendNames": {
+      "FCS": "TESTS",
+      "UFC": "KEYS",
+      "DDI": "CSS",
+      "DFIRS": "OUTAGES",
+      "FQTY": "MUGS",
+      "FXFR": "KETTLE"
+    },
+    "swConfig": {
+      "left": [
+        {
+          "name": "NODE",
+          "value": "24"
+        },
+        {
+          "name": "NEXT",
+          "value": "16.3.8"
+        },
+        {
+          "name": "REACT",
+          "value": "19.3.0"
+        },
+        null,
+        {
+          "name": "TS",
+          "value": "6.0.3"
+        },
+        {
+          "name": "ESLINT",
+          "value": "9.39.5"
+        },
+        {
+          "name": "VITEST",
+          "value": "5.0.3"
+        },
+        {
+          "name": "PYTHON",
+          "value": "3.14"
+        },
+        {
+          "name": "RUFF",
+          "value": "0.16.10"
+        },
+        {
+          "name": "UV",
+          "value": "0.9"
+        },
+        {
+          "name": "DOCKER",
+          "value": "28"
+        },
+        {
+          "name": "GIT",
+          "value": "2.51"
+        }
+      ],
+      "right": [
+        {
+          "name": "CSS",
+          "value": "TW 4.3.3"
+        },
+        {
+          "name": "E2E",
+          "value": "PW 1.63"
+        },
+        {
+          "name": "A11Y",
+          "value": "AXE 4.13"
+        },
+        {
+          "name": "API",
+          "value": "FASTAPI"
+        },
+        {
+          "name": "ASGI",
+          "value": "UVICORN"
+        },
+        {
+          "name": "TYPES",
+          "value": "PYRIGHT"
+        },
+        {
+          "name": "K8S",
+          "value": "KIND"
+        },
+        {
+          "name": "DEV",
+          "value": "TILT"
+        },
+        {
+          "name": "IDE",
+          "value": "PYCHARM"
+        },
+        {
+          "name": "OS",
+          "value": "WSL2"
+        },
+        {
+          "name": "SIM",
+          "value": "DCS 2.9"
+        },
+        {
+          "name": "FUEL",
+          "value": "COFFEE"
+        }
+      ]
+    }
+  },
+  "radar": {
+    "ownship": {
+      "heading": 256,
+      "airspeed": 404,
+      "mach": "0.90",
+      "altitude": 20480
+    },
+    "weapon": "9X 2",
+    "contacts": [
+      {
+        "range": 33.0,
+        "azimuth": -24.0,
+        "speed": 880.0,
+        "track": 172.0,
+        "altitude": 17500
+      },
+      {
+        "range": 19.0,
+        "azimuth": 31.0,
+        "speed": 320.0,
+        "track": 245.0,
+        "altitude": 21300
+      },
+      {
+        "range": 52.0,
+        "azimuth": 8.0,
+        "speed": 720.0,
+        "track": 186.0,
+        "altitude": 30500
+      },
+      {
+        "range": 27.0,
+        "azimuth": 52.0,
+        "speed": 460.0,
+        "track": 212.0,
+        "altitude": 19000
+      },
+      {
+        "range": 38.0,
+        "azimuth": -49.0,
+        "speed": 610.0,
+        "track": 150.0,
+        "altitude": 27500
+      }
+    ]
+  }
+}

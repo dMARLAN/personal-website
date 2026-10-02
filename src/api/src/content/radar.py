@@ -27,6 +27,8 @@ class RadarContact(ContentModel):
     speed: Annotated[float, Field(gt=0)]
     # Degrees clockwise from our nose: 180 flies straight at us.
     track: Annotated[float, Field(ge=0, lt=360)]
+    # Feet. The contact flies level, so the elevation bars decide which scans see it.
+    altitude: Annotated[int, Field(ge=0, le=99999)]
 
 
 class RadarScene(ContentModel):

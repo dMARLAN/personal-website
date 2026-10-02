@@ -1,3 +1,5 @@
+import hashlib
+import json
 import sqlite3
 from contextlib import closing
 from pathlib import Path
@@ -8,6 +10,7 @@ from alembic.migration import MigrationContext
 from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine
 
+from content.radar import RadarScene
 from db.database import DatabaseContext
 from db.migrate import alembic_config, upgrade
 from db.models import Base
@@ -75,3 +78,36 @@ async def test_connections_use_wal_and_a_busy_timeout(db_ctx: DatabaseContext) -
 
     assert journal_mode == "wal"
     assert busy_timeout == BUSY_TIMEOUT_MS
+
+
+def test_radar_contacts_gain_the_ownship_altitude(tmp_path: Path) -> None:
+    # Arrange: a radar document stored before contacts had an altitude.
+    db_path = tmp_path / "site.db"
+    config = alembic_config(db_path)
+    command.upgrade(config, "0001")
+    old_scene = {
+        "ownship": {"heading": 256, "airspeed": 404, "mach": "0.90", "altitude": 20480},
+        "weapon": "9X 2",
+        "contacts": [
+            {"range": 33.0, "azimuth": -24.0, "speed": 880.0, "track": 172.0},
+            {"range": 19.0, "azimuth": 31.0, "speed": 320.0, "track": 245.0},
+            {"range": 52.0, "azimuth": 8.0, "speed": 720.0, "track": 186.0},
+        ],
+    }
+    with closing(sqlite3.connect(db_path)) as connection, connection:
+        connection.execute(
+            "INSERT INTO content_section VALUES ('radar', ?, 'old-etag', '2026-10-02T00:00:00+00:00')",
+            (json.dumps(old_scene),),
+        )
+
+    # Act
+    command.upgrade(config, "head")
+
+    # Assert
+    with closing(sqlite3.connect(db_path)) as connection:
+        document, etag = connection.execute(
+            "SELECT document, etag FROM content_section WHERE section = 'radar'"
+        ).fetchone()
+    RadarScene.model_validate_json(document)
+    assert [contact["altitude"] for contact in json.loads(document)["contacts"]] == [20480, 20480, 20480]
+    assert etag == hashlib.sha256(document.encode()).hexdigest()

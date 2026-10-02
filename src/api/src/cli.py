@@ -11,6 +11,7 @@ from argon2 import PasswordHasher
 
 from config._storage import StorageConfig
 from db.migrate import new_revision, upgrade
+from seed.content import seed_site_content
 
 
 @click.group()
@@ -51,6 +52,14 @@ def hash_password() -> None:
     # Prompts go to stderr, so `$(make -s hash-password)` captures only the hash.
     password = click.prompt("Admin password", hide_input=True, confirmation_prompt=True, err=True)
     click.echo(PasswordHasher().hash(password))
+
+
+@cli.command("content-snapshot")
+@click.argument("out_file", type=click.Path(dir_okay=False, path_type=Path))
+def content_snapshot(out_file: Path) -> None:
+    """Write the seed content as `GET /api/content` returns it: the frontend's fallback snapshot."""
+    out_file.write_text(seed_site_content().model_dump_json(indent=2) + "\n", encoding="utf-8")
+    click.echo(f"Seed content -> {out_file}")
 
 
 @cli.command()

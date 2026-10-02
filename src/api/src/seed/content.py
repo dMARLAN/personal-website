@@ -48,7 +48,7 @@ from content.projects import (
 )
 from content.radar import Ownship, RadarContact, RadarScene
 from content.resume import QualificationColumn, QualificationRow, Resume, SkillColumn, SkillRow
-from content.sections import ContentSection
+from content.sections import ContentSection, SiteContent
 from content.server import ServerHost, ServerMetric, ServerRow, ServerSnapshot, ServerStats
 from content.work import Employer, Role, Work
 
@@ -729,11 +729,11 @@ _RADAR: Final[RadarScene] = RadarScene(
     ownship=Ownship(heading=256, airspeed=404, mach="0.90", altitude=20480),
     weapon="9X 2",
     contacts=[
-        RadarContact(range=33, azimuth=-24, speed=880, track=172),
-        RadarContact(range=19, azimuth=31, speed=320, track=245),
-        RadarContact(range=52, azimuth=8, speed=720, track=186),
-        RadarContact(range=27, azimuth=52, speed=460, track=212),
-        RadarContact(range=38, azimuth=-49, speed=610, track=150),
+        RadarContact(range=33, azimuth=-24, speed=880, track=172, altitude=17500),
+        RadarContact(range=19, azimuth=31, speed=320, track=245, altitude=21300),
+        RadarContact(range=52, azimuth=8, speed=720, track=186, altitude=30500),
+        RadarContact(range=27, azimuth=52, speed=460, track=212, altitude=19000),
+        RadarContact(range=38, azimuth=-49, speed=610, track=150, altitude=27500),
     ],
 )
 
@@ -751,3 +751,8 @@ SEED_DOCUMENTS: Final[dict[ContentSection, ContentModel]] = {
     ContentSection.BIT: _BIT,
     ContentSection.RADAR: _RADAR,
 }
+
+
+def seed_site_content() -> SiteContent:
+    """Every seed document in one `SiteContent`, as `GET /api/content` serves a fresh database."""
+    return SiteContent.model_validate({section.value: document for section, document in SEED_DOCUMENTS.items()})
