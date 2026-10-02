@@ -61,7 +61,13 @@ bootstrap:
 	./scripts/bootstrap.sh
 
 system-deps:
-	HOMEBREW_NO_INSTALL_CLEANUP=1 brew bundle
+	@if command -v brew >/dev/null; then \
+		HOMEBREW_NO_INSTALL_CLEANUP=1 brew bundle; \
+	else \
+		for tool in kind tilt ctlptl kubectl docker; do \
+			command -v $$tool >/dev/null || { echo "Missing $$tool: install it or run 'make bootstrap'"; exit 1; }; \
+		done; \
+	fi
 
 local-cluster: system-deps
 	ctlptl apply -f k8s/ctlptl.yaml
