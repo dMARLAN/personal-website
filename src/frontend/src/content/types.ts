@@ -324,4 +324,6 @@ export interface RadarContact {
   speed: number;
   /** Direction of that relative motion, degrees clockwise from our nose: 180 flies straight at us. */
   track: number;
+  /** Feet. The contact flies level, so the elevation bars decide which scans see it. */
+  altitude: number;
 }

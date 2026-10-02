@@ -1,8 +1,0 @@
-/* The range arrow OSBs are client buttons inside the frame's island wrapper, which already sits at the PB. */
-.ddi-osb-island > .radar-range-osb {
-  position: absolute;
-  inset: 0;
-  width: auto;
-  height: auto;
-  margin: 0;
-}

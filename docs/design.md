@@ -653,7 +653,7 @@ S/W CONFIG, which has 24 rows. HSI DATA WYPT fits too few characters per row for
 ### 9.2 Legends on our pages
 
 - **Showcase pages draw every real legend at its real position.** Cheap ones work locally, for example the
-  radar range arrows. The rest are inert (section 5.1).
+  radar's scan controls, TWS and DATA sublevel (`docs/pages/radar.md`). The rest are inert (section 5.1).
 - **Section pages draw only legends that do something.** A legend uses the real wording and position when a
   real legend has the same role:
   - paging is `PAGE` at PB16 (BIT);
@@ -979,7 +979,8 @@ All positions are DCS DI. "Edge" means the element goes in an edge strip.
   through refs and causes no React re-render. It pauses when `document.hidden` is true and is static under
   reduced motion. The server renders the t = 0 frame.
 - Legends: all real ones (for example `4B 2`, `SIL`, `ERASE`, `MODE`, `140°`, `CHAN`, `DATA`, `RSET`,
-  `NCTR`). The range arrows work (5/10/20/40/80/160). The rest are inert.
+  `NCTR`). The bars, azimuth, range (5/10/20/40/80/160), PRF, RWS/TWS, SIL/ACTIVE, ERASE, SET/RSET, NCTR and the
+  DATA sublevel work as in DCS. `docs/pages/radar.md` lists the inert ones and why.
 
 </details>
 
