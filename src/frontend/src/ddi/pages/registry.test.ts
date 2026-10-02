@@ -106,7 +106,7 @@ describe("the page registry", () => {
     }
   });
 
-  it("shows PROJECTS at TAC PB5, RESUME at TAC PB6 and WORK at TAC PB7", () => {
+  it("shows each shipped TAC section at its PB", () => {
     const legends = menuLegends("TAC").map(({ pb, lines, action }) => [
       pb,
       lines,
@@ -126,6 +126,21 @@ describe("the page registry", () => {
       7,
       ["WORK"],
       { kind: "link", href: "/work" },
+    ]);
+    expect(legends).toContainEqual([
+      8,
+      ["CONTACT"],
+      { kind: "link", href: "/contact" },
+    ]);
+    expect(legends).toContainEqual([
+      9,
+      ["LINKS"],
+      { kind: "link", href: "/links" },
+    ]);
+    expect(legends).toContainEqual([
+      20,
+      ["ABOUT"],
+      { kind: "link", href: "/about" },
     ]);
   });
 
@@ -159,7 +174,16 @@ describe("the page registry", () => {
       })),
     );
     const urls = sitemap().map(({ url }) => url);
-    for (const route of ["/", "/projects", "/resume", "/work", "/server"]) {
+    for (const route of [
+      "/",
+      "/about",
+      "/projects",
+      "/resume",
+      "/work",
+      "/contact",
+      "/links",
+      "/server",
+    ]) {
       expect(urls).toContain(`${SITE_URL}${route}`);
     }
     expect(urls).not.toContain(`${SITE_URL}/supt`);

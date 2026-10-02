@@ -1,28 +1,30 @@
 import { SITE_NAME } from "@/lib/site";
 import type { Profile } from "./types";
 
-// PLACEHOLDER: every value below is a stand-in until Chad writes the real profile (design section 18).
+// PLACEHOLDER: every value below is a stand-in until Chad writes the real profile (design section 18). The header
+// is real: it comes from SITE_NAME.
 export const PROFILE: Profile = {
   header: SITE_NAME,
+  badge: "PLACEHOLDER",
   status: [
-    { label: "ROLE:", value: "ENGINEER" },
+    { label: "ROLE:", value: "SW ENGR" },
     { label: "BASE:", value: "TBD" },
     { label: "YRS:", value: "00" },
-    { label: "LANG:", value: "TBD" },
-    { label: "STAT:", value: "TBD" },
+    { label: "STACK:", value: "TS/PY" },
+    { label: "STAT:", value: "ACTIVE" },
   ],
-  list: [
-    "PLACEHOLDER ITEM 1",
-    "PLACEHOLDER ITEM 2",
-    "PLACEHOLDER ITEM 3",
-    "PLACEHOLDER ITEM 4",
-    "PLACEHOLDER ITEM 5",
+  loadout: [
+    "1 - TYPESCRIPT",
+    "2 - PYTHON",
+    "3 - REACT",
+    "4 - FASTAPI",
+    "5 - KUBERNETES",
   ],
-  footer: "PLACEHOLDER FOOTER",
+  footer: "99.9 COFFEE 0 BUGS",
   tags: [
-    { label: "M1", value: "TBD" },
-    { label: "M2", value: "TBD" },
-    { label: "M3", value: "TBD" },
+    { label: "SIM:", value: "DCS F/A-18C" },
+    { label: "OS:", value: "LINUX" },
+    { label: "IDE:", value: "PYCHARM" },
   ],
-  bio: "Placeholder bio. The real one replaces this text.",
+  bio: "Placeholder bio. A software engineer who builds web apps and APIs, and flies the Hornet in DCS after hours.",
 };

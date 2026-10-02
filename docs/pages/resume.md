@@ -57,8 +57,4 @@ do something (design section 9.2).
 
 ## Open questions for Chad
 
-1. **Focus out of view.** With pages shipped, the visually hidden semantic layer has links (TAC lists its pages; this
-   page has the PDF link). Tab reaches them before the OSBs, so keyboard focus goes out of view. That breaks WCAG
-   2.4.7. Options: show the semantic layer while it holds focus, or give its links `tabindex="-1"` in DDI mode. The
-   `keyboard.spec.ts` check now skips the in-view assertion for those links until this is decided.
-2. Line two of the title: keep a placeholder, or use something like your role?
+1. Line two of the title: keep a placeholder, or use something like your role?

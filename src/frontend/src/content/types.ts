@@ -1,19 +1,26 @@
 // Content schema (docs/design.md section 11). Rendering code imports from content/, never the other way round.
 // Limits come from each format's geometry. Content-fit tests enforce them when each page ships.
 
-/** About → TGT DATA OWNSHIP [pgB §11]. */
+export interface LabelValue {
+  label: string;
+  value: string;
+}
+
+/** About → TGT DATA OWNSHIP [pgB §11]. Limits are enforced by `ddi/pages/about.test.tsx`. */
 export interface Profile {
-  /** Shown at (−385, 410); ≤ 30 chars. */
+  /** The `EMERG` slot above the box's top-left corner; ≤ 18 chars. */
   header: string;
-  /** 5 rows at y 335…171; label ≤ 7 incl. ":", value ≤ 9. */
-  status: { label: string; value: string }[];
-  /** Stores quadrant, x = 43; 5 rows, ≤ 18 chars each. */
-  list: string[];
+  /** The `EXER` slot above the box's top-right corner; ≤ 18 chars. */
+  badge: string;
+  /** Status quadrant: 5 rows; label ≤ 7 incl. ":", value ≤ 9. */
+  status: [LabelValue, LabelValue, LabelValue, LabelValue, LabelValue];
+  /** Stores quadrant, the `X - XXXX` rows: 5 rows, ≤ 17 chars each. */
+  loadout: [string, string, string, string, string];
   /** The fuel/gun line at y = −10; ≤ 19 chars. */
   footer: string;
-  /** IFF quadrant, x = 35; 3 rows, ≤ 18 chars in total. */
-  tags: { label: string; value: string }[];
-  /** The empty bottom-left quadrant; wrapped to 9 rows × 18 chars. */
+  /** IFF quadrant: 3 rows; label, a space and value ≤ 18 chars. */
+  tags: [LabelValue, LabelValue, LabelValue];
+  /** The empty bottom-left quadrant; word-wrapped to ≤ 9 rows × 18 chars. */
   bio: string;
 }
 
@@ -111,21 +118,21 @@ export interface Project {
   links: ProjectLink[];
 }
 
-/** Contact → MIDS status block: 4 rows; values ≤ 21. */
-export interface ContactRow {
-  label: string;
-  value: string;
-}
-
+/**
+ * Contact → MIDS status block [pgB §6]. The email fills the first row (label `EMAIL:`); `rows` fill the other three.
+ * Each row (label, gap, value) is at most 46 chars. Limits are enforced by `ddi/pages/contact.test.tsx`.
+ */
 export interface Contact {
-  rows: [ContactRow, ContactRow, ContactRow, ContactRow];
   email: string;
+  rows: [LabelValue, LabelValue, LabelValue];
 }
 
-/** Links → UFC BU: ≤ 10 rows; name, handle ≤ 8. */
+/** Links → UFC BU channel table [pgB §12]: ≤ 10 rows. Limits are enforced by `ddi/pages/links.test.tsx`. */
 export interface LinkEntry {
+  /** Name column, ≤ 8 chars. Written in normal case: the glass upper-cases it and the semantic layer keeps it. */
   name: string;
-  handle: string;
+  /** Designation column, ≤ 6 chars, so it stays inside the 480 DI selection box. For example `CODE` or `PDF`. */
+  tag: string;
   url: string;
 }
 

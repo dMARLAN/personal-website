@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { menuPages } from "../src/ddi/pages/registry";
+import { ALL_PAGES, menuPages } from "../src/ddi/pages/registry";
+import { SITE_URL } from "../src/lib/site";
 
 test("PB18 toggles TAC and SUPT in place on press, and the URL stays /", async ({
   page,
@@ -81,10 +82,16 @@ test("the plain view lists both menus and hides the state OSB", async ({
   await expect(page.locator(".ddi-osb[data-pb='18']")).toBeHidden();
 });
 
-test("lists / but not /supt in the sitemap", async ({ request }) => {
+test("lists / and every shipped section, but not /supt, in the sitemap", async ({
+  request,
+}) => {
   const sitemap = await (await request.get("/sitemap.xml")).text();
-  expect(sitemap).toContain("<loc>https://chad.hambley.org/</loc>");
+  for (const page of ALL_PAGES.filter((candidate) => candidate.available)) {
+    expect(sitemap).toContain(
+      `<loc>${new URL(page.path, SITE_URL).toString()}</loc>`,
+    );
+  }
   expect(sitemap).not.toContain("/supt");
   const robots = await (await request.get("/robots.txt")).text();
-  expect(robots).toContain("Sitemap: https://chad.hambley.org/sitemap.xml");
+  expect(robots).toContain(`Sitemap: ${SITE_URL}/sitemap.xml`);
 });

@@ -81,6 +81,3 @@ station and load, the PROG facts and the link-outs, so the plain view and crawle
 ## Open questions
 
 1. Which real projects, categories and links? Everything in `content/projects.ts` is a placeholder.
-2. Keyboard focus reaches the semantic layer's links while they are visually hidden in the display view (found while
-   updating `e2e/keyboard.spec.ts`). That fails WCAG 2.4.7 once any page ships links there. It needs a site-wide
-   decision, for example revealing the semantic layer on focus or taking its links out of the tab order.

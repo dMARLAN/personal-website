@@ -1,43 +1,26 @@
 import { expect, test } from "@playwright/test";
-import { menuPages } from "../src/ddi/pages/registry";
+import { menuLegends } from "../src/ddi/pages/registry";
 
 test("the keyboard reaches the skip link, the OSBs, the knobs, then the theme toggle", async ({
   page,
 }) => {
   await page.goto("/");
-  const main = page.getByRole("main");
-  const osbs = page.getByRole("navigation", { name: "Display pushbuttons" });
-  // OSBs come in PB order: TAC's page links, and PB18, which switches to SUPT.
-  const tacOsbs = [
-    ...menuPages("TAC").flatMap(({ menu, label }) =>
-      menu
-        ? [{ pb: menu.pb, osb: osbs.getByRole("link", { name: label }) }]
-        : [],
-    ),
-    { pb: 18, osb: page.getByRole("button", { name: "Support menu" }) },
-  ].toSorted((a, b) => a.pb - b.pb);
-  // The semantic layer lists both menus' pages, before the OSBs in DOM order (design section 10.2). It is visually
-  // hidden in the display view, so its links take focus without being visible: open question in docs/pages/projects.md.
-  const hiddenLinks = [...menuPages("TAC"), ...menuPages("SUPT")].map(
-    ({ label }) => main.getByRole("link", { name: label }),
-  );
-  const visible = [
-    ...tacOsbs.map(({ osb }) => osb),
+  // The OSBs come in PB order: TAC's legends for shipped pages and PB18.
+  const osbs = menuLegends("TAC")
+    .map((legend) => legend.pb)
+    .sort((a, b) => a - b)
+    .map((pb) => page.locator(`.ddi-osb[data-pb='${pb}']`));
+  const order = [
+    page.getByRole("link", { name: "Text view" }),
+    ...osbs,
     page.getByRole("slider", { name: "Brightness" }),
     page.getByRole("slider", { name: "Contrast" }),
     page.getByRole("button", { name: "Night mode" }),
   ];
-  const order = [
-    page.getByRole("link", { name: "Text view" }),
-    ...hiddenLinks,
-    ...visible,
-  ];
   for (const target of order) {
     await page.keyboard.press("Tab");
     await expect(target).toBeFocused();
-    if (!hiddenLinks.includes(target)) {
-      await expect(target).toBeInViewport();
-    }
+    await expect(target).toBeInViewport();
   }
 });
 

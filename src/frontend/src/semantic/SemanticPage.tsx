@@ -1,3 +1,5 @@
+import { SemanticMain } from "./SemanticMain";
+
 export interface SemanticPageProps {
   heading: string;
   children?: React.ReactNode;
@@ -12,9 +14,9 @@ export function SemanticPage({
   children,
 }: SemanticPageProps): React.JSX.Element {
   return (
-    <main id="content" className="ddi-semantic">
+    <SemanticMain>
       <h1>{heading}</h1>
       {children}
-    </main>
+    </SemanticMain>
   );
 }

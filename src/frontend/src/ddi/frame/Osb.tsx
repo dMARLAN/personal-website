@@ -24,41 +24,23 @@ function startDownload(href: string): void {
   anchor.click();
 }
 
-/**
- * Fires the action on press, as DCS does (docs/design.md section 5.1): primary-button `pointerdown`, or Enter/Space
- * `keydown`. The `click` that follows a pointer press is suppressed so the action never fires twice. A `click` with
- * no press before it (no JavaScript yet, or an assistive technology's synthetic click) keeps its native behaviour, or
- * fires a state action, which has none.
- */
-function usePress(action: PressableAction): {
+export interface OsbPress {
   pressed: boolean;
   handlers: Pick<
     React.DOMAttributes<HTMLElement>,
     "onPointerDown" | "onKeyDown" | "onKeyUp" | "onBlur" | "onClick"
   >;
-} {
-  const router = useRouter();
-  const { setState } = useScreenState();
+}
+
+/**
+ * Fires `fire` on press, as DCS does (docs/design.md section 5.1): primary-button `pointerdown`, or Enter/Space
+ * `keydown`. The `click` that follows a pointer press is suppressed so the action never fires twice. A `click` with
+ * no press before it (no JavaScript yet, or an assistive technology's synthetic click) keeps its native behaviour,
+ * or fires when `fireOnClick` is set because the element has no native action. Page islands use it for their OSBs.
+ */
+export function useOsbPress(fire: () => void, fireOnClick: boolean): OsbPress {
   const suppressClick = useRef(false);
   const [pressed, setPressed] = useState(false);
-
-  const fire = (): void => {
-    switch (action.kind) {
-      case "link":
-        router.push(action.href);
-        return;
-      case "external":
-        window.open(action.href, "_blank", "noopener,noreferrer");
-        return;
-      case "download":
-        startDownload(action.href);
-        return;
-      case "state":
-        setState(action.state);
-        return;
-    }
-  };
-
   return {
     pressed,
     handlers: {
@@ -85,13 +67,37 @@ function usePress(action: PressableAction): {
         if (suppressClick.current) {
           suppressClick.current = false;
           event.preventDefault();
-        } else if (action.kind === "state") {
-          // A state button has no native action, so a click with no press before it must fire it.
+        } else if (fireOnClick) {
           fire();
         }
       },
     },
   };
+}
+
+function usePress(action: PressableAction): OsbPress {
+  const router = useRouter();
+  const { setState } = useScreenState();
+
+  const fire = (): void => {
+    switch (action.kind) {
+      case "link":
+        router.push(action.href);
+        return;
+      case "external":
+        window.open(action.href, "_blank", "noopener,noreferrer");
+        return;
+      case "download":
+        startDownload(action.href);
+        return;
+      case "state":
+        setState(action.state);
+        return;
+    }
+  };
+
+  // A state button has no native action, so a click with no press before it must fire it.
+  return useOsbPress(fire, action.kind === "state");
 }
 
 interface PressableOsbProps {

@@ -50,7 +50,7 @@ export const PAGES: Readonly<Record<PageId, PageDef>> = {
     kind: "section",
     menu: { on: "TAC", pb: 20, legend: ["ABOUT"] },
     label: "About",
-    available: false,
+    available: true,
   },
   resume: {
     id: "resume",
@@ -82,7 +82,7 @@ export const PAGES: Readonly<Record<PageId, PageDef>> = {
     kind: "section",
     menu: { on: "TAC", pb: 8, legend: ["CONTACT"] },
     label: "Contact",
-    available: false,
+    available: true,
   },
   links: {
     id: "links",
@@ -90,7 +90,7 @@ export const PAGES: Readonly<Record<PageId, PageDef>> = {
     kind: "section",
     menu: { on: "TAC", pb: 9, legend: ["LINKS"] },
     label: "Links",
-    available: false,
+    available: true,
   },
   radar: {
     id: "radar",
