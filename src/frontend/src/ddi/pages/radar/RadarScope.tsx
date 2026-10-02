@@ -1,124 +1,324 @@
 "use client";
 
-import type { RadarContact } from "@/content/types";
-import {
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useSyncExternalStore,
-} from "react";
+import type { RadarScene } from "@/content/types";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
   DISPLAY_AZIMUTH,
   ELEVATION_DI_PER_DEGREE,
   ElevationCaret,
+  RangeCaret,
   RawHit,
   SweepLine,
   TACTICAL_HALF,
+  TrackSymbol,
   scopePoint,
 } from "../../formats/rdrAttk";
 import { formatNumber } from "../../geometry";
+import type { RadarState } from "./settings";
 import {
-  antennaAzimuth,
-  antennaElevation,
+  antennaAt,
+  closure,
+  contactCourse,
+  contactMach,
   contactPath,
+  contactPosition,
+  elevationAngle,
+  eraseHits,
   hitIntensity,
-  rawHit,
-  scanBar,
+  instantaneousPrf,
+  rankedTracks,
+  restartFrame,
+  scanPattern,
+  speedOfSound,
+  startActiveFrame,
+  stepScan,
+  trackMemory,
+  visibleHit,
+  warmScan,
   type ContactPath,
+  type ScanContext,
+  type ScanPattern,
+  type ScanState,
 } from "./sim";
-import { barStore, rangeStore, resetRadarState } from "./store";
+import {
+  radarStore,
+  resetRadarState,
+  scanReadoutStore,
+  trackFilesStore,
+  useStore,
+  type ScanReadout,
+  type TrackFiles,
+} from "./store";
 
 /** The DCS device update rate: 20 Hz [bzl §1]. */
 export const FRAME_INTERVAL_MS = 50;
 /** (ours) The most sim time one frame may advance, so a stalled tab resumes where it stopped instead of jumping. */
 const MAX_FRAME_STEP_MS = 100;
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+/** (ours) TWS raw hits are "rendered at a lower intensity than the trackfiles" (guide, TWS HITS option). */
+const TWS_HIT_INTENSITY = 0.5;
 
 /** SVG transform for a DCS-coordinate offset (SVG is y-down). */
 function translate(x: number, y: number): string {
   return `translate(${formatNumber(x)} ${formatNumber(-y)})`;
 }
 
-interface HitDrawing {
+/** The contacts and our own aircraft, fixed for the page's lifetime. */
+export interface RadarModel {
+  paths: readonly ContactPath[];
+  /** Feet. */
+  ownAltitude: number;
+  /** Our true airspeed, knots. */
+  ownSpeed: number;
+}
+
+export function radarModel(scene: RadarScene): RadarModel {
+  const { altitude, mach } = scene.ownship;
+  return {
+    paths: scene.contacts.map(contactPath),
+    ownAltitude: altitude,
+    ownSpeed: Number(mach) * speedOfSound(altitude),
+  };
+}
+
+/** The scan pattern, the context to step it with, the trackfiles and their memory, for a radar state. */
+export function scanSetup(
+  state: RadarState,
+  scan: ScanState,
+  model: RadarModel,
+): { pattern: ScanPattern; context: ScanContext; ranks: number[] } {
+  const memory = trackMemory(scanPattern(state.mode, state.scan));
+  const ranks = rankedTracks(scan, model.paths, memory);
+  // TWS AUTO: "The azimuth and elevation TWS scan is centered on the L&S trackfiles" (guide, TWS).
+  const lsIndex = ranks.at(0);
+  let centre = { azimuth: 0, elevation: 0 };
+  if (
+    state.mode === "TWS" &&
+    state.centring === "AUTO" &&
+    lsIndex !== undefined
+  ) {
+    const ls = contactPosition(model.paths[lsIndex], scan.time);
+    centre = {
+      azimuth: ls.azimuth,
+      elevation: elevationAngle(
+        ls.range,
+        model.paths[lsIndex].altitude,
+        model.ownAltitude,
+      ),
+    };
+  }
+  const pattern = scanPattern(state.mode, state.scan, centre);
+  return {
+    pattern,
+    ranks,
+    context: {
+      paths: model.paths,
+      pattern,
+      prf: state.scan.prf,
+      silent: state.silent,
+      ownAltitude: model.ownAltitude,
+    },
+  };
+}
+
+/** The scan the server renders at t = 0: the opening settings, already running long enough to show aged hits. */
+export function initialScan(state: RadarState, model: RadarModel): ScanState {
+  const empty: ScanState = {
+    time: 0,
+    scanTime: 0,
+    activeUntil: 0,
+    hits: model.paths.map(() => null),
+    seen: model.paths.map(() => null),
+  };
+  const { pattern, context } = scanSetup(state, empty, model);
+  return warmScan(context, Math.max(state.scan.aging, trackMemory(pattern)));
+}
+
+interface Placement {
   transform: string;
   opacity: string;
   visible: boolean;
 }
 
-/** What the scope shows at sim `time` on the `range` NM scale. */
+const HIDDEN: Placement = { transform: "", opacity: "0", visible: false };
+
+export interface ScopeFrame {
+  sweep: string;
+  caret: string;
+  readout: ScanReadout;
+  hits: Placement[];
+  tracks: Placement[];
+  rangeCaret: Placement;
+  trackFiles: TrackFiles;
+}
+
+/** What the scope shows for a scan state, under the radar settings. */
 export function scopeFrame(
-  paths: readonly ContactPath[],
-  time: number,
-  range: number,
-): { sweep: string; caret: string; bar: number; hits: HitDrawing[] } {
+  state: RadarState,
+  scan: ScanState,
+  model: RadarModel,
+): ScopeFrame {
+  const { pattern, ranks } = scanSetup(state, scan, model);
+  const antenna = antennaAt(pattern, scan.scanTime);
+  const range = state.scan.range;
+  const tws = state.mode === "TWS";
+  const hits = model.paths.map((_, index): Placement => {
+    const hit = visibleHit(scan, index, state.scan.aging);
+    if (hit === null || hit.range > range || (tws && !state.hits)) {
+      return HIDDEN;
+    }
+    const [x, y] = scopePoint(hit.range, hit.azimuth, range);
+    const intensity = hitIntensity(hit.age, state.scan.aging);
+    return {
+      transform: translate(x, y),
+      opacity: formatNumber(tws ? intensity * TWS_HIT_INTENSITY : intensity),
+      visible: true,
+    };
+  });
+  // "Trackfiles that are outside of the display will be clamped to the screen edge" (guide, TWS).
+  const trackPoint = (index: number): [number, number] => {
+    const position = contactPosition(model.paths[index], scan.time);
+    const [x, y] = scopePoint(position.range, position.azimuth, range);
+    return [x, Math.min(y, TACTICAL_HALF)];
+  };
+  const tracks = model.paths.map((_, index): Placement => {
+    if (!tws || !ranks.includes(index)) {
+      return HIDDEN;
+    }
+    return {
+      transform: translate(...trackPoint(index)),
+      opacity: "1",
+      visible: true,
+    };
+  });
+  const lsIndex = tws ? ranks.at(0) : undefined;
+  const rangeCaret =
+    lsIndex === undefined
+      ? HIDDEN
+      : {
+          transform: translate(0, trackPoint(lsIndex)[1]),
+          opacity: "1",
+          visible: true,
+        };
   return {
-    sweep: translate(
-      (antennaAzimuth(time) / DISPLAY_AZIMUTH) * TACTICAL_HALF,
-      0,
-    ),
-    caret: translate(0, antennaElevation(time) * ELEVATION_DI_PER_DEGREE),
-    bar: scanBar(time),
-    hits: paths.map((path) => {
-      const hit = rawHit(path, time);
-      if (hit === null || hit.range > range) {
-        return { transform: "", opacity: "0", visible: false };
-      }
-      const [x, y] = scopePoint(hit.range, hit.azimuth, range);
-      return {
-        transform: translate(x, y),
-        opacity: formatNumber(hitIntensity(hit.age)),
-        visible: true,
-      };
-    }),
+    sweep: translate((antenna.azimuth / DISPLAY_AZIMUTH) * TACTICAL_HALF, 0),
+    caret: translate(0, antenna.elevation * ELEVATION_DI_PER_DEGREE),
+    readout: {
+      bar: antenna.bar,
+      prf: instantaneousPrf(state.scan.prf, antenna.pass),
+      centreElevation: Math.round(pattern.centre.elevation * 10) / 10,
+    },
+    hits,
+    tracks,
+    rangeCaret,
+    trackFiles: {
+      ranks: model.paths.map((_, index) =>
+        tws && ranks.includes(index) ? ranks.indexOf(index) + 1 : null,
+      ),
+      closure:
+        lsIndex === undefined
+          ? null
+          : Math.round(closure(model.paths[lsIndex], scan.time)),
+    },
   };
 }
 
+/** The pattern change that restarts the frame: a new bar count, width or bar spacing. */
+function patternKey(pattern: ScanPattern): string {
+  return `${pattern.bars}/${pattern.width}/${pattern.spacing}`;
+}
+
+function setPlacement(element: SVGGElement | null, placement: Placement): void {
+  if (element === null) {
+    return;
+  }
+  element.setAttribute("transform", placement.transform);
+  element.setAttribute("opacity", placement.opacity);
+  element.setAttribute("visibility", placement.visible ? "visible" : "hidden");
+}
+
 /**
- * The animated RWS layer: the antenna sweep line, the elevation caret and the raw hits (design section 12, Radar).
- * The server renders the t = 0 frame. In the browser a requestAnimationFrame loop draws at 20 Hz by writing
- * attributes through refs, so React never re-renders per frame. It stops while the tab is hidden and never starts
- * under reduced motion.
+ * The animated layer (design section 12, Radar): the antenna sweep line, the elevation caret, the raw hits and, in
+ * TWS, the trackfiles and the L&S range caret. The server renders the t = 0 frame. In the browser a
+ * requestAnimationFrame loop steps the scan at 20 Hz and writes attributes through refs, so React never re-renders
+ * per frame. It stops while the tab is hidden and never starts under reduced motion; OSB presses still redraw the
+ * still frame.
  */
 export function RadarScope({
-  contacts,
+  scene,
 }: {
-  contacts: readonly RadarContact[];
+  scene: RadarScene;
 }): React.JSX.Element {
-  const range = useSyncExternalStore(
-    rangeStore.subscribe,
-    rangeStore.get,
-    () => rangeStore.initial,
+  const state = useStore(radarStore);
+  const trackFiles = useStore(trackFilesStore);
+  const model = useMemo(() => radarModel(scene), [scene]);
+  const initial = useMemo(() => {
+    const scan = initialScan(radarStore.initial, model);
+    return { scan, frame: scopeFrame(radarStore.initial, scan, model) };
+  }, [model]);
+  const trackLooks = useMemo(
+    () =>
+      model.paths.map((path) => ({
+        course: contactCourse(path, model.ownSpeed),
+        mach: contactMach(path, model.ownSpeed),
+        altitude: path.altitude,
+      })),
+    [model],
   );
-  const paths = useMemo(() => contacts.map(contactPath), [contacts]);
   const sweepRef = useRef<SVGGElement>(null);
   const caretRef = useRef<SVGGElement>(null);
+  const rangeCaretRef = useRef<SVGGElement>(null);
   const hitRefs = useRef<(SVGGElement | null)[]>([]);
-  const simTime = useRef(0);
-  const rangeRef = useRef(range);
+  const trackRefs = useRef<(SVGGElement | null)[]>([]);
+  const scanRef = useRef(initial.scan);
+  const handled = useRef({
+    erasures: state.erasures,
+    activeRequests: state.activeRequests,
+    pattern: patternKey(scanSetup(state, initial.scan, model).pattern),
+  });
 
-  const draw = (): void => {
-    const frame = scopeFrame(paths, simTime.current, rangeRef.current);
+  /** Applies the presses the scan has not seen yet, steps it `seconds` forward and draws it. */
+  const advance = (seconds: number): void => {
+    const current = radarStore.get();
+    let scan = scanRef.current;
+    if (current.erasures !== handled.current.erasures) {
+      handled.current.erasures = current.erasures;
+      scan = eraseHits(scan);
+    }
+    const { pattern, context } = scanSetup(current, scan, model);
+    const key = patternKey(pattern);
+    if (key !== handled.current.pattern) {
+      handled.current.pattern = key;
+      scan = restartFrame(scan);
+    }
+    if (current.activeRequests !== handled.current.activeRequests) {
+      handled.current.activeRequests = current.activeRequests;
+      scan = startActiveFrame(scan, pattern);
+    }
+    if (seconds > 0) {
+      scan = stepScan(scan, seconds, context);
+    }
+    scanRef.current = scan;
+
+    const frame = scopeFrame(current, scan, model);
     sweepRef.current?.setAttribute("transform", frame.sweep);
     caretRef.current?.setAttribute("transform", frame.caret);
-    frame.hits.forEach((hit, index) => {
-      const element = hitRefs.current[index];
-      if (element === null) {
-        return;
-      }
-      element.setAttribute("transform", hit.transform);
-      element.setAttribute("opacity", hit.opacity);
-      element.setAttribute("visibility", hit.visible ? "visible" : "hidden");
-    });
-    barStore.set(frame.bar);
+    frame.hits.forEach((hit, index) =>
+      setPlacement(hitRefs.current[index], hit),
+    );
+    frame.tracks.forEach((track, index) =>
+      setPlacement(trackRefs.current[index], track),
+    );
+    setPlacement(rangeCaretRef.current, frame.rangeCaret);
+    scanReadoutStore.set(frame.readout);
+    trackFilesStore.set(frame.trackFiles);
   };
-  const drawRef = useRef(draw);
+  const advanceRef = useRef(advance);
 
-  // A new range redraws at once, before paint, from the current sim time.
+  // A press redraws at once, before paint, from the current scan, even when the loop is not running.
   useLayoutEffect(() => {
-    drawRef.current = draw;
-    rangeRef.current = range;
-    draw();
+    advanceRef.current = advance;
+    advance(0);
   });
 
   useEffect(() => {
@@ -143,9 +343,9 @@ export function RadarScope({
       if (nextDue <= now) {
         nextDue = now + FRAME_INTERVAL_MS;
       }
-      simTime.current += Math.min(now - lastFrame, MAX_FRAME_STEP_MS) / 1000;
+      const seconds = Math.min(now - lastFrame, MAX_FRAME_STEP_MS) / 1000;
       lastFrame = now;
-      drawRef.current();
+      advanceRef.current(seconds);
     };
     const stop = (): void => {
       cancelAnimationFrame(request);
@@ -171,16 +371,27 @@ export function RadarScope({
     };
   }, []);
 
-  const initial = scopeFrame(paths, 0, rangeStore.initial);
+  const { frame } = initial;
+  const { scan } = state;
+  const closureShown = state.declutter < 2 ? trackFiles.closure : null;
   return (
-    <g className="radar-scope" data-testid="radar-scope" data-range={range}>
-      <g ref={sweepRef} transform={initial.sweep} data-testid="radar-sweep">
+    <g
+      className="radar-scope"
+      data-testid="radar-scope"
+      data-mode={state.mode}
+      data-range={scan.range}
+      data-bars={scan.bars}
+      data-azimuth={scan.azimuth}
+      data-prf={scan.prf}
+      data-silent={state.silent}
+    >
+      <g ref={sweepRef} transform={frame.sweep} data-testid="radar-sweep">
         <SweepLine />
       </g>
-      <g ref={caretRef} transform={initial.caret}>
+      <g ref={caretRef} transform={frame.caret} data-testid="radar-caret">
         <ElevationCaret />
       </g>
-      {initial.hits.map((hit, index) => (
+      {frame.hits.map((hit, index) => (
         <g
           // Contacts are a fixed list for the page's lifetime, so the index is a stable key.
           key={index}
@@ -195,6 +406,35 @@ export function RadarScope({
           <RawHit />
         </g>
       ))}
+      {frame.tracks.map((track, index) => {
+        // Before the loop's first frame the trackfiles list is empty: no contact has a rank yet.
+        const rank = trackFiles.ranks.at(index) ?? null;
+        return (
+          <g
+            key={index}
+            ref={(element) => {
+              trackRefs.current[index] = element;
+            }}
+            transform={track.transform}
+            opacity={track.opacity}
+            visibility={track.visible ? "visible" : "hidden"}
+            data-testid="radar-track"
+            data-rank={rank ?? undefined}
+          >
+            {rank !== null && (
+              <TrackSymbol rank={rank} {...trackLooks[index]} />
+            )}
+          </g>
+        );
+      })}
+      <g
+        ref={rangeCaretRef}
+        transform={frame.rangeCaret.transform}
+        visibility={frame.rangeCaret.visible ? "visible" : "hidden"}
+        data-testid="radar-range-caret"
+      >
+        <RangeCaret closure={closureShown} />
+      </g>
     </g>
   );
 }

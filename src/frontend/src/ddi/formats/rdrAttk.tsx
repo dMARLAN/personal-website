@@ -1,4 +1,11 @@
-import { polylinePath, type Edge, type Point } from "../geometry";
+import { pbLabelLayout } from "../frame/legend";
+import {
+  lineEnd,
+  pbAnchor,
+  polylinePath,
+  type Edge,
+  type Point,
+} from "../geometry";
 import { StrokeCircle } from "../primitives/StrokeCircle";
 import { StrokeLine } from "../primitives/StrokeLine";
 import { StrokeBox } from "../primitives/StrokeBox";
@@ -6,7 +13,7 @@ import { StrokeSymbol } from "../primitives/StrokeSymbol";
 import { StrokeText } from "../primitives/StrokeText";
 
 /*
- * RDR ATTK, A/A (RWS), transcribed from Pages/MPD/RDR/*.lua and Sensors/Radar/RadarDefs.lua. docs/pages/radar.md
+ * RDR ATTK, A/A (RWS and TWS), transcribed from Pages/MPD/RDR/*.lua and Sensors/Radar/RadarDefs.lua. docs/pages/radar.md
  * holds the full transcription. All positions are DCS DI, +y up. "(ours)" marks values the Lua does not give.
  */
 
@@ -111,9 +118,9 @@ function ElevationRefLines(): React.JSX.Element {
 /**
  * `add_RDR_FLIR_AC_VelVector_HorizonLine`, in level flight: the HUD velocity vector at 150 % and the horizon line
  * through its centre. The symbol's origin is its bounding-box centre, so it moves up 10 DI × 1.5 to put the circle's
- * centre on the Lua position (inferred: DCS anchors it `FromSet`).
+ * centre on the Lua position (inferred: DCS anchors it `FromSet`). DATA's DCLTR 1 and 2 remove it.
  */
-function VelocityVector(): React.JSX.Element {
+export function VelocityVector(): React.JSX.Element {
   const [x, y]: Point = [0, RANGE_REF_SPACING - RANGE_REF_SPACING / 3];
   const scale = 1.5;
   const gap = 60;
@@ -181,8 +188,11 @@ export interface RdrAttkProps {
   weapon: string;
   /** `MPD_RDR_AA_SensitivityIndicator`, 150 % at the lower left. */
   sensitivity: string;
-  /** Range scale and cursor readouts: a client island, because the range arrows change them. */
-  rangeReadouts: React.ReactNode;
+  /**
+   * The symbology the radar settings change: a client island with the range scale, the cursor readouts, the velocity
+   * vector (DCLTR), the iron cross (SIL) and the BRA and target heading readouts.
+   */
+  readouts: React.ReactNode;
 }
 
 function AircraftData({ ownship }: { ownship: RdrOwnship }): React.JSX.Element {
@@ -228,12 +238,12 @@ function AircraftData({ ownship }: { ownship: RdrOwnship }): React.JSX.Element {
   );
 }
 
-/** The static RWS symbology in the square: everything that does not move each frame. */
+/** The symbology in the square that does not move each frame. `readouts` holds what the radar settings change. */
 export function RdrAttkSymbology({
   ownship,
   weapon,
   sensitivity,
-  rangeReadouts,
+  readouts,
 }: RdrAttkProps): React.JSX.Element {
   return (
     <>
@@ -248,7 +258,6 @@ export function RdrAttkSymbology({
       <RangeRefLines x={TACTICAL_HALF} />
       <RangeRefLines x={-TACTICAL_HALF} />
       <ElevationRefLines />
-      <VelocityVector />
       <StrokeText
         text={`${String(ownship.heading).padStart(3, "0")}°`}
         font="F120"
@@ -288,7 +297,7 @@ export function RdrAttkSymbology({
         pos={[TACTICAL_HALF + 49, -TACTICAL_HALF]}
       />
       <AircraftData ownship={ownship} />
-      {rangeReadouts}
+      {readouts}
     </>
   );
 }
@@ -382,38 +391,44 @@ export function RawHit(): React.JSX.Element {
   );
 }
 
-/** The left-edge texts that are not plain PB legends: the mode, PRF and RDR/PRI (RDR_AA_SPECIAL.lua, RDR_AA_MAIN_PBs.lua). */
-export function RdrAttkLeftEdge({
-  mode,
-  operatingPrf,
-  instantaneousPrf,
+/** `Radar_mode` (RDR_AA_SPECIAL.lua): the radar mode beside PB5, F120 `LeftCenter` at (−494, 335). */
+export function RadarModeText({ mode }: { mode: string }): React.JSX.Element {
+  return (
+    <StrokeText text={mode} font="F120" align="LeftCenter" pos={[-494, 335]} />
+  );
+}
+
+/**
+ * The PB1 PRF legend (RDR_AA_MAIN_PBs.lua): the operating PRF, and the PRF the current bar transmits 30 DI above it.
+ * The instantaneous line is drawn only for INTL, where it differs from the operating PRF (inferred).
+ */
+export function PrfLegend({
+  operating,
+  instantaneous,
 }: {
-  mode: string;
-  operatingPrf: string;
-  instantaneousPrf: string;
+  operating: string;
+  instantaneous: string | null;
 }): React.JSX.Element {
-  const prfPos: Point = [-500 + 14 * 2 + 6 + 6 / 2, -361 + 10];
+  const pos: Point = [-500 + 14 * 2 + 6 + 6 / 2, -361 + 10];
   return (
     <>
-      <StrokeText
-        text={mode}
-        font="F120"
-        align="LeftCenter"
-        pos={[-494, 335]}
-      />
-      <StrokeText
-        text={operatingPrf}
-        font="F120"
-        align="CenterBottom"
-        pos={prfPos}
-      />
-      <StrokeText
-        text={instantaneousPrf}
-        font="F120"
-        align="CenterBottom"
-        pos={[prfPos[0], prfPos[1] + 24 + 6]}
-      />
-      {/* `add_PB_label(2, "RDR", "PRI")`, moved 25 DI up, with PRI 10 DI further in. */}
+      <StrokeText text={operating} font="F120" align="CenterBottom" pos={pos} />
+      {instantaneous !== null && (
+        <StrokeText
+          text={instantaneous}
+          font="F120"
+          align="CenterBottom"
+          pos={[pos[0], pos[1] + 24 + 6]}
+        />
+      )}
+    </>
+  );
+}
+
+/** `add_PB_label(2, "RDR", "PRI")`, moved 25 DI up, with PRI 10 DI further in. TWS hides it. */
+export function RdrPriLegend(): React.JSX.Element {
+  return (
+    <>
       <StrokeText
         text={"R\nD\nR"}
         font="F120"
@@ -430,15 +445,17 @@ export function RdrAttkLeftEdge({
   );
 }
 
-/** `addRangeIncDecArrows`: the 076 arrows by PB11 (up) and PB12 (down), right edges at x = 485. */
-export function RangeArrows(): React.JSX.Element {
+/**
+ * `addRangeIncDecArrows`: the 076 arrows by PB11 (up) and PB12 (down), right edges at x = 485. An arrow goes away at
+ * its end of the range scales.
+ */
+export function RangeArrow({ step }: { step: 1 | -1 }): React.JSX.Element {
   const halfWidth = 6.51;
   const x = 500 - 15 - halfWidth;
-  return (
-    <>
-      <StrokeSymbol id="076-arrow-up" pos={[x, 307 + 15]} />
-      <StrokeSymbol id="076-arrow-up" pos={[x, 140 + 50]} rot={180} />
-    </>
+  return step === 1 ? (
+    <StrokeSymbol id="076-arrow-up" pos={[x, 307 + 15]} />
+  ) : (
+    <StrokeSymbol id="076-arrow-up" pos={[x, 140 + 50]} rot={180} />
   );
 }
 
@@ -455,5 +472,210 @@ export function ElevationBarNumber({
       align="LeftTop"
       pos={[-336 + 40, 500 + RDR_LEGEND_OFFSET.top[1]]}
     />
+  );
+}
+
+/** `Radar_RF_pwr_stat_Iron_Cross` (RDR_AA_AG_BASE.lua): the radar is not radiating, for example in SIL. */
+export function IronCross(): React.JSX.Element {
+  return <StrokeSymbol id="104-iron-cross" pos={[-330, -330]} />;
+}
+
+/** `BullseyeBRAData` (RDR_AA.lua): `"BRA %3d°/%.1f"`, our bearing and range to the cursor, F120 at (−365, −340). */
+export function BraReadout({
+  bearing,
+  range,
+}: {
+  bearing: number;
+  range: number;
+}): React.JSX.Element {
+  return (
+    <StrokeText
+      text={`BRA ${String(Math.round(bearing)).padStart(3, " ")}°/${range.toFixed(1)}`}
+      font="F120"
+      align="LeftCenter"
+      pos={[-365, -340]}
+    />
+  );
+}
+
+/** `TargetHeading` (RDR_AA.lua): the L&S target's heading, `"%3d°"`, F120 at (−305, 335). */
+export function TargetHeading({
+  heading,
+}: {
+  heading: number;
+}): React.JSX.Element {
+  return (
+    <StrokeText
+      text={`${String(Math.round(heading)).padStart(3, " ")}°`}
+      font="F120"
+      align="LeftCenter"
+      pos={[-305, 335]}
+    />
+  );
+}
+
+/** `HAFU_Scale` (RDR_TRACKS.lua). */
+const HAFU_SCALE = 1.1;
+/** `trackedTgt_MachAlt_ShiftX`: the L&S Mach and altitude sit this far either side of the HAFU. */
+const TRACK_TEXT_SHIFT = 27;
+/** (ours) The course line starts at the HAFU's open lower edge, as in the guide's TWS figure. */
+const COURSE_LINE_START = 9.8 * HAFU_SCALE;
+
+/**
+ * A TWS trackfile (RDR_TRACKS.lua), drawn at the origin: the unknown-identity HAFU (`SA-FF-Unknown` at 110 %) with
+ * the 20 DI course line. A ranked track shows its rank inside the HAFU. The L&S (rank 1) shows the `SA-LS` star
+ * instead, with its Mach to the left and its altitude in thousands of feet to the right.
+ */
+export function TrackSymbol({
+  rank,
+  course,
+  mach,
+  altitude,
+}: {
+  rank: number;
+  /** Degrees clockwise from our nose. */
+  course: number;
+  mach: number;
+  /** Feet. */
+  altitude: number;
+}): React.JSX.Element {
+  return (
+    <>
+      <StrokeSymbol id="SA-FF-Unknown" pos={[0, 0]} scale={HAFU_SCALE} />
+      <StrokeLine
+        len={20}
+        pos={lineEnd([0, 0], COURSE_LINE_START, -course)}
+        rot={-course}
+      />
+      {rank === 1 ? (
+        <>
+          <StrokeSymbol id="SA-LS" pos={[0, 0]} />
+          <StrokeText
+            text={mach.toFixed(1)}
+            font="F100"
+            align="RightCenter"
+            pos={[-TRACK_TEXT_SHIFT, 0]}
+          />
+          <StrokeText
+            text={(altitude / 1000).toFixed(1)}
+            font="F100"
+            align="LeftCenter"
+            pos={[TRACK_TEXT_SHIFT, 0]}
+          />
+        </>
+      ) : (
+        <StrokeText
+          text={String(rank)}
+          font="F100"
+          align="CenterCenter"
+          pos={[0, 0]}
+        />
+      )}
+    </>
+  );
+}
+
+/**
+ * `Range_caret` and `TrackedTgtRangeRate` (RDR_AA.lua): an `add_RDR_caret` (24 × 32) with its apex on the right edge,
+ * pointing out, for the L&S range, and the closure in knots 30 DI to its left, F100. Drawn at y = 0; move it with a
+ * transform. DCLTR 2 removes the closure.
+ */
+export function RangeCaret({
+  closure,
+}: {
+  closure: number | null;
+}): React.JSX.Element {
+  const width = 24;
+  const height = 32;
+  const angle = (Math.atan(height / 2 / width) * 180) / Math.PI;
+  const length = width / Math.cos((angle * Math.PI) / 180);
+  return (
+    <>
+      <StrokeLine len={length} pos={[TACTICAL_HALF, 0]} rot={90 + angle} />
+      <StrokeLine len={length} pos={[TACTICAL_HALF, 0]} rot={90 - angle} />
+      {closure !== null && (
+        <StrokeText
+          text={String(closure)}
+          font="F100"
+          align="RightCenter"
+          pos={[TACTICAL_HALF - 30, 0]}
+        />
+      )}
+    </>
+  );
+}
+
+/**
+ * `TWS_AUTO_Label` and `TWS_MAN_Label` (RDR_AA_MAIN_PBs.lua): the TWS scan centring at PB13, AUTO 20 DI above the PB
+ * and MAN 20 DI below, right-aligned on it, with the selected one boxed.
+ */
+export function ScanCentringLegend({
+  centring,
+}: {
+  centring: "AUTO" | "MAN";
+}): React.JSX.Element {
+  const [x, y] = pbAnchor(13);
+  const options = [
+    { text: "AUTO", y: y + 20, boxWidth: 88 },
+    { text: "MAN", y: y - 20, boxWidth: 66 },
+  ] as const;
+  return (
+    <>
+      {options.map((option) => (
+        <g key={option.text}>
+          <StrokeText
+            text={option.text}
+            font="F120"
+            align="RightCenter"
+            pos={[x, option.y]}
+          />
+          {option.text === centring && (
+            <StrokeBox
+              w={option.boxWidth}
+              h={36}
+              align="RightCenter"
+              pos={[x + 6, option.y]}
+            />
+          )}
+        </g>
+      ))}
+    </>
+  );
+}
+
+/**
+ * DATA PB12 (RDR_AA_DATA_PBs.lua): `1LOOK` and `RAID` columns, RAID 10 DI further in, with a 26 × 156 box round 1LOOK
+ * when one-look RAID is on.
+ */
+export function OneLookRaidLegend({
+  boxed,
+}: {
+  boxed: boolean;
+}): React.JSX.Element {
+  const [first, second] = pbLabelLayout(
+    12,
+    ["1LOOK", "RAID"],
+    false,
+    RDR_LEGEND_OFFSET.right,
+  ).texts;
+  const [x, y] = pbAnchor(12);
+  return (
+    <>
+      <StrokeText
+        text={first.text}
+        font="F120"
+        align={first.align}
+        pos={first.pos}
+      />
+      <StrokeText
+        text={second.text}
+        font="F120"
+        align={second.align}
+        pos={[second.pos[0] - 10, second.pos[1]]}
+      />
+      {boxed && (
+        <StrokeBox w={26} h={156} align="LeftCenter" pos={[x - 26, y + 24]} />
+      )}
+    </>
   );
 }

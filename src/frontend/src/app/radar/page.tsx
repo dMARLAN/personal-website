@@ -8,7 +8,7 @@ import { SemanticPage } from "@/semantic/SemanticPage";
 
 export const metadata = pageMetadata(
   "radar",
-  "A simulated F/A-18C attack radar (RDR ATTK) in range-while-search mode, with moving fake contacts.",
+  "A simulated F/A-18C attack radar (RDR ATTK) in range-while-search and track-while-scan modes, with moving fake contacts.",
 );
 
 export default function RadarPage(): React.JSX.Element {
