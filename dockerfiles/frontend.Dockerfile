@@ -17,7 +17,7 @@ CMD ["npm", "run", "dev"]
 FROM dev AS builder
 
 # The /api rewrite's destination is baked in at build (next.config.ts): the API's in-cluster Service. The build itself
-# never calls the API; content pages prerender from the committed seed snapshot (docs/design.md section 13.6).
+# never calls the API; content pages prerender from the committed seed snapshot (docs/design.md section 13.7).
 ARG API_INTERNAL_URL=http://personal-website-api:8000
 ENV API_INTERNAL_URL=${API_INTERNAL_URL}
 

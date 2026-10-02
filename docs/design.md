@@ -746,7 +746,7 @@ Because in-section state has no URL, the semantic layer of each section lists th
 ### 10.1 Routes
 
 - The App Router has one `page.tsx` per section URL (section 9.4), with no dynamic segments, so every page is
-  static HTML at build time. `/supt` no longer exists: SUPT is in-section state of `/ddi`. Sublevel URLs such as
+  static HTML. Content pages are cached renders of the API's content (section 13.7), not build output. `/supt` no longer exists: SUPT is in-section state of `/ddi`. Sublevel URLs such as
   `/work/[employer]` and `/projects/[slug]/data` were dropped for the same reason.
 - `generateMetadata` gives each route a title, a description and a canonical URL. The title is built from
   `SITE_NAME`.
@@ -756,6 +756,9 @@ Because in-section state has no URL, the semantic layer of each section lists th
   with its own root layout. The DDI (`/ddi` and every section and showcase URL) is in `app/(ddi)`, whose root
   layout holds the pre-paint script, the frame CSS and the corner buttons. Neither loads the other's CSS or
   scripts, so moving between them is a full page load. Section and showcase URLs are unchanged.
+- **(ours) Admin and API routes.** `/admin` is the admin console (section 13.8), in `app/(admin)` with its own root
+  layout. It is `noindex, nofollow` and not in the sitemap. `/api/*` is rewritten to FastAPI (section 13.6), and
+  `POST /revalidate` is the route the API calls after a save (section 13.5).
 - `SITE_NAME` and `SITE_URL` (`https://chad.hambley.org`) stay the only identity constants, in
   `src/lib/site.ts`. The DDI renders the name from `SITE_NAME`. A test fails if the surname literal appears
   anywhere else.
@@ -784,8 +787,9 @@ Recruiters land on a conventional page first. The DDI is one click away.
 
 - **Route.** `/` is the standard homepage. The DDI menu is at `/ddi`. PB18 `MENU` on any DDI page opens
   `/ddi`.
-- **Content.** It reads only the content modules' exports (profile, resume, work, projects, contact,
-  links) through `src/home/model.ts`. It holds no content of its own. The name comes from `SITE_NAME`.
+- **Content.** It reads the API's content through the content modules (`getSiteContent()`), shaped by
+  `src/home/model.ts`. It holds no content of its own. The name comes from `SITE_NAME`. Every save revalidates it
+  (section 13.5).
 - **Layout.** One page: a sticky header (section links, `Launch DDI`, theme toggle), a hero (name, current
   role, bio, résumé and contact buttons, a few derived numbers, and a cockpit-mode card), then Experience,
   Projects, Skills and Contact, and a footer. It is responsive down to phone width. Each section header
@@ -806,8 +810,11 @@ Recruiters land on a conventional page first. The DDI is one click away.
 ## 11. Content schema
 
 The stored content and its validation live in the API (section 13): its Pydantic models are the source of truth,
-and the frontend generates its types from them. Until the frontend switches to the API, content lives in
-`src/frontend/src/content/*.ts`. Each file exports typed constants. Rendering code imports
+and the frontend generates its types from them (`src/lib/api/schema.ts`). The frontend reads content only
+through `src/frontend/src/content/`: one module per section (`getProfile()`, `getEmployers()`, …) over
+`getSiteContent()` (section 13.7). `adapt.ts` shapes the API's document into the types below: it unwraps
+`work.employers`, `links.links` and `projects`, and narrows what OpenAPI cannot express (a station is 1–9, every
+BIT key and server metric is present), throwing if the two schemas drift. Rendering code imports
 from `content/` and never the other way round. Limits come from each format's geometry. They are measured
 with `geometry.measure()` at the square tier and enforced by tests. Upper-casing happens at render time, and
 the semantic layer keeps the original case.
@@ -817,8 +824,7 @@ the semantic layer keeps the original case.
 
 ```ts
 // content/types.ts
-export interface Profile {            // About → TGT DATA OWNSHIP [pgB §11]
-  header: string;                     // shown at (−385, 410), e.g. `${SITE_NAME}`; ≤ 30 chars
+export interface Profile {            // About → TGT DATA OWNSHIP [pgB §11]; the header slot is SITE_NAME
   status: { label: string; value: string }[]; // 5 rows at y 335…171; label ≤ 7 incl. ":", value ≤ 9
   list: string[];                     // stores quadrant, x = 43; 5 rows, ≤ 18 chars each
   footer: string;                     // the fuel/gun line at y = −10; ≤ 19 chars
@@ -829,7 +835,6 @@ export interface Resume {             // S/W CONFIGURATION [pgB §3]
   title: [string, string];            // 200 % at (0, 300); ≤ 24 chars per line
   left: { name: string; value: string }[];  // ≤ 12 rows; name ≤ 7, value ≤ 15
   right: { name: string; value: string }[]; // ≤ 12 rows; name ≤ 7, value ≤ 12
-  pdfPath: "/resume.pdf";             // committed in public/
 }
 export interface Employer {           // Work → BIT [pgB §3]
   id: string;                         // URL slug
@@ -989,7 +994,8 @@ All positions are DCS DI. "Edge" means the element goes in an edge strip.
 ## 13. API (ours)
 
 The API owns the site's content. Chad edits it in `/admin`; FastAPI validates and stores it in SQLite on a
-persistent volume; Next.js fetches it and re-renders a page when the API tells it the page changed.
+persistent volume; Next.js fetches it and re-renders a page when the API tells it the page changed. The browser
+reaches the API at the site's own origin (section 13.6).
 
 ### 13.1 Storage
 
@@ -1010,7 +1016,8 @@ The Pydantic models in `src/api/src/content/` are the source of truth; the front
 `/openapi.json` (`npm run openapi:gen`). JSON keys are camelCase. They mirror section 11's types, with three
 differences: list sections are wrapped in an object (`work.employers`, `links.links`, `projects.categories` and
 `projects.projects`, `bit.checks`/`legendNames`/`swConfig`); `Profile.header` is not stored (the page draws
-`SITE_NAME`); `Resume.pdfPath` is gone (the PDF comes from `GET /api/resume.pdf`).
+`SITE_NAME`); `Resume.pdfPath` is gone (every PDF link is `/api/resume.pdf`). The seed's Resume link is
+`/api/resume.pdf` too (migration 0003 repointed stored links from the old `/resume.pdf`).
 
 Writes enforce what the glass can draw: every drawn string uses only the stroke font's glyphs (A–Z, 0–9, space,
 `-+'()*%,°./\?:#=_^@`; lower case is fine, the glass upper-cases it), fits its slot's character budget, and
@@ -1033,7 +1040,7 @@ content-fit tests (for example 1–5 employers with 1–4 roles, unique project 
 
 `{section}` is one of `profile`, `resume`, `work`, `projects`, `contact`, `links`, `server`, `fuel`, `fcs`,
 `checklist`, `bit`, `radar`. Each has its own route pair and `operationId` (`adminGetProfile`,
-`adminPutProfile`, …), so every document is exactly typed in the generated client. Errors are
+`adminPutProfile`, …), so every document is exactly typed in the generated schema. Errors are
 `{"detail": "<CODE>"}`, or FastAPI's validation list for 422.
 
 ### 13.4 Auth
@@ -1055,22 +1062,100 @@ content-fit tests (for example 1–5 employers with 1–4 roles, unique project 
 After every successful admin write the API calls the Next.js on-demand revalidation route:
 
 ```
-POST $REVALIDATE_URL                       # dev cluster: http://personal-website-frontend:3000/api/revalidate
+POST $REVALIDATE_URL                       # cluster: http://personal-website-frontend:3000/revalidate
 Authorization: Bearer $REVALIDATE_SECRET   # shared secret; the frontend reads it from personal-website-api-secrets
 Content-Type: application/json
 
 {"paths": ["/about"]}
 ```
 
-- The frontend route must compare the bearer token in constant time, answer 401 on a mismatch, call
-  `revalidatePath(path)` for each path, and answer 2xx (for example `{"revalidated": true}`).
+- The frontend route (`src/app/revalidate/route.ts`) is outside `/api`, so the rewrite (section 13.6) never
+  reaches it. It compares the bearer token in constant time (sha256 of both sides, then `timingSafeEqual`),
+  answers 401 on a mismatch and 400 on a body that is not `{"paths": ["/…"]}`, calls `revalidatePath(path)` for
+  each path, and answers `{"revalidated": [...]}`.
+- It also revalidates the `(home)` route group's layout, `revalidatePath("/(home)", "layout")`, on every save:
+  the homepage shows every section, and its share card (`/opengraph-image-<hash>`) shows the current role.
 - Paths per section: profile `/about`, resume `/resume`, work `/work`, projects `/projects`, contact `/contact`,
   links `/links`, server `/server`, fuel `/fuel`, fcs `/fcs`, checklist `/chklst`, bit `/bit`, radar `/radar`. A
   PDF upload revalidates `/resume`.
 - Timeout 5 s. A failure does not undo the save: the PUT answers 200 with `revalidation: "failed"`, and the API
   logs it, so the admin can retry by saving again.
 
-### 13.6 Later
+### 13.6 Same-origin API (ours)
+
+The browser calls the API at the site's own origin, under `/api`. The admin session relies on it: the cookie is
+`SameSite=Strict` with `Path=/api/admin`, and the CSRF check assumes a same-origin page.
+
+- **One mechanism everywhere.** `next.config.ts` rewrites `/api/:path*` to `$API_INTERNAL_URL/api/:path*`, so
+  `next dev` on the host, the Tilt pod and the production image all proxy the same way. The ingress sends every
+  path to the frontend Service.
+- `API_INTERNAL_URL` is where the Next server reaches FastAPI: `http://personal-website-api:8000` in the cluster,
+  `http://localhost:8000` (the API's `make run`) when unset. `next build` bakes the rewrite's destination in, so
+  the production Dockerfile takes it as a build argument, defaulting to the in-cluster Service. Server-side content
+  fetches read it at request time.
+- Next's proxy streams bodies (the 10 MB PDF upload passes through) and forwards headers, including the ingress's
+  `X-Forwarded-For`, which the API's login throttle reads (`FORWARDED_ALLOW_IPS`).
+- `/revalidate` is a Next route outside `/api`, so the proxy never shadows it.
+
+### 13.7 Rendering and caching (ours)
+
+Pages stay static: each is rendered once and served from Next's cache until a save revalidates it.
+
+- **Fetch.** `getSiteContent()` (`src/content/source.ts`) fetches `GET /api/content` once per render (React
+  `cache`) with `cache: "force-cache"`, a 5 s timeout, and no time-based revalidation. A content page is therefore
+  a static page with `revalidate: false`: Next caches its HTML and RSC payload indefinitely.
+- **On-demand revalidation.** `POST /revalidate` calls `revalidatePath` for the saved section's paths and the
+  `(home)` group (section 13.5). That expires the page and the fetch data cached for it, so the next request
+  renders the page again, blocking, from fresh API data, and caches the result.
+- **No API at build.** The production Docker build has no API. During `next build` (`NEXT_PHASE` is
+  `phase-production-build`) the loader does not fetch: it renders the committed seed snapshot
+  (`src/content/snapshot.json`) and marks the page short-lived (revalidate 1 s, through `unstable_cache`, the
+  documented way to give a non-fetch value a revalidate period). With `expireTime: 60` in `next.config.ts`, a
+  snapshot page older than 60 s is expired, so after a deploy the first request renders the page from the API
+  before answering. Visitors get the snapshot only in the first minute after a build.
+- **API down.** A cached page never calls the API, so it keeps being served. If a page must render while the API is
+  unreachable (after a revalidation, or on a fresh pod), it renders the last content this server process fetched,
+  else the snapshot, and is marked short-lived the same way, so the next requests retry the API. The site stays up;
+  it shows the last known content where it has it.
+- **The snapshot.** `uv run python src/cli.py content-snapshot ../frontend/src/content/snapshot.json` (from
+  `src/api`) writes the seed as `GET /api/content` serves it. An API test fails when the file and the seed drift.
+  Unit tests render the snapshot too.
+- One frontend replica: revalidation and the page cache are per process (Next's default cache), which is the whole
+  picture with one pod. A restarted pod starts from the build output and renders each page from the API on its
+  first request.
+
+Alternatives considered: rendering every request dynamically with cached data (simpler, but it renders the SVG
+pages on every request); Cache Components with `use cache` and `cacheTag` (it would change the rendering model of
+the whole app for one data source); time-based ISR (stale content for up to the period after each save, and the
+build would still need the API or a snapshot).
+
+### 13.8 Admin console (ours)
+
+`/admin` is a plain, functional console for one user, separate from the DDI and the homepage: standard HTML forms,
+system fonts, light and dark from the OS (`src/admin/`, `app/(admin)`).
+
+- **Reachability.** `/admin` and `/api/admin/*` are Tailscale-only. The homeserver ingress enforces it by blocking
+  both prefixes on the public host; nothing in this repo does. The page itself is `noindex, nofollow` and not in
+  the sitemap.
+- **Client-side.** The console runs in the browser and calls `/api/admin/*` with `fetch` (`src/admin/api.ts`,
+  typed by the generated schema). The session cookie's path is `/api/admin`, so the Next server never sees it and
+  the page is static.
+- **Session.** Sign-in posts the password and keeps the returned CSRF token in memory; after a reload,
+  `GET /api/admin/session` returns it again. Every write sends it as `X-CSRF-Token`. A 401 on any call shows the
+  sign-in form again. Sign-out posts `/api/admin/logout`.
+- **Editors.** A list of sections and one editor per section. About, Contact and Links are forms with one field per
+  slot and the slot's limit in its label. The other sections are a JSON editor: the whole document in a textarea,
+  parsed before sending. The résumé PDF has its own upload form (`PUT /api/admin/resume`).
+- **Saving.** A save sends the whole document with `If-Match` set to the ETag it was loaded with.
+  - 200: the status line shows the time and the revalidation status (`done`, or `failed` with "save again to
+    retry").
+  - 412: "this section changed since you loaded it". The edits stay in the form, and a button reloads the stored
+    version.
+  - 422: each validation error with its field path (`status › 1 › value: …`); form fields also show their own
+    message and `aria-invalid`.
+- Each editor links to its live page ("View live").
+
+### 13.9 Later
 
 - `GET /stats` for live home-server metrics on `/server`. The frontend would read it at request time and lose
   static generation for that one route.
@@ -1079,7 +1164,8 @@ Content-Type: application/json
 
 ## 14. Performance
 
-- Every page is a statically generated RSC tree: inline SVG and no images.
+- Every page is a static RSC tree: inline SVG and no images. Content pages are cached renders, re-rendered only
+  when a save revalidates them (section 13.7).
 - Client JavaScript is the controls island, the page islands (Links, Contact COPY) and the radar loop.
 - No filter by day. The soft edge is two strokes (section 6.2). At night one shared blur filter draws the
   bloom over static groups.
@@ -1103,7 +1189,10 @@ Unit tests (Vitest):
   - the TAC title box from −469 to −423.
 - **Font:** 55 glyphs present. `A`, `S` and `/` equal the research paths [fnd §3.2]. `measure()` returns
   n·W + (n − 1)·ic for every font id. Unmapped characters throw.
-- **Content fit:** every content string fits its slot at the square tier. Every character is in the font.
+- **Content adapter and revalidation:** `adapt.ts` unwraps the API's list sections and rejects a station, BIT key
+  or host reading the pages cannot draw. `POST /revalidate` answers 401 to a wrong or missing token, 400 to a bad
+  body, and revalidates each path and the `(home)` group with the right one.
+- **Content fit:** every content string in the seed snapshot fits its slot at the square tier. Every character is in the font.
   Projects use unique stations. There are at most 8 employers. The surname literal appears only in
   `site.ts`.
 - **Registry:** no two legends share an OSB on a menu or a page. Every route has a page module. Side legends
@@ -1122,7 +1211,9 @@ Component tests (Testing Library):
 - Blank OSBs are hidden from assistive technology.
 - The knobs respond to click, wheel, the arrow keys, Home and End.
 
-Browser tests (Playwright, added in Phase 1):
+Browser tests (Playwright, added in Phase 1). They run against a production build and the FastAPI app on a fresh
+temporary SQLite database with a test password hash, wired as in the cluster (`playwright.config.ts`,
+`e2e/stack.ts`):
 
 - Screenshots of every route at 1920 × 1080, 1080 × 1080 and 390 × 844, in both themes.
 - The four bands are equal, and every OSB clears the lip ring by 6–8 DI at 1920 × 1080, 2560 × 1440 and
@@ -1138,9 +1229,18 @@ Browser tests (Playwright, added in Phase 1):
   closes it, it stays shut after a reload and in the plain view, and axe passes with it open in both themes.
 - A JavaScript-disabled fetch of every route asserts that the semantic content and the OSB `href`s are in the
   HTML.
+- Every shipped route and `/admin` answers 200 with a heading in `<main>` and no uncaught script error.
+- The admin console (its own Playwright project, run after the rest because it changes content): a wrong password
+  fails; sign-in works; saving the About bio reports `Revalidation: done` and `/about` then shows it; a too-long
+  value shows its field message; a save over a newer save shows the 412 message and reloads; a PDF upload
+  replaces what `/api/resume.pdf` serves; sign-out ends the session; axe passes on the sign-in form, a form editor
+  and the JSON editor; `/admin` is `noindex` and not in the sitemap.
 
 Extraction script (pytest): it parses a small hand-made fixture SVG with the same transform structure. The ED
 file is never committed.
+
+API (pytest, `src/api/tests`): routes, services, auth and migrations, each data migration on a document stored
+before it, and that `src/frontend/src/content/snapshot.json` equals the seed.
 
 ## 16. Phased plan
 

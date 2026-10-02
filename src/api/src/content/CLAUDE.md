@@ -13,4 +13,6 @@ source of truth: the frontend generates its TypeScript types from the OpenAPI sc
   the limit here in the same pull request.
 - `sections.py` lists the sections: `ContentSection`, one `SectionSpec` each (model and the site paths to
   revalidate) and the aggregate `SiteContent`.
-- Changing a stored shape needs a data migration (see `db/CLAUDE.md`) and an updated seed in `seed/content.py`.
+- Changing a stored shape needs a data migration (see `db/CLAUDE.md`), an updated seed in `seed/content.py`, a
+  regenerated frontend snapshot (`uv run python src/cli.py content-snapshot ../frontend/src/content/snapshot.json`)
+  and regenerated frontend types (`npm run openapi:gen`).

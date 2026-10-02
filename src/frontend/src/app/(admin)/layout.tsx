@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 /**
  * The admin console's root layout: plain HTML forms, none of the DDI's or the homepage's CSS. Only Chad uses it, over
- * Tailscale; the public ingress blocks /admin and /api/admin (docs/design.md section 13.7).
+ * Tailscale; the public ingress blocks /admin and /api/admin (docs/design.md section 13.8).
  */
 export default function AdminLayout({
   children,

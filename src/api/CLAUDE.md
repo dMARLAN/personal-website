@@ -17,7 +17,8 @@ Routes → services → repos, as in wedding-website. Each layer has a CLAUDE.md
 - `src/seed/`: the documents (and placeholder PDF) a fresh volume starts with.
 - `src/db/`: engine and pragmas, table models, Alembic migrations. See `src/db/CLAUDE.md`.
 - `src/repo/`, `src/services/`, `src/routes/`, `src/auth/` (admin dependencies): see each CLAUDE.md.
-- `src/cli.py`: `migrate`, `backup`, `hash-password`, `revision` (`uv run python src/cli.py --help`).
+- `src/cli.py`: `migrate`, `backup`, `hash-password`, `revision`, `content-snapshot`
+  (`uv run python src/cli.py --help`).
 
 Why no separate `src/db` workspace member, as wedding has: the API is the only consumer, the schema is two tables,
 and the seed and migrations validate against the content schemas that live here. A second package would add a

@@ -18,7 +18,7 @@ type AuthState =
   | { kind: "signed-in"; csrfToken: string };
 
 /**
- * The admin console (docs/design.md section 13.7). It runs in the browser: the session cookie is scoped to
+ * The admin console (docs/design.md section 13.8). It runs in the browser: the session cookie is scoped to
  * `/api/admin`, so the Next server never sees it. The CSRF token from login (or, after a reload, from
  * `GET /api/admin/session`) goes on every write.
  */

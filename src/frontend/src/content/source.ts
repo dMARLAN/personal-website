@@ -11,7 +11,7 @@ const FALLBACK_REVALIDATE_SECONDS = 1;
 const API_TIMEOUT_MS = 5000;
 
 /**
- * Every section, from `GET /api/content` (docs/design.md section 13.6). Pages are static: Next caches each rendered
+ * Every section, from `GET /api/content` (docs/design.md section 13.7). Pages are static: Next caches each rendered
  * page until the API's call to `/revalidate` expires it, and the first request after that renders it again.
  *
  * When there is no API answer (the production build has no API; at request time it may be briefly down), pages render

@@ -8,9 +8,15 @@ controls, TAC/SUPT menus) is built; `make e2e` runs the Playwright + axe suite.
 - The site name and URL live in `src/lib/site.ts`. Use `SITE_NAME` and `SITE_URL`; never hardcode either.
 - Tailwind v4 is CSS-first: there is no `tailwind.config.*`. Theme tokens live in `src/app/globals.css` (stock shadcn
   neutral for now). Add shadcn components with `npx shadcn@latest add <name>`; they land in `src/components/ui/`.
-- The typed API client is `src/lib/api/client.ts` (`openapi-fetch`). `src/lib/api/schema.ts` is generated: run
-  `npm run openapi:gen` against a running API (or the Tilt "Generate Types" button) after API changes.
-- The DDI code is in `src/ddi/` (frame, controls, pages registry); content stubs are in `src/content/`.
+- `src/lib/api/schema.ts` is generated: run `npm run openapi:gen` against a running API (or the Tilt "Generate
+  Types" button) after API changes. The browser calls the API at the site's own origin (`/api/*` is rewritten to
+  `API_INTERNAL_URL`, `next.config.ts`); never point it at port 8000.
+- Content comes from the API (`docs/design.md` section 13.7). Read it only through the modules in `src/content/`
+  (`getProfile()`, …); `adapt.ts` shapes the API's types into `types.ts`. Tests use `SNAPSHOT_CONTENT`
+  (`content/snapshot.ts`), the seed snapshot; regenerate `snapshot.json` with `cli.py content-snapshot` when the
+  API's seed changes.
+- The DDI code is in `src/ddi/` (frame, controls, pages registry). The admin console is `src/admin/` and
+  `app/(admin)`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
