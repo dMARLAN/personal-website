@@ -43,15 +43,18 @@ const EDGE_LAYOUT = {
 
 /**
  * `add_PB_label` [fnd §5.3, §5.4]. Row legends stack each line 35 DI inward. Side legends put each word in its own
- * column of upright letters, 25 DI inward per word. A box's outer edge sits 6 DI beyond the text edge.
+ * column of upright letters, 25 DI inward per word. A box's outer edge sits 6 DI beyond the text edge. `offset` moves
+ * the whole legend, as a format's own wrapper does (for example `add_PB_label_RDR`).
  */
 export function pbLabelLayout(
   pb: Pb,
   lines: readonly string[],
   boxed: boolean,
+  offset: Point = [0, 0],
 ): LegendLayout {
   const { inward, align } = EDGE_LAYOUT[pbEdge(pb)];
-  const [anchorX, anchorY] = pbAnchor(pb);
+  const [pbX, pbY] = pbAnchor(pb);
+  const [anchorX, anchorY] = [pbX + offset[0], pbY + offset[1]];
   const isColumn = inward[1] === 0;
   const texts: LegendText[] = [];
   const boxes: LegendBox[] = [];

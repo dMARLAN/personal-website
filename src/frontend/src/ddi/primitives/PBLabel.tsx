@@ -1,5 +1,5 @@
 import { LEGEND_FONT, pbLabelLayout } from "../frame/legend";
-import type { Pb } from "../geometry";
+import type { Pb, Point } from "../geometry";
 import { StrokeBox } from "./StrokeBox";
 import { StrokeText } from "./StrokeText";
 
@@ -8,6 +8,8 @@ export interface PBLabelProps {
   /** Outermost line first, as `add_PB_label` takes its arguments. */
   lines: readonly string[];
   boxed?: boolean;
+  /** Moves the whole legend, in DI. */
+  offset?: Point;
 }
 
 /** `add_PB_label` [fnd §5.3]: an OSB legend. Render it into the edge strip of its PB's edge. */
@@ -15,8 +17,9 @@ export function PBLabel({
   pb,
   lines,
   boxed = false,
+  offset,
 }: PBLabelProps): React.JSX.Element {
-  const { texts, boxes } = pbLabelLayout(pb, lines, boxed);
+  const { texts, boxes } = pbLabelLayout(pb, lines, boxed, offset);
   return (
     <>
       {texts.map(({ text, align, pos }) => (

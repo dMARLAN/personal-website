@@ -1,4 +1,4 @@
-import type { Edge, Pb } from "../geometry";
+import type { Edge, Pb, Point } from "../geometry";
 
 /** What an OSB does when pressed (docs/design.md sections 5.1 and 12). */
 export type LegendAction =
@@ -16,6 +16,8 @@ export interface LegendSpec {
   /** Legend lines, outermost first, as `add_PB_label` takes its arguments [fnd §5.3]. */
   lines: readonly string[];
   boxed?: boolean;
+  /** Moves the legend off its PB anchor, in DI, as a format's own label wrapper does (for example the RDR formats). */
+  offset?: Point;
   /** The accessible name, for example "Support menu". */
   label: string;
   action: LegendAction;
@@ -27,6 +29,11 @@ export interface DdiScreen {
   legends: readonly LegendSpec[];
   /** Drawn in the symbology square. */
   symbology: React.ReactNode;
+  /**
+   * Animated symbology, drawn in the square above `symbology` and left out of the bloom (design section 6.3), so a
+   * per-frame change never re-runs the blur.
+   */
+  live?: React.ReactNode;
   /** PB-anchored content, drawn in the edge strip of that edge. */
   edges?: Partial<Record<Edge, React.ReactNode>>;
   /** Wrapped running text, pre-wrapped for each prose tier. */

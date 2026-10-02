@@ -96,3 +96,33 @@ export interface ServerStats {
   /** Exactly 13 rows; label ≤ 10, values ≤ 6. */
   rows: { label: string; left: string; right: string }[];
 }
+
+/** /radar → RDR ATTK in RWS; fake data (docs/pages/radar.md). */
+export interface RadarScene {
+  ownship: {
+    /** Degrees magnetic, shown as `%03.0f°`. */
+    heading: number;
+    /** Knots calibrated, ≤ 3 digits. */
+    airspeed: number;
+    /** Shown as written, for example "0.90". */
+    mach: string;
+    /** Feet, 1000 to 99999. */
+    altitude: number;
+  };
+  /** The priority A/A weapon and its count, ≤ 6 chars, for example "9X 2". */
+  weapon: string;
+  /** 3 to 6 contacts. */
+  contacts: RadarContact[];
+}
+
+/** A contact at t = 0, moving in a straight line relative to our aircraft. */
+export interface RadarContact {
+  /** NM, within the 80 NM volume. */
+  range: number;
+  /** Degrees, right positive, within ±70. */
+  azimuth: number;
+  /** Speed relative to our aircraft, knots. */
+  speed: number;
+  /** Direction of that relative motion, degrees clockwise from our nose: 180 flies straight at us. */
+  track: number;
+}

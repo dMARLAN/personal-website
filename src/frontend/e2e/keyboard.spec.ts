@@ -4,8 +4,17 @@ test("the keyboard reaches the skip link, the OSBs, the knobs, then the theme to
   page,
 }) => {
   await page.goto("/");
+  // The semantic layer's links come first (design section 10.2). It is visually hidden in DDI mode, so its links take
+  // focus off screen; the OSBs follow in PB order.
+  const semanticLink = page
+    .locator("#content")
+    .getByRole("link", { name: "Radar, simulated" });
   const order = [
     page.getByRole("link", { name: "Text view" }),
+    semanticLink,
+    page
+      .getByRole("navigation", { name: "Display pushbuttons" })
+      .getByRole("link", { name: "Radar, simulated" }),
     page.getByRole("button", { name: "Support menu" }),
     page.getByRole("slider", { name: "Brightness" }),
     page.getByRole("slider", { name: "Contrast" }),
@@ -14,7 +23,9 @@ test("the keyboard reaches the skip link, the OSBs, the knobs, then the theme to
   for (const target of order) {
     await page.keyboard.press("Tab");
     await expect(target).toBeFocused();
-    await expect(target).toBeInViewport();
+    if (target !== semanticLink) {
+      await expect(target).toBeInViewport();
+    }
   }
 });
 

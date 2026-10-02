@@ -7,8 +7,18 @@ import { FullViewportFrame } from "./FullViewportFrame";
 const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 
+/** TAC and SUPT with no shipped pages, so these tests do not change as pages ship. */
 function renderTac(): HTMLElement {
-  const { container } = render(<FullViewportFrame screens={menuScreens()} />);
+  const screens = menuScreens();
+  const bare = Object.fromEntries(
+    Object.entries(screens.screens).map(([state, screen]) => [
+      state,
+      { ...screen, legends: screen.legends.filter(({ pb }) => pb === 18) },
+    ]),
+  );
+  const { container } = render(
+    <FullViewportFrame screens={{ ...screens, screens: bare }} />,
+  );
   return container;
 }
 

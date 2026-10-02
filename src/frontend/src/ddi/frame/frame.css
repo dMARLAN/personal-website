@@ -431,7 +431,8 @@ html[data-view="plain"] .ddi-frame::before,
 html[data-view="plain"] .ddi-screen,
 html[data-view="plain"] .ddi-controls,
 html[data-view="plain"] .ddi-osb[aria-hidden="true"],
-html[data-view="plain"] .ddi-osb[data-action="state"] {
+html[data-view="plain"] .ddi-osb[data-action="state"],
+html[data-view="plain"] .ddi-osb[aria-disabled="true"] {
   display: none;
 }
 

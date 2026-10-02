@@ -68,6 +68,11 @@ function EmissiveScreen({ screen }: { screen: DdiScreen }): React.JSX.Element {
         viewBox={`${-GLASS_HALF} ${-GLASS_HALF} ${GLASS_SHORT} ${GLASS_SHORT}`}
       >
         <EmissiveLayer id="ddi-square">{screen.symbology}</EmissiveLayer>
+        {screen.live && (
+          <EmissiveLayer id="ddi-live" bloom={false}>
+            {screen.live}
+          </EmissiveLayer>
+        )}
       </svg>
       {EDGES.map((edge) => (
         <svg
@@ -84,6 +89,7 @@ function EmissiveScreen({ screen }: { screen: DdiScreen }): React.JSX.Element {
                   pb={legend.pb}
                   lines={legend.lines}
                   boxed={legend.boxed}
+                  offset={legend.offset}
                 />
               ))}
             {screen.edges?.[edge]}
