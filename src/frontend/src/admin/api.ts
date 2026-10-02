@@ -1,7 +1,7 @@
 import type { components } from "@/lib/api/schema";
 
 // The admin API, called from the browser at the site's own origin (`/api/admin/*` is rewritten to FastAPI), so the
-// session cookie (SameSite=Strict, Path=/api/admin) goes with each call. Response bodies are typed by the API's
+// session cookie (SameSite=Strict, Path=/) goes with each call. Response bodies are typed by the API's
 // response models, the schema these types are generated from; they are asserted here, not validated again.
 // (openapi-fetch is not used: its response typing turns the schema's fixed-length tuples into plain arrays.)
 
@@ -37,7 +37,7 @@ export type AdminResult<T> =
   | { kind: "failed"; status: number; message: string };
 
 interface Call {
-  method: "GET" | "POST" | "PUT";
+  method: "GET" | "POST" | "PUT" | "DELETE";
   path: string;
   json?: unknown;
   form?: FormData;
@@ -45,7 +45,7 @@ interface Call {
   ifMatch?: string;
 }
 
-async function call<T>({
+export async function call<T>({
   method,
   path,
   json,

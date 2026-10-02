@@ -16,7 +16,11 @@ controls, TAC/SUPT menus) is built; `make e2e` runs the Playwright + axe suite.
   (`content/snapshot.ts`), the seed snapshot; regenerate `snapshot.json` with `cli.py content-snapshot` when the
   API's seed changes.
 - The DDI code is in `src/ddi/` (frame, controls, pages registry). The admin console is `src/admin/` and
-  `app/(admin)`.
+  `app/(admin)` (design section 13.8): its own Tailwind entry and tokens (`src/admin/admin.css`), not `globals.css`.
+- Admin forms are generated from the API's JSON Schema (`src/lib/api/openapi-schemas.json`, written by
+  `npm run openapi:gen` beside `schema.ts`): `src/admin/schema/` maps schema → field model and validates (Ajv plus
+  the `x-` keys), `src/admin/form/` renders it. Change a field's form by changing the API's schema, not by writing a
+  form. The preview slot is `src/admin/preview/PreviewPanel.tsx`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

@@ -1,22 +1,33 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { ADMIN_PASSWORD } from "./stack";
 
 // These tests change the stored content, so the "admin" project runs them after every other spec (playwright.config).
 test.describe.configure({ mode: "serial" });
 
-const BIO_LABEL = "Bio (wrapped to 9 rows of 18)";
+function sidebar(page: Page): Locator {
+  return page.getByRole("navigation", { name: "Sections" });
+}
+
+async function openSection(page: Page, label: string): Promise<void> {
+  await sidebar(page)
+    .getByRole("button", { name: new RegExp(`^${label}`) })
+    .click();
+  await expect(
+    page.getByRole("heading", { level: 2, name: label, exact: true }),
+  ).toBeVisible();
+}
 
 async function signIn(page: Page): Promise<void> {
   await page.goto("/admin");
   await page.getByLabel("Password").fill(ADMIN_PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(
-    page.getByRole("heading", { level: 2, name: "About (profile)" }),
+    page.getByRole("heading", { level: 2, name: "About", exact: true }),
   ).toBeVisible();
 }
 
-/** The API answer to a direct call, with the browser's session cookie and CSRF token. */
+/** The session's CSRF token, for direct API calls with the browser's cookie. */
 async function csrfToken(page: Page): Promise<string> {
   const response = await page.request.get("/api/admin/session");
   expect(response.status()).toBe(200);
@@ -24,89 +35,281 @@ async function csrfToken(page: Page): Promise<string> {
   return csrfToken;
 }
 
-test("login fails with a wrong password", async ({ page }) => {
+/** A field's character counter: the `[data-counter]` inside the element its id names with `--counter`. */
+async function counterOf(field: Locator): Promise<Locator> {
+  const id = await field.getAttribute("id");
+  return field.page().locator(`[id="${id}--counter"] [data-counter]`);
+}
+
+/** The names of the Links section's items, in order. */
+async function linkNames(page: Page): Promise<string[]> {
+  const links = page.getByRole("group", { name: /^Link \d+$/ });
+  const names: string[] = [];
+  for (const link of await links.all()) {
+    names.push(await link.getByLabel("Name").inputValue());
+  }
+  return names;
+}
+
+test("sign-in fails with a wrong password", async ({ page }) => {
   await page.goto("/admin");
   await page.getByLabel("Password").fill("not-the-password");
   await page.getByRole("button", { name: "Sign in" }).click();
 
-  await expect(page.locator(".admin-error")).toHaveText("Wrong password.");
+  await expect(page.locator("#login-error")).toHaveText("Wrong password.");
   await expect(page.getByLabel("Password")).toBeVisible();
 });
 
-test("login succeeds and lists every section", async ({ page }) => {
+test("sign-in opens About and lists every section, grouped", async ({
+  page,
+}) => {
   await signIn(page);
 
-  const nav = page.getByRole("navigation", { name: "Sections" });
-  for (const name of [
-    "About (profile)",
-    "Contact",
-    "Links",
-    "Work",
-    "Résumé PDF",
-  ]) {
-    await expect(nav.getByRole("button", { name })).toBeVisible();
+  for (const name of ["Site content", "DDI showcase"]) {
+    await expect(sidebar(page).getByRole("heading", { name })).toBeVisible();
   }
-  await expect(
-    page.getByRole("link", { name: "View live: /about" }),
-  ).toHaveAttribute("href", "/about");
+  for (const name of [
+    "About",
+    "Work",
+    "Links",
+    "Résumé PDF",
+    "BIT",
+    "ENG / server",
+    "MUMI",
+  ]) {
+    await expect(
+      sidebar(page).getByRole("button", { name: new RegExp(`^${name}`) }),
+    ).toBeVisible();
+  }
+  await expect(page.getByRole("link", { name: /^View live/ })).toHaveAttribute(
+    "href",
+    "/about",
+  );
+  await expect(page.locator("[data-preview-slot]")).toBeVisible();
 });
 
-test("saving the About bio revalidates /about, which shows the new text", async ({
+test("About through the form: a live counter, a validation error, a draft, then a publish", async ({
   page,
 }) => {
   const bio = "Bio saved by the e2e admin test.";
   await signIn(page);
 
-  await page.getByLabel(BIO_LABEL).fill(bio);
-  await page.getByRole("button", { name: "Save" }).click();
+  // The counter follows the typing, and the schema's limit flags the field.
+  const status = page.getByRole("group", { name: "Status rows 1" });
+  const value = status.getByLabel("Value");
+  await value.fill("FAR TOO LONG");
+  await expect(await counterOf(value)).toHaveText("12/9 characters");
+  await expect(await counterOf(value)).toHaveAttribute("data-tone", "over");
+  await expect(value).toHaveAttribute("aria-invalid", "true");
+  await expect(status).toContainText("Too long: at most 9 characters.");
+  await expect(
+    sidebar(page).getByRole("button", { name: /^About.*unsaved changes/ }),
+  ).toBeVisible();
+  await value.fill("SW ENGR");
+  await expect(value).toHaveAttribute("aria-invalid", "false");
 
-  await expect(page.locator(".admin-ok")).toContainText("Revalidation: done");
+  // Ctrl+S saves a draft, which the editor reopens after a reload.
+  await page.getByLabel("Bio").fill(bio);
+  await page.keyboard.press("Control+s");
+  await expect(page.getByText("Draft — not published")).toBeVisible();
+  const drafts = await (await page.request.get("/api/admin/drafts")).json();
+  expect(drafts.profile.content.bio).toBe(bio);
+  await page.reload();
+  await expect(page.getByText("Draft — not published")).toBeVisible();
+  await expect(page.getByLabel("Bio")).toHaveValue(bio);
+
+  // Publishing revalidates /about and deletes the draft.
+  await page.getByRole("button", { name: /^Publish/ }).click();
+  await expect(page.getByText(/Revalidation: done/)).toBeVisible();
+  await expect(page.getByText("Draft — not published")).toHaveCount(0);
+  expect(await (await page.request.get("/api/admin/drafts")).json()).toEqual(
+    {},
+  );
   await page.goto("/about");
   await expect(page.locator("main")).toContainText(bio);
 });
 
-test("a value the glass cannot draw is refused with the field's message", async ({
+test("a rule only the API knows comes back as a 422 on the exact field", async ({
   page,
 }) => {
   await signIn(page);
+  await openSection(page, "BIT");
 
-  await page.getByLabel("Status 1 value").fill("FAR TOO LONG");
-  await page.getByRole("button", { name: "Save" }).click();
+  // RDR has its own legend, so its name fits 7 characters, not the 9 every check allows.
+  const name = page
+    .getByRole("region", { name: "RDR", exact: true })
+    .getByLabel("Name");
+  await name.fill("RADARSET");
+  await expect(name).toHaveAttribute("aria-invalid", "false");
+  await page.getByRole("button", { name: /^Publish/ }).click();
 
-  await expect(page.locator(".admin-error").first()).toContainText(
-    "status › 1 › value",
-  );
-  await expect(page.getByLabel("Status 1 value")).toHaveAttribute(
-    "aria-invalid",
-    "true",
-  );
+  await expect(name).toHaveAttribute("aria-invalid", "true");
+  await expect(
+    page.getByRole("alert").filter({ hasText: "problem" }),
+  ).toContainText("RDR");
+  await page.getByRole("button", { name: "Discard changes" }).click();
+  await expect(name).toHaveValue("LOGS");
 });
 
-test("a save over a newer save is refused (412) until the editor reloads", async ({
+test("a publish over a newer publish shows the difference and can reload it", async ({
   page,
 }) => {
   await signIn(page);
-  // Someone else saves the section after this editor loaded it.
   const token = await csrfToken(page);
   const current = await (
     await page.request.get("/api/admin/content/profile")
   ).json();
-  const theirs = { ...current.document, footer: "SAVED ELSEWHERE" };
   const put = await page.request.put("/api/admin/content/profile", {
-    data: theirs,
+    data: { ...current.document, footer: "SAVED ELSEWHERE" },
     headers: { "X-CSRF-Token": token, "If-Match": `"${current.etag}"` },
   });
   expect(put.status()).toBe(200);
 
-  await page.getByLabel("Footer (≤ 19)").fill("MY EDIT");
-  await page.getByRole("button", { name: "Save" }).click();
+  await page.getByLabel("Footer").fill("MY EDIT");
+  await page.keyboard.press("Control+Enter");
 
-  await expect(page.locator(".admin-error")).toContainText(
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toContainText(
     "this section changed since you loaded it",
   );
-  await expect(page.getByLabel("Footer (≤ 19)")).toHaveValue("MY EDIT");
-  await page.getByRole("button", { name: "Reload the latest version" }).click();
-  await expect(page.getByLabel("Footer (≤ 19)")).toHaveValue("SAVED ELSEWHERE");
+  await expect(dialog.getByRole("row", { name: /Footer/ })).toContainText(
+    "SAVED ELSEWHERE",
+  );
+  await expect(dialog.getByRole("row", { name: /Footer/ })).toContainText(
+    "MY EDIT",
+  );
+  await dialog
+    .getByRole("button", { name: "Reload the latest version" })
+    .click();
+  await expect(page.getByLabel("Footer")).toHaveValue("SAVED ELSEWHERE");
+});
+
+test("Links: add an item from the schema, move it, drag to reorder, publish", async ({
+  page,
+}) => {
+  await signIn(page);
+  await openSection(page, "Links");
+  expect(await linkNames(page)).toEqual([
+    "GitHub",
+    "LinkedIn",
+    "Resume",
+    "Blog",
+    "Mastodon",
+  ]);
+
+  await page.getByRole("button", { name: "Add link" }).click();
+  const added = page.getByRole("group", { name: "Link 6" });
+  await expect(added.getByLabel("Name")).toHaveValue("Name");
+  await added.getByLabel("Name").fill("Forgejo");
+  await added.getByLabel("URL").fill("https://example.com/forgejo");
+  await page.getByRole("button", { name: "Move Link 6 up" }).click();
+  expect(await linkNames(page)).toEqual([
+    "GitHub",
+    "LinkedIn",
+    "Resume",
+    "Blog",
+    "Forgejo",
+    "Mastodon",
+  ]);
+
+  // Drag the first link by its handle, one card down: onto the second.
+  const handle = page.getByRole("button", { name: "Drag to reorder Link 1" });
+  const first = await page.getByRole("group", { name: "Link 1" }).boundingBox();
+  const second = await page
+    .getByRole("group", { name: "Link 2" })
+    .boundingBox();
+  const start = await handle.boundingBox();
+  if (first === null || second === null || start === null) {
+    throw new Error("the links are not on screen");
+  }
+  const x = start.x + start.width / 2;
+  const y = start.y + start.height / 2;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x, y + (second.y - first.y), { steps: 12 });
+  await page.mouse.up();
+  await expect
+    .poll(() => linkNames(page))
+    .toEqual(["LinkedIn", "GitHub", "Resume", "Blog", "Forgejo", "Mastodon"]);
+
+  // The keyboard shortcut: dnd-kit swallows the first click straight after a drop.
+  await page.keyboard.press("Control+Enter");
+  await expect(page.getByText(/Revalidation: done/)).toBeVisible();
+  const content = await (await page.request.get("/api/content")).json();
+  expect(
+    content.links.links.map((link: { name: string }) => link.name),
+  ).toEqual(["LinkedIn", "GitHub", "Resume", "Blog", "Forgejo", "Mastodon"]);
+});
+
+test("the JSON escape hatch round-trips with the form and marks schema errors", async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.getByLabel("Badge").fill("FROM THE FORM");
+  await page.getByLabel("Advanced: JSON").click();
+
+  const editor = page.getByRole("textbox", { name: "About JSON" });
+  await expect(editor).toContainText('"badge": "FROM THE FORM"');
+
+  // CodeMirror renders only the lines on screen, so the replacement text starts from the API's copy.
+  const document = (
+    await (await page.request.get("/api/admin/content/profile")).json()
+  ).document;
+  await editor.click();
+  await page.keyboard.press("Control+a");
+  await page.keyboard.insertText(
+    JSON.stringify({
+      ...document,
+      badge: "FROM THE JSON",
+      footer: "ALSO FROM JSON",
+    }),
+  );
+  await expect(page.locator(".cm-lint-marker-error")).toHaveCount(0);
+
+  await page.keyboard.press("Control+a");
+  await page.keyboard.insertText(
+    JSON.stringify({ ...document, badge: "A BADGE THAT IS FAR TOO LONG" }),
+  );
+  await expect(page.locator(".cm-lint-marker-error").first()).toBeVisible();
+  await page.keyboard.press("Control+a");
+  await page.keyboard.insertText(
+    JSON.stringify({
+      ...document,
+      badge: "FROM THE JSON",
+      footer: "ALSO FROM JSON",
+    }),
+  );
+
+  await page.getByLabel("Advanced: JSON").click();
+  await expect(page.getByLabel("Badge")).toHaveValue("FROM THE JSON");
+  await expect(page.getByLabel("Footer")).toHaveValue("ALSO FROM JSON");
+  await page.getByRole("button", { name: "Discard changes" }).click();
+});
+
+test("an expired session keeps unsaved edits and restores them after sign-in", async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.getByLabel("Footer").fill("KEPT EDIT");
+  // The session ends elsewhere (expiry, or a sign-out in another tab).
+  const token = await csrfToken(page);
+  expect(
+    (
+      await page.request.post("/api/admin/logout", {
+        headers: { "X-CSRF-Token": token },
+      })
+    ).status(),
+  ).toBe(204);
+
+  await page.getByRole("button", { name: /^Publish/ }).click();
+  await expect(page.getByText(/Your session ended/)).toBeVisible();
+  await page.getByLabel("Password").fill(ADMIN_PASSWORD);
+  await page.getByRole("button", { name: "Sign in" }).click();
+
+  await expect(page.getByLabel("Footer")).toHaveValue("KEPT EDIT");
+  await expect(page.getByText("Restored unsaved edits: About.")).toBeVisible();
+  await page.getByRole("button", { name: "Discard changes" }).click();
+  await expect(page.getByLabel("Footer")).not.toHaveValue("KEPT EDIT");
 });
 
 test("uploading a résumé PDF replaces the one the site serves", async ({
@@ -116,7 +319,12 @@ test("uploading a résumé PDF replaces the one the site serves", async ({
     "%PDF-1.4\n% e2e upload\n1 0 obj << /Type /Catalog >> endobj\ntrailer << /Root 1 0 R >>\n%%EOF\n",
   );
   await signIn(page);
-  await page.getByRole("button", { name: "Résumé PDF" }).click();
+  await sidebar(page)
+    .getByRole("button", { name: /^Résumé PDF/ })
+    .click();
+  await expect(
+    page.getByRole("link", { name: "Open current PDF" }),
+  ).toBeVisible();
 
   await page.getByLabel("PDF file (at most 10 MB)").setInputFiles({
     name: "resume.pdf",
@@ -125,10 +333,10 @@ test("uploading a résumé PDF replaces the one the site serves", async ({
   });
   await page.getByRole("button", { name: "Upload" }).click();
 
-  await expect(page.locator(".admin-ok")).toContainText(
-    `Uploaded: ${pdf.length} bytes.`,
-  );
-  await expect(page.locator(".admin-ok")).toContainText("Revalidation: done.");
+  await expect(
+    page.getByText(`Uploaded resume.pdf: ${pdf.length} bytes.`),
+  ).toBeVisible();
+  await expect(page.getByText("Revalidation: done.")).toBeVisible();
   const served = await page.request.get("/api/resume.pdf");
   expect(served.status()).toBe(200);
   expect(Buffer.from(await served.body())).toEqual(pdf);
@@ -144,18 +352,35 @@ test("signing out ends the session", async ({ page }) => {
   expect((await page.request.get("/api/admin/session")).status()).toBe(401);
 });
 
-test("the admin pages have no axe violations", async ({ page }) => {
-  await page.goto("/admin");
-  await expect(page.getByLabel("Password")).toBeVisible();
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+for (const colorScheme of ["light", "dark"] as const) {
+  test(`the admin pages have no axe violations (${colorScheme})`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme });
+    const axe = async (): Promise<void> => {
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    };
+    await page.goto("/admin");
+    await expect(page.getByLabel("Password")).toBeVisible();
+    await axe();
 
-  await signIn(page);
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await signIn(page);
+    await axe();
 
-  await page.getByRole("button", { name: "Work" }).click();
-  await expect(page.getByLabel("Work (JSON)")).toBeVisible();
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-});
+    await openSection(page, "Work");
+    await page.getByRole("button", { name: /\(Employer 1\)/ }).click();
+    await expect(
+      page.getByRole("group", { name: "Employer 1" }).getByLabel("Name"),
+    ).toBeVisible();
+    await axe();
+
+    await page.getByLabel("Advanced: JSON").click();
+    await expect(
+      page.getByRole("textbox", { name: "Work JSON" }),
+    ).toBeVisible();
+    await axe();
+  });
+}
 
 test("/admin is not indexed and not in the sitemap", async ({
   page,

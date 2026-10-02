@@ -6,6 +6,9 @@ const GLYPHS: ReadonlyMap<string, readonly Stroke[]> = new Map([
   ...Object.entries(EXTRA_GLYPHS),
 ]);
 
+/** Every character the glass can draw: the glyphs and the space, which draws nothing. Lower case draws upper-cased. */
+export const DDI_GLYPHS: ReadonlySet<string> = new Set([...GLYPHS.keys(), " "]);
+
 export class UnmappedCharacterError extends Error {
   constructor(character: string, text: string) {
     super(
