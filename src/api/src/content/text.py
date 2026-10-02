@@ -1,28 +1,54 @@
 """What the DDI can draw: the stroke font's glyph set and the fixed-pitch word wrap (docs/design.md section 7).
 
-These mirror `src/frontend/src/ddi/font/` so the admin cannot save text that fails to render.
+These mirror `src/frontend/src/ddi/font/` so the admin cannot save text that fails to render. Each rule is also put
+into the JSON Schema (a `pattern`, the `x-ddi-*` keys of `content/extensions.py`), so the admin forms can check it
+while Chad types.
 """
 
 from dataclasses import dataclass
 from typing import Final
 
-from pydantic import AfterValidator
+from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
+from pydantic.json_schema import JsonSchemaValue
+from pydantic_core import CoreSchema, core_schema
+
+from content.extensions import DDI_CHARSET, DDI_WRAP, STROKE_FONT, UI_WIDGET, Widget
 
 # The DCS stroke font (`ddi/generated/strokeFont.ts`) plus our `@` (`ddi/font/extraGlyphs.ts`). A space draws nothing.
-# Text is upper-cased before drawing, so lower case is fine on input.
-_GLYPHS: Final[frozenset[str]] = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-+'()*%,°./\\?:#=_^@ ")
+_GLYPHS: Final[str] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-+'()*%,°./\\?:#=_^@ "
+# Text is upper-cased before drawing, so lower case letters are fine on input. No other character changes when
+# upper-cased, so every allowed character draws as exactly one glyph.
+_ALLOWED: Final[frozenset[str]] = frozenset(_GLYPHS + _GLYPHS.lower())
+# `_ALLOWED` as a pattern that ECMAScript (with the `u` flag) and Python read alike: `-` last and `^` not first, so
+# only the backslash needs escaping. tests/content/test_text.py checks the two agree.
+GLYPH_PATTERN: Final[str] = r"^[A-Za-z0-9 +'()*%,°./\\?:#=_^@-]*$"
 
 
 def check_glyphs(text: str) -> str:
-    upper = text.upper()
-    if len(upper) != len(text):
-        raise ValueError("upper-casing changes the text's length; the DDI draws upper case only")
-    if missing := sorted({character for character in upper if character not in _GLYPHS}):
+    if missing := sorted(set(text) - _ALLOWED):
         raise ValueError(f"the DDI font has no glyph for {''.join(missing)!r}")
     return text
 
 
-GLYPHS: Final[AfterValidator] = AfterValidator(check_glyphs)
+@dataclass(frozen=True, slots=True)
+class _DrawnText:
+    """Annotates a string the glass draws: checks its glyphs, and says so in the JSON Schema."""
+
+    def __get_pydantic_core_schema__(self, source: type, handler: GetCoreSchemaHandler) -> CoreSchema:
+        return core_schema.no_info_after_validator_function(check_glyphs, handler(source))
+
+    def __get_pydantic_json_schema__(self, schema: CoreSchema, handler: GetJsonSchemaHandler) -> JsonSchemaValue:
+        json_schema = handler(schema)
+        json_schema[DDI_CHARSET] = STROKE_FONT
+        if "pattern" in json_schema:
+            # The string has its own pattern (the email); JSON Schema checks both through `allOf`.
+            json_schema["allOf"] = [{"pattern": GLYPH_PATTERN}]
+        else:
+            json_schema["pattern"] = GLYPH_PATTERN
+        return json_schema
+
+
+GLYPHS: Final[_DrawnText] = _DrawnText()
 
 
 class WordTooLongError(ValueError):
@@ -51,12 +77,29 @@ def wrap_text(text: str, max_chars: int) -> list[str]:
 
 @dataclass(frozen=True, slots=True)
 class FitsRows:
-    """A Pydantic validator: `text` word-wraps to at most `rows` rows of `chars` characters."""
+    """Annotates wrapped prose: it word-wraps to at most `rows` rows of `chars` characters.
+
+    Use it with `Field(max_length=<it>.max_length)`, the longest text such a wrap can hold, so the schema has a
+    `maxLength` too.
+    """
 
     chars: int
     rows: int
 
-    def __call__(self, text: str) -> str:
+    @property
+    def max_length(self) -> int:
+        return self.chars * self.rows + self.rows - 1
+
+    def check(self, text: str) -> str:
         if (count := len(wrap_text(text, self.chars))) > self.rows:
             raise ValueError(f"wraps to {count} rows; the slot fits {self.rows} rows of {self.chars} characters")
         return text
+
+    def __get_pydantic_core_schema__(self, source: type, handler: GetCoreSchemaHandler) -> CoreSchema:
+        return core_schema.no_info_after_validator_function(self.check, handler(source))
+
+    def __get_pydantic_json_schema__(self, schema: CoreSchema, handler: GetJsonSchemaHandler) -> JsonSchemaValue:
+        json_schema = handler(schema)
+        json_schema[DDI_WRAP] = {"chars": self.chars, "rows": self.rows}
+        json_schema[UI_WIDGET] = Widget.TEXTAREA.value
+        return json_schema

@@ -1,4 +1,5 @@
 import json
+from typing import Any
 from http import HTTPStatus
 
 import pytest
@@ -162,7 +163,7 @@ def test_put_section_with_a_stale_if_match_is_412(admin: AdminClient) -> None:
     [
         ("badge", "X" * 19, "string_too_long"),
         ("badge", "BANG!", "value_error"),
-        ("bio", " ".join(["placeholder"] * 30), "value_error"),
+        ("bio", " ".join(["placeholder"] * 10), "value_error"),
     ],
 )
 def test_put_section_that_cannot_render_is_422_and_changes_nothing(
@@ -181,3 +182,48 @@ def test_put_section_that_cannot_render_is_422_and_changes_nothing(
     assert error["type"] == error_type
     assert admin.client.get("/api/content").json()["profile"][field] != value
     assert revalidation_endpoint.requests == []
+
+
+def _break_rule(section: ContentSection, document: dict[str, Any]) -> None:
+    """Breaks one cross-field rule, one a model validator rather than a field constraint enforces."""
+    match section:
+        case ContentSection.PROJECTS:
+            document["projects"][1]["station"] = document["projects"][0]["station"]
+        case ContentSection.BIT:
+            document["checks"]["RDR"]["name"] = "LOGGING8"
+        case ContentSection.FCS:
+            document["failures"][0] = {"table": "left", "row": 0, "channel": 2}
+        case ContentSection.PROFILE:
+            document["tags"][0]["value"] = "X" * 16
+        case ContentSection.WORK:
+            document["employers"][0]["roles"][0]["bullets"] = [" ".join(["placeholder"] * 30)] * 2
+        case _:
+            raise ValueError(section)
+
+
+@pytest.mark.parametrize(
+    ("section", "loc"),
+    [
+        (ContentSection.PROJECTS, ["body", "projects", 1, "station"]),
+        (ContentSection.BIT, ["body", "checks", "RDR", "name"]),
+        (ContentSection.FCS, ["body", "failures", 0, "channel"]),
+        (ContentSection.PROFILE, ["body", "tags", 0, "value"]),
+        (ContentSection.WORK, ["body", "employers", 0, "roles", 0, "bullets"]),
+    ],
+)
+def test_a_broken_cross_field_rule_is_located_at_the_offending_field(
+    admin: AdminClient, section: ContentSection, loc: list[str | int]
+) -> None:
+    # Arrange
+    document = admin.client.get(section_url(section)).json()["document"]
+    _break_rule(section, document)
+
+    # Act
+    response = admin.client.put(section_url(section), json=document, headers=admin.csrf_headers)
+
+    # Assert
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+    [error] = response.json()["detail"]
+    assert error["loc"] == loc
+    assert error["type"] == "value_error"
+    assert error["ctx"] == {"error": error["msg"].removeprefix("Value error, ")}

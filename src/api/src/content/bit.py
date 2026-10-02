@@ -3,7 +3,8 @@ from typing import Annotated, Final, Self
 
 from pydantic import Field, model_validator
 
-from content.base import ContentModel
+from content.base import ContentModel, ContentRuleError
+from content.extensions import rules
 from content.text import GLYPHS
 
 
@@ -127,49 +128,101 @@ _SW_CONFIG_BLANK_ROW: Final[int] = 3
 
 class BitCheck(ContentModel):
     # ≤ 9, so a space separates it from the status column.
-    name: Annotated[str, Field(min_length=1, max_length=9), GLYPHS]
-    # The status before any test.
-    status: BitCheckStatus
-    # The status a test resolves to, after `IN TEST`.
-    after_test: BitCheckStatus
+    name: Annotated[
+        str, Field(min_length=1, max_length=9, title="Name", description="The row's name in the list."), GLYPHS
+    ]
+    status: Annotated[BitCheckStatus, Field(title="Status", description="The status before any test.")]
+    after_test: Annotated[
+        BitCheckStatus, Field(title="Status after test", description="The status a test resolves to, after IN TEST.")
+    ]
 
 
 class SwConfigEntry(ContentModel):
     # ≤ 6, like the longest DCS name (`ALE-47`); the value ≤ 8, the width of the DCS sample `XXXXXXXX`.
-    name: Annotated[str, Field(min_length=1, max_length=6), GLYPHS]
-    value: Annotated[str, Field(min_length=1, max_length=8), GLYPHS]
+    name: Annotated[str, Field(min_length=1, max_length=6, title="Name", description="The component's name."), GLYPHS]
+    value: Annotated[
+        str, Field(min_length=1, max_length=8, title="Value", description="Its version, ≤ 8 characters."), GLYPHS
+    ]
 
 
 class SwConfig(ContentModel):
     """S/W CONFIGURATION: the site's own stack. `null` is a blank row."""
 
-    left: Annotated[list[SwConfigEntry | None], Field(min_length=_SW_CONFIG_ROWS, max_length=_SW_CONFIG_ROWS)]
-    right: Annotated[list[SwConfigEntry], Field(min_length=_SW_CONFIG_ROWS, max_length=_SW_CONFIG_ROWS)]
+    left: Annotated[
+        list[SwConfigEntry | None],
+        Field(
+            min_length=_SW_CONFIG_ROWS,
+            max_length=_SW_CONFIG_ROWS,
+            title="Left column",
+            description=f"{_SW_CONFIG_ROWS} rows; null is a blank row.",
+            json_schema_extra=rules(f"Row {_SW_CONFIG_BLANK_ROW + 1} stays blank (null), as the ATARS slot is in DCS."),
+        ),
+    ]
+    right: Annotated[
+        list[SwConfigEntry],
+        Field(
+            min_length=_SW_CONFIG_ROWS,
+            max_length=_SW_CONFIG_ROWS,
+            title="Right column",
+            description=f"{_SW_CONFIG_ROWS} rows.",
+        ),
+    ]
 
     @model_validator(mode="after")
     def keeps_blank_row(self) -> Self:
         if self.left[_SW_CONFIG_BLANK_ROW] is not None:
-            raise ValueError(f"left row {_SW_CONFIG_BLANK_ROW + 1} stays blank, as the ATARS slot is in DCS")
+            raise ContentRuleError(
+                ("left", _SW_CONFIG_BLANK_ROW),
+                f"left row {_SW_CONFIG_BLANK_ROW + 1} stays blank, as the ATARS slot is in DCS",
+            )
         return self
 
 
 class Bit(ContentModel):
     """/bit → BIT FAILURES and its sublevels (docs/pages/bit.md); themed mock checks."""
 
-    checks: dict[BitItemKey, BitCheck]
-    legend_names: dict[BitLegendKey, Annotated[str, Field(min_length=1, max_length=_LEGEND_CHARS), GLYPHS]]
-    sw_config: SwConfig
+    # A dict with enum keys and exactly as many entries as the enum has members holds every member once.
+    checks: Annotated[
+        dict[BitItemKey, BitCheck],
+        Field(
+            min_length=len(BitItemKey),
+            max_length=len(BitItemKey),
+            title="Checks",
+            description="One row per BIT item, every item once.",
+            json_schema_extra=rules(
+                f"Items with their own legend ({', '.join(sorted(_LEGEND_ITEMS))}) have names of at most "
+                f"{_LEGEND_CHARS} characters.",
+                "Only the fuel-low rows (TK2FL, TK3FL) may show NO TEST.",
+            ),
+        ),
+    ]
+    legend_names: Annotated[
+        dict[BitLegendKey, Annotated[str, Field(min_length=1, max_length=_LEGEND_CHARS), GLYPHS]],
+        Field(
+            min_length=len(BitLegendKey),
+            max_length=len(BitLegendKey),
+            title="Legend names",
+            description=f"The names of the item legends with no list row, ≤ {_LEGEND_CHARS} characters each.",
+        ),
+    ]
+    sw_config: Annotated[
+        SwConfig, Field(title="S/W configuration", description="The site's own stack, in two columns.")
+    ]
 
     @model_validator(mode="after")
     def fits_pages(self) -> Self:
-        if set(self.checks) != set(BitItemKey):
-            raise ValueError("checks must cover every BIT item once")
-        if set(self.legend_names) != set(BitLegendKey):
-            raise ValueError("legendNames must cover every BIT legend once")
         for item in _LEGEND_ITEMS:
             if len(name := self.checks[item].name) > _LEGEND_CHARS:
-                raise ValueError(f"{item}: {name!r} is also an item legend, so it fits {_LEGEND_CHARS} characters")
+                raise ContentRuleError(
+                    ("checks", item.value, "name"),
+                    f"{item}: {name!r} is also an item legend, so it fits {_LEGEND_CHARS} characters",
+                )
         for item, check in self.checks.items():
-            if item not in _FUEL_LOW_ITEMS and BitCheckStatus.NO_TEST in {check.status, check.after_test}:
-                raise ValueError(f"{item}: only the fuel-low rows (TK2FL, TK3FL) may show NO TEST")
+            if item in _FUEL_LOW_ITEMS:
+                continue
+            for field, status in (("status", check.status), ("afterTest", check.after_test)):
+                if status == BitCheckStatus.NO_TEST:
+                    raise ContentRuleError(
+                        ("checks", item.value, field), f"{item}: only the fuel-low rows (TK2FL, TK3FL) may show NO TEST"
+                    )
         return self
