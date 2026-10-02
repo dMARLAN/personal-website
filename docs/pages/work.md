@@ -49,7 +49,7 @@ Constants live in `src/frontend/src/ddi/formats/workHistory.tsx` (`WORK_HISTORY`
 | PB6–PB10, an employer tab | That employer, newest role first. Its tab is boxed. |
 | PB12 (up arrow) | The previous role, up the list. Wraps from the first to the last. |
 | PB13 (down arrow) | The next role, down the list. Wraps from the last to the first. |
-| PB18 `MENU` | `/` (TAC). This changes the URL. |
+| PB18 `MENU` | `/ddi` (TAC). This changes the URL. |
 
 The page opens on the newest employer's newest role at every mount. Each state is a server-rendered screen keyed
 `<employer id>/<role number>`.

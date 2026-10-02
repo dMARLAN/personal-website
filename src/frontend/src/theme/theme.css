@@ -168,12 +168,13 @@
   --plain-toggle-ink: #a9afa6;
 }
 
-/* ---- The theme toggle (outside the DDI) ------------------------------------------------------------------------ */
+/* ---- The theme toggle and the homepage link beside it (outside the DDI) ---------------------------------------- */
 
-.theme-toggle {
+.theme-toggle,
+.ddi-home-link {
   position: fixed;
   z-index: 20;
-  /* ThemeToggle.tsx sets --corner-inset: centred in the top-right bezel corner cell, at least 4px from the edges. */
+  /* corner.ts sets --corner-inset: centred in the top-right bezel corner cell, at least 4px from the edges. */
   top: var(--corner-inset);
   right: var(--corner-inset);
   display: grid;
@@ -186,23 +187,18 @@
   cursor: pointer;
 }
 
-.theme-toggle:focus-visible {
+/* One button width and a gap to the left of the toggle. */
+.ddi-home-link {
+  right: calc(var(--corner-inset) + var(--corner-button) + 8px);
+}
+
+.theme-toggle:focus-visible,
+.ddi-home-link:focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
-.theme-toggle-icon {
-  width: 16px;
-  height: 16px;
-  stroke-width: 1.75;
-}
-
-:root[data-theme="night"] .theme-toggle-sun,
-:root:not([data-theme="night"]) .theme-toggle-moon {
-  display: none;
-}
-
-html[data-view="plain"] .theme-toggle {
+html[data-view="plain"] :is(.theme-toggle, .ddi-home-link) {
   border-color: var(--plain-toggle-ink);
   color: var(--plain-toggle-ink);
 }

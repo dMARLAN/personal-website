@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import sitemap from "@/app/sitemap";
 import { SITE_URL } from "@/lib/site";
 import path from "node:path";
@@ -23,6 +23,14 @@ import {
 
 const MENUS = MENU_NAMES;
 const APP_DIR = path.resolve(import.meta.dirname, "../../app");
+
+/** Route groups such as `(ddi)` and `(home)` hold the pages but add nothing to the URL. */
+function hasPageModule(route: string): boolean {
+  const groups = readdirSync(APP_DIR).filter((entry) => /^\(.+\)$/.test(entry));
+  return groups.some((group) =>
+    existsSync(path.join(APP_DIR, group, route, "page.tsx")),
+  );
+}
 
 function overlaps(a: Rect, b: Rect): boolean {
   return (
@@ -85,10 +93,7 @@ describe("the page registry", () => {
 
   it("has a page module for every available route", () => {
     for (const page of ALL_PAGES.filter((candidate) => candidate.available)) {
-      expect(
-        existsSync(path.join(APP_DIR, page.path, "page.tsx")),
-        page.path,
-      ).toBe(true);
+      expect(hasPageModule(page.path), page.path).toBe(true);
     }
   });
 
@@ -183,13 +188,14 @@ describe("the page registry", () => {
     ]);
   });
 
-  it("serves both menus from one URL, /", () => {
+  it("serves both menus from one URL, /ddi, and the standard homepage from /", () => {
     const menuRoutes = ALL_PAGES.filter((page) => page.kind === "menu");
-    expect(menuRoutes.map((page) => page.path)).toEqual(["/"]);
+    expect(menuRoutes.map((page) => page.path)).toEqual(["/ddi"]);
+    expect(PAGES.home.path).toBe("/");
     expect(ALL_PAGES.some((page) => page.path === "/supt")).toBe(false);
   });
 
-  it("lists / and the shipped pages in the sitemap: SUPT has no URL of its own", () => {
+  it("lists /, /ddi and the shipped pages in the sitemap: SUPT has no URL of its own", () => {
     expect(sitemap()).toEqual(
       ALL_PAGES.filter((page) => page.available).map((page) => ({
         url: new URL(page.path, SITE_URL).toString(),
@@ -198,6 +204,7 @@ describe("the page registry", () => {
     const urls = sitemap().map(({ url }) => url);
     for (const route of [
       "/",
+      "/ddi",
       "/about",
       "/projects",
       "/resume",

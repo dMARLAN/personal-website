@@ -53,7 +53,7 @@ health word under each. Projects map onto that one to one:
 | 17 | `DATA`, boxed while open | Toggle the DATA sublevel |
 | 16 | `REPO` (DATA sublevel only) | Open the repository in a new tab, on press |
 | 19 | `DEMO` (DATA sublevel only) | Open the demo in a new tab, on press |
-| 18 | `MENU` | `/` (TAC) |
+| 18 | `MENU` | `/ddi` (TAC) |
 
 `STEP` and the categories keep the DATA sublevel open, so a visitor can step through descriptions. Only legends
 that do something are drawn (design section 9.2): no `GUN`, `UFC`, `SIM`, `PROG` or `TONE`.

@@ -34,7 +34,7 @@ All of these are in-section state (design §9.4). The URL never changes.
 | 4 / 5 | arrow down / up | Steps to the next or previous row, wrapping at both ends. From no selection, down selects row 1 and up selects the last row. |
 | 19 | `ENT` | Opens the selected link in a new tab on press (`window.open(…, "noopener,noreferrer")`). With JavaScript off it is an `<a target="_blank" rel="noopener noreferrer">`. With no selection it is inert. |
 | 20 | `CLR` | Clears the selection: no box, no scratchpad, `ENT` inert. |
-| 18 | `MENU` | Opens `/` (TAC). |
+| 18 | `MENU` | Opens `/ddi` (TAC). |
 
 The page opens with row 1 selected, so `ENT` works before JavaScript loads.
 

@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test("TAC PB6 RESUME opens /resume on press", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   const pb6 = page.locator(".ddi-osb[data-pb='6']");
   await expect(pb6).toHaveAccessibleName("Resume");
   await pb6.hover();
@@ -31,7 +31,7 @@ test("PB20 downloads the PDF on press, and the URL stays /resume", async ({
 test("PB18 MENU returns to TAC", async ({ page }) => {
   await page.goto("/resume");
   await page.locator(".ddi-osb[data-pb='18']").click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
   await expect(
     page.getByRole("button", { name: "Support menu" }),
   ).toBeVisible();

@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
 import { menuLegends } from "../src/ddi/pages/registry";
 
-test("the keyboard reaches the skip link, the OSBs, the knobs, then the theme toggle", async ({
+test("the keyboard reaches the skip link, the OSBs, the knobs, the homepage link, then the theme toggle", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   // The OSBs come in PB order: TAC's legends for shipped pages and PB18.
   const osbs = menuLegends("TAC")
     .map((legend) => legend.pb)
@@ -15,6 +15,7 @@ test("the keyboard reaches the skip link, the OSBs, the knobs, then the theme to
     ...osbs,
     page.getByRole("slider", { name: "Brightness" }),
     page.getByRole("slider", { name: "Contrast" }),
+    page.getByRole("link", { name: "Exit to the standard homepage" }),
     page.getByRole("button", { name: "Night mode" }),
   ];
   for (const target of order) {
@@ -27,7 +28,7 @@ test("the keyboard reaches the skip link, the OSBs, the knobs, then the theme to
 test("Enter on PB18 switches the menu in place and keeps focus", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   await page.getByRole("button", { name: "Support menu" }).focus();
   await page.keyboard.press("Enter");
   const toTac = page.getByRole("button", { name: "Tactical menu" });
@@ -36,11 +37,11 @@ test("Enter on PB18 switches the menu in place and keeps focus", async ({
   await expect(
     page.getByRole("button", { name: "Support menu" }),
   ).toBeFocused();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
 });
 
 test("arrow keys, Home and End turn a knob", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   const contrast = page.getByRole("slider", { name: "Contrast" });
   await contrast.focus();
   await page.keyboard.press("ArrowDown");
@@ -55,9 +56,9 @@ test("arrow keys, Home and End turn a knob", async ({ page }) => {
 });
 
 test("the skip link opens the plain view", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/\/\?view=plain$/);
+  await expect(page).toHaveURL(/\/ddi\?view=plain$/);
   await expect(page.locator("html")).toHaveAttribute("data-view", "plain");
 });

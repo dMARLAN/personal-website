@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 import { CONTACT } from "../src/content/contact";
 
 test("TAC PB8 opens Contact on press", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   const contact = page.locator(".ddi-osb[data-pb='8']");
   await expect(contact).toHaveAccessibleName("Contact");
   await contact.hover();

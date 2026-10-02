@@ -52,7 +52,7 @@ for (const [scheme, theme] of [
     page,
   }) => {
     await page.emulateMedia({ colorScheme: scheme });
-    await page.goto("/");
+    await page.goto("/ddi");
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
     await expect(toggle(page)).toHaveAttribute(
       "aria-pressed",
@@ -74,7 +74,7 @@ for (const [scheme, theme] of [
     page,
   }) => {
     await page.emulateMedia({ colorScheme: scheme });
-    await page.goto("/");
+    await page.goto("/ddi");
     const { ink, bezel } = await toggleColours(page);
     expect(contrast(ink, bezel)).toBeGreaterThanOrEqual(4.5);
   });
@@ -82,7 +82,7 @@ for (const [scheme, theme] of [
 
 test("tracks an OS change while there is no override", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "light" });
-  await page.goto("/");
+  await page.goto("/ddi");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "day");
   await page.emulateMedia({ colorScheme: "dark" });
   await expect(page.locator("html")).toHaveAttribute("data-theme", "night");
@@ -92,7 +92,7 @@ test("the override flips the theme, persists across a reload and beats the OS", 
   page,
 }) => {
   await page.emulateMedia({ colorScheme: "light" });
-  await page.goto("/");
+  await page.goto("/ddi");
   await toggle(page).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "night");
   await expect(toggle(page)).toHaveAttribute("aria-pressed", "true");
@@ -113,7 +113,7 @@ test("the override flips the theme, persists across a reload and beats the OS", 
 
 test("the toggle works from the keyboard", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "light" });
-  await page.goto("/");
+  await page.goto("/ddi");
   await toggle(page).focus();
   await page.keyboard.press("Space");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "night");
@@ -131,7 +131,7 @@ test("a stored override is drawn before any app JavaScript runs, so a reload nev
   );
   // Block every app and framework script: only the inline pre-paint script in <head> can run.
   await page.route("**/_next/static/**/*.js", (route) => route.abort());
-  await page.goto("/");
+  await page.goto("/ddi");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "night");
   const drawn = await page.evaluate(() => ({
     background: getComputedStyle(document.documentElement).backgroundColor,
@@ -150,6 +150,6 @@ test("an invalid stored override is ignored and the OS decides", async ({
     (key) => localStorage.setItem(key, "<script>"),
     THEME_KEY,
   );
-  await page.goto("/");
+  await page.goto("/ddi");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "night");
 });

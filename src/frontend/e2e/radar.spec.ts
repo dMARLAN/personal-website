@@ -13,7 +13,7 @@ function sweepTransform(page: Page): Promise<string | null> {
 test("RDR ATTK opens from TAC PB4 and MENU returns to TAC", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   const pb4 = page.locator(".ddi-osb[data-pb='4']");
   await expect(pb4).toHaveAccessibleName("Radar, simulated");
   await pb4.click();
@@ -23,7 +23,7 @@ test("RDR ATTK opens from TAC PB4 and MENU returns to TAC", async ({
   ).toBeAttached();
 
   await page.getByRole("link", { name: "Tactical menu" }).click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
   await expect(
     page.getByRole("button", { name: "Support menu" }),
   ).toBeVisible();

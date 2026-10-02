@@ -38,7 +38,7 @@ Limits, enforced by `ddi/pages/resume.test.tsx`:
 | PB | Legend | Action |
 |---|---|---|
 | 20 | `PDF` | Downloads `public/resume.pdf` on press (`<a download>`). PB20 is `OVRD` in DCS, the format's only action OSB. |
-| 18 | `MENU` | Opens `/` (TAC). |
+| 18 | `MENU` | Opens `/ddi` (TAC). |
 
 DCS also shows PB8 `BIT` (back), PB9 `MI` and PB10 `STOP`. They are left out: section pages draw only legends that
 do something (design section 9.2).

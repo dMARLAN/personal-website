@@ -66,13 +66,20 @@ function materialsReady(theme: Theme): Promise<unknown> {
   ]);
 }
 
+/** Only the DDI draws the baked materials. The homepage has no bezel, so it switches at once. */
+function readyToSwitch(theme: Theme): Promise<unknown> {
+  return document.querySelector(".ddi-frame") === null
+    ? Promise.resolve()
+    : materialsReady(theme);
+}
+
 // Only the latest switch applies, so two quick presses never land out of order.
 let latestSwitch = 0;
 
 function publish(): void {
   const theme = snapshot();
   const thisSwitch = ++latestSwitch;
-  void materialsReady(theme).then(() => {
+  void readyToSwitch(theme).then(() => {
     if (thisSwitch === latestSwitch) {
       applyTheme(document.documentElement, theme);
     }

@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 test("TAC PB20 opens About on press, and PB18 MENU returns to TAC", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   const about = page.locator(".ddi-osb[data-pb='20']");
   await expect(about).toHaveAccessibleName("About");
   await about.hover();
@@ -16,7 +16,7 @@ test("TAC PB20 opens About on press, and PB18 MENU returns to TAC", async ({
   const menu = page.locator(".ddi-osb[data-pb='18']");
   await expect(menu).toHaveAccessibleName("Tactical menu");
   await menu.click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
   await expect(
     page.getByRole("button", { name: "Support menu" }),
   ).toBeVisible();
@@ -33,7 +33,7 @@ test("serves the profile without JavaScript", async ({ request }) => {
   const html = await (await request.get("/about")).text();
   expect(html).toContain("<h1>About</h1>");
   expect(html).toContain("<h2>Loadout</h2>");
-  expect(html).toMatch(/<a(?=[^>]*data-pb="18")(?=[^>]*href="\/")[^>]*>/);
+  expect(html).toMatch(/<a(?=[^>]*data-pb="18")(?=[^>]*href="\/ddi")[^>]*>/);
   expect(html).toContain(
     '<link rel="canonical" href="https://chad.hambley.org/about"/>',
   );

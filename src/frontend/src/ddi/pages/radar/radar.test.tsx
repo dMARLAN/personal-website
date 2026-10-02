@@ -29,7 +29,7 @@ describe("the RDR ATTK legends", () => {
     expect(new Set(pbs).size).toBe(pbs.length);
     expect(legends.find((legend) => legend.pb === 18)).toMatchObject({
       lines: ["MENU"],
-      action: { kind: "link", href: "/" },
+      action: { kind: "link", href: "/ddi" },
     });
   });
 

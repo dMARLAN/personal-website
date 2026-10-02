@@ -30,7 +30,7 @@ contact detail fits.
 |---|---|---|
 | 16 | `COPY` (at `RELAY`'s position) | Copies the address on press. The cautions line shows `COPIED` for 2 s, or `COPY FAILED` if the browser refuses. A visually hidden `role="status"` announces the result. |
 | 17 | `XMIT` / `MAIL` (at `XMIT`'s position; `MAIL` sits where `UPPER` does) | Opens a `mailto:` link on press. Without JavaScript it is a plain `<a href="mailto:…">`. |
-| 18 | `MENU` | Opens `/` (TAC). |
+| 18 | `MENU` | Opens `/ddi` (TAC). |
 
 Both page OSBs are `island` legends. They fire on press through `useOsbPress`, which `frame/Osb.tsx` now exports. The
 COPY button and the cautions line share a small store through `useSyncExternalStore`. Nothing changes the URL.

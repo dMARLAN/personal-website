@@ -2,9 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Barlow_Condensed } from "next/font/google";
 import { PREPAINT_SCRIPT } from "@/ddi/controls/prepaint";
 import { DEFAULT_CONTROLS, controlsStyle } from "@/ddi/controls/state";
+import { HomeLink } from "@/ddi/HomeLink";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { ThemeToggle } from "@/theme/ThemeToggle";
-import "./globals.css";
+import "../globals.css";
 
 // The bezel placards' condensed sans (design section 4.5). The DDI text itself is stroke paths and needs no font.
 const placardFont = Barlow_Condensed({
@@ -28,7 +29,8 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default function RootLayout({
+/** The DDI's root layout. The homepage at `/` has its own, in `(home)`: neither loads the other's CSS or scripts. */
+export default function DdiLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -47,6 +49,7 @@ export default function RootLayout({
       </head>
       <body>
         {children}
+        <HomeLink />
         <ThemeToggle />
       </body>
     </html>

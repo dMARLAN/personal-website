@@ -8,7 +8,7 @@ async function drawnTotal(page: Page): Promise<string | null> {
 test("SUPT PB20 FUEL opens /fuel, and MENU returns to TAC", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   await page.getByRole("button", { name: "Support menu" }).click();
   const fuel = page.locator(".ddi-osb[data-pb='20']");
   await expect(fuel).toHaveAccessibleName("Fuel, simulated");
@@ -19,7 +19,7 @@ test("SUPT PB20 FUEL opens /fuel, and MENU returns to TAC", async ({
   ).toBeAttached();
 
   await page.getByRole("link", { name: "Tactical menu" }).click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
 });
 
 test("FLBIT boxes for 13 s, then returns, and the URL never changes", async ({

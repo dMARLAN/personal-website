@@ -33,7 +33,7 @@ All values come from `TGT_DATA_COMMON_PBs.lua` and `TGT_DATA_OWNSHIP.lua`:
 
 ## Interactions
 
-None. The only legend is PB18 `MENU`, which opens `/` (TAC). The real legends (`CURSOR`, `ENTER`, `UFC`, `MSNCDR`,
+None. The only legend is PB18 `MENU`, which opens `/ddi` (TAC). The real legends (`CURSOR`, `ENTER`, `UFC`, `MSNCDR`,
 `FLTLDR`, `ACTVTY RSET`, `GROUP`, `GO`, `NOGO`) are left off. A section page draws only legends that do something
 (design §9.2).
 

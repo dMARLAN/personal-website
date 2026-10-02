@@ -20,7 +20,7 @@ async function expectStatus(
 test("SUPT PB8 BIT opens /bit, and PB18 MENU returns to TAC", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/ddi");
   await page.getByRole("button", { name: "Support menu" }).click();
   const bit = page.locator(".ddi-osb[data-pb='8']");
   await expect(bit).toHaveAccessibleName("Built-in test, simulated");
@@ -30,7 +30,7 @@ test("SUPT PB8 BIT opens /bit, and PB18 MENU returns to TAC", async ({
     "Built-in test, simulated",
   );
   await page.getByRole("link", { name: "Tactical menu" }).click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
   await expect(
     page.getByRole("button", { name: "Support menu" }),
   ).toBeVisible();
@@ -90,7 +90,7 @@ test("the tests start fresh each time the page mounts", async ({ page }) => {
   await page.getByRole("button", { name: "Run every test" }).click();
   await expectStatus(page, "ADC", "GO");
   await page.getByRole("link", { name: "Tactical menu" }).click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/ddi$/);
   await page.goBack();
   await expect(page).toHaveURL(/\/bit$/);
   await expectStatus(page, "ADC", "MUX FAIL");

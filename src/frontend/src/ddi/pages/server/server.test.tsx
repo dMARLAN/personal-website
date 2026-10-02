@@ -151,7 +151,7 @@ describe("the /server screen", () => {
         pb: 18,
         lines: ["MENU"],
         boxed: undefined,
-        action: { kind: "link", href: "/" },
+        action: { kind: "link", href: "/ddi" },
       },
     ]);
   });
@@ -163,7 +163,7 @@ describe("the /server screen", () => {
     expect(record).toHaveAttribute("data-pb", "16");
     expect(screen.getByRole("link", { name: "Tactical menu" })).toHaveAttribute(
       "href",
-      "/",
+      "/ddi",
     );
   });
 

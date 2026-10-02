@@ -16,11 +16,11 @@ for (const { scheme, theme } of SCHEMES) {
 
     for (const viewport of VIEWPORTS) {
       for (const menu of ["TAC", "SUPT"] as const) {
-        test(`/ on ${menu} at ${viewport.width}×${viewport.height} has no axe violations`, async ({
+        test(`/ddi on ${menu} at ${viewport.width}×${viewport.height} has no axe violations`, async ({
           page,
         }) => {
           await page.setViewportSize(viewport);
-          await page.goto("/");
+          await page.goto("/ddi");
           await expect(page.locator("html")).toHaveAttribute(
             "data-theme",
             theme,
@@ -34,8 +34,8 @@ for (const { scheme, theme } of SCHEMES) {
       }
     }
 
-    test("/ in plain view has no axe violations", async ({ page }) => {
-      await page.goto("/?view=plain");
+    test("/ddi in plain view has no axe violations", async ({ page }) => {
+      await page.goto("/ddi?view=plain");
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
       const { violations } = await new AxeBuilder({ page }).analyze();
       expect(violations).toEqual([]);

@@ -51,7 +51,7 @@ describe("the BIT screens", () => {
       expect(new Set(pbs).size, state).toBe(pbs.length);
       expect(page.legends.find((legend) => legend.pb === 18)).toMatchObject({
         lines: ["MENU"],
-        action: { kind: "link", href: "/" },
+        action: { kind: "link", href: "/ddi" },
       });
     }
   });
@@ -100,7 +100,7 @@ describe("the BIT page", () => {
     }
     expect(screen.getByRole("link", { name: "Tactical menu" })).toHaveAttribute(
       "href",
-      "/",
+      "/ddi",
     );
   });
 

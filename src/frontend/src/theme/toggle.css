@@ -1,0 +1,13 @@
+/* The toggle's icons, shared by the DDI corner and the homepage header. CSS picks the icon from `data-theme`, so the
+   right one shows from first paint. */
+
+.theme-toggle-icon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.75;
+}
+
+:root[data-theme="night"] .theme-toggle-sun,
+:root:not([data-theme="night"]) .theme-toggle-moon {
+  display: none;
+}

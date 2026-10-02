@@ -6,7 +6,7 @@ import { ServerValues } from "./islands";
 
 /**
  * The real ENG legends [pgA §2]: `RECORD` at PB16, always boxed, inert here (design section 9.2). PB18 is `MENU`,
- * which opens `/` on TAC.
+ * which opens `/ddi` on TAC.
  */
 export const SERVER_LEGENDS: readonly LegendSpec[] = [
   {
