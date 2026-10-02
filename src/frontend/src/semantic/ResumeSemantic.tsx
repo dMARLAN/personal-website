@@ -1,3 +1,4 @@
+import { RESUME_PDF_URL } from "@/content/resume";
 import type { Resume } from "@/content/types";
 
 /** The resume as real HTML (design section 10.2): both columns of the table, and the PDF link. */
@@ -22,7 +23,7 @@ export function ResumeSemantic({
         </section>
       ))}
       <p>
-        <a href={resume.pdfPath} download>
+        <a href={RESUME_PDF_URL} download>
           Download the resume (PDF)
         </a>
       </p>

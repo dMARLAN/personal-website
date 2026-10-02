@@ -1,6 +1,5 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { SERVER_STATS } from "@/content/server";
 import { SERVER_METRICS } from "@/content/types";
 import { SYMBOLOGY_HALF } from "../constants";
 import { textPath } from "../font/layout";
@@ -17,6 +16,9 @@ import {
   EngValues,
   engRowY,
 } from "./eng";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
+
+const SERVER_STATS = SNAPSHOT_CONTENT.server;
 
 /** A gap between a value and its row label narrower than this would read as one word. */
 const MIN_GAP = 20;

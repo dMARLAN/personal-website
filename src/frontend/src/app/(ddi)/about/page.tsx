@@ -1,4 +1,4 @@
-import { PROFILE } from "@/content/profile";
+import { getProfile } from "@/content/profile";
 import { aboutScreens } from "@/ddi/pages/about";
 import { DdiPage } from "@/ddi/pages/DdiPage";
 import { pageMetadata } from "@/ddi/pages/metadata";
@@ -12,13 +12,14 @@ export const metadata = pageMetadata(
   `Who ${SITE_NAME} is, drawn as an F/A-18C target data card.`,
 );
 
-export default function AboutPage(): React.JSX.Element {
+export default async function AboutPage(): Promise<React.JSX.Element> {
+  const profile = await getProfile();
   return (
     <DdiPage
-      screens={aboutScreens(PROFILE)}
+      screens={aboutScreens(profile)}
       semantic={
         <SemanticPage heading={PAGES.about.label}>
-          <AboutSemantic profile={PROFILE} />
+          <AboutSemantic profile={profile} />
         </SemanticPage>
       }
     />

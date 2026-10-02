@@ -1,4 +1,4 @@
-import { CHECKLIST } from "@/content/checklist";
+import { getChecklist } from "@/content/checklist";
 import { DdiPage } from "@/ddi/pages/DdiPage";
 import { chklstScreens } from "@/ddi/pages/chklst";
 import { pageMetadata } from "@/ddi/pages/metadata";
@@ -11,13 +11,14 @@ export const metadata = pageMetadata(
   "The Hornet's checklist page, as a pre-flight checklist for a software engineer's day.",
 );
 
-export default function ChecklistPage(): React.JSX.Element {
+export default async function ChecklistPage(): Promise<React.JSX.Element> {
+  const checklist = await getChecklist();
   return (
     <DdiPage
-      screens={chklstScreens()}
+      screens={chklstScreens(checklist)}
       semantic={
         <SemanticPage heading={PAGES.chklst.label}>
-          <ChecklistSemantic checklist={CHECKLIST} />
+          <ChecklistSemantic checklist={checklist} />
         </SemanticPage>
       }
     />

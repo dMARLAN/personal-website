@@ -1,6 +1,5 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { FLIGHT_CONTROLS } from "@/content/fcs";
 import { measure } from "../geometry";
 import {
   FcsCellError,
@@ -9,6 +8,9 @@ import {
   fcsCellExists,
   type FcsFormatProps,
 } from "./fcs";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
+
+const FLIGHT_CONTROLS = SNAPSHOT_CONTENT.fcs;
 
 const CHANNELS = [1, 2, 3, 4] as const;
 

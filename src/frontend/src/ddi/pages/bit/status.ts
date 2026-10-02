@@ -1,4 +1,4 @@
-import type { BitCheck, BitStatus } from "@/content/bit";
+import type { BitCheck, BitStatus } from "@/content/types";
 
 /** A check as the live status cells see it: its id and the two statuses it can rest on. */
 export interface LiveCheck {

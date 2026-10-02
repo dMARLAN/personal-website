@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { PROFILE } from "@/content/profile";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
 import type { Rect } from "../geometry";
 import {
   FREE_TEXT,
@@ -10,6 +10,8 @@ import {
 } from "../formats/tgtDataOwnship";
 import { placedTextBounds, type PlacedText } from "../formats/placedText";
 import { aboutFormatProps, aboutScreens } from "./about";
+
+const PROFILE = SNAPSHOT_CONTENT.profile;
 
 const DCS_SAMPLE: TgtDataOwnshipProps = {
   topLeft: "EMERG",

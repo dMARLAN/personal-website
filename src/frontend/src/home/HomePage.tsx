@@ -6,13 +6,8 @@ import {
   Gauge,
   Mail,
 } from "lucide-react";
-import { CONTACT } from "@/content/contact";
-import { LINKS } from "@/content/links";
-import { PROFILE } from "@/content/profile";
-import { PROJECT_CATEGORIES, PROJECTS } from "@/content/projects";
-import { RESUME } from "@/content/resume";
-import type { LabelValue } from "@/content/types";
-import { EMPLOYERS } from "@/content/work";
+import { RESUME_PDF_URL } from "@/content/resume";
+import type { LabelValue, SiteContent } from "@/content/types";
 import { PAGES, type PageId } from "@/ddi/pages/registry";
 import { SITE_NAME } from "@/lib/site";
 import { ThemeToggleButton } from "@/theme/ThemeToggle";
@@ -50,6 +45,10 @@ const SECTION_ORDER: readonly SectionId[] = [
 ];
 
 /** The DDI menu legend that opens a section's page, for example "PB7 WORK". */
+interface ContentProps {
+  content: SiteContent;
+}
+
 function legendOf(id: PageId): string {
   const { menu } = PAGES[id];
   if (menu === undefined) {
@@ -111,15 +110,15 @@ function DdiCard(): React.JSX.Element {
   );
 }
 
-function Hero(): React.JSX.Element {
-  const position = currentPosition(EMPLOYERS);
+function Hero({ content }: ContentProps): React.JSX.Element {
+  const position = currentPosition(content.employers);
   const stats: LabelValue[] = [
     {
-      value: String(yearsOfExperience(EMPLOYERS, new Date())),
+      value: String(yearsOfExperience(content.employers, new Date())),
       label: "Years in software",
     },
-    { value: String(EMPLOYERS.length), label: "Companies" },
-    { value: String(PROJECTS.length), label: "Projects" },
+    { value: String(content.employers.length), label: "Companies" },
+    { value: String(content.projects.projects.length), label: "Projects" },
   ];
   return (
     <section className="hero" aria-labelledby="hero-title">
@@ -129,9 +128,9 @@ function Hero(): React.JSX.Element {
           <p className="hero-role">
             {position.title} at <strong>{position.employer}</strong>
           </p>
-          <p className="hero-bio">{PROFILE.bio}</p>
+          <p className="hero-bio">{content.profile.bio}</p>
           <div className="hero-actions">
-            <a className="button button-primary" href={RESUME.pdfPath}>
+            <a className="button button-primary" href={RESUME_PDF_URL}>
               <Download aria-hidden="true" />
               Download résumé
             </a>
@@ -175,7 +174,7 @@ function SectionHeader({ id }: { id: SectionId }): React.JSX.Element {
   );
 }
 
-function Experience(): React.JSX.Element {
+function Experience({ content }: ContentProps): React.JSX.Element {
   return (
     <section
       id="experience"
@@ -185,7 +184,7 @@ function Experience(): React.JSX.Element {
       <div className="container">
         <SectionHeader id="experience" />
         <ol className="timeline">
-          {EMPLOYERS.map((employer, index) => (
+          {content.employers.map((employer, index) => (
             <li
               key={employer.id}
               className="timeline-item"
@@ -219,20 +218,23 @@ function Experience(): React.JSX.Element {
   );
 }
 
-function Projects(): React.JSX.Element {
+function Projects({ content }: ContentProps): React.JSX.Element {
   return (
     <section id="projects" className="section" aria-labelledby="projects-title">
       <div className="container">
         <SectionHeader id="projects" />
         <ul className="project-grid">
-          {PROJECTS.map((project) => {
+          {content.projects.projects.map((project) => {
             const status = PROJECT_STATUS[project.status];
             return (
               <li key={project.slug}>
                 <article className="project-card">
                   <div className="project-meta">
                     <span className="chip">
-                      {categoryName(PROJECT_CATEGORIES, project.category)}
+                      {categoryName(
+                        content.projects.categories,
+                        project.category,
+                      )}
                     </span>
                     <span className="project-status" data-tone={status.tone}>
                       <span className="status-dot" aria-hidden="true" />
@@ -296,21 +298,27 @@ function SpecTable({
   );
 }
 
-function Skills(): React.JSX.Element {
+function Skills({ content }: ContentProps): React.JSX.Element {
   return (
     <section id="skills" className="section" aria-labelledby="skills-title">
       <div className="container">
         <SectionHeader id="skills" />
         <div className="spec-grid">
-          <SpecTable heading={RESUME.left.heading} rows={RESUME.left.rows} />
-          <SpecTable heading={RESUME.right.heading} rows={RESUME.right.rows} />
+          <SpecTable
+            heading={content.resume.left.heading}
+            rows={content.resume.left.rows}
+          />
+          <SpecTable
+            heading={content.resume.right.heading}
+            rows={content.resume.right.rows}
+          />
         </div>
       </div>
     </section>
   );
 }
 
-function Contact(): React.JSX.Element {
+function Contact({ content }: ContentProps): React.JSX.Element {
   return (
     <section id="contact" className="section" aria-labelledby="contact-title">
       <div className="container">
@@ -318,24 +326,27 @@ function Contact(): React.JSX.Element {
         <div className="contact-card">
           <div className="contact-main">
             <p className="contact-label">Email</p>
-            <a className="contact-email" href={`mailto:${CONTACT.email}`}>
-              {CONTACT.email}
+            <a
+              className="contact-email"
+              href={`mailto:${content.contact.email}`}
+            >
+              {content.contact.email}
             </a>
             <div className="contact-actions">
               <a
                 className="button button-primary"
-                href={`mailto:${CONTACT.email}`}
+                href={`mailto:${content.contact.email}`}
               >
                 <Mail aria-hidden="true" />
                 Send an email
               </a>
-              <a className="button button-outline" href={RESUME.pdfPath}>
+              <a className="button button-outline" href={RESUME_PDF_URL}>
                 <Download aria-hidden="true" />
                 Résumé (PDF)
               </a>
             </div>
             <dl className="contact-facts">
-              {CONTACT.rows.map((row) => (
+              {content.contact.rows.map((row) => (
                 <div key={row.label}>
                   <dt>{plainLabel(row.label)}</dt>
                   <dd>{row.value}</dd>
@@ -346,7 +357,7 @@ function Contact(): React.JSX.Element {
           <div className="contact-links">
             <h3>Elsewhere</h3>
             <ul>
-              {LINKS.map((link) => (
+              {content.links.map((link) => (
                 <li key={link.url}>
                   <a href={link.url}>
                     <span className="contact-link-name">{link.name}</span>
@@ -372,7 +383,7 @@ function SiteFooter(): React.JSX.Element {
         </p>
         <ul>
           <li>
-            <a href={RESUME.pdfPath}>Résumé</a>
+            <a href={RESUME_PDF_URL}>Résumé</a>
           </li>
           <li>
             <a href={DDI_PATH}>Cockpit mode</a>
@@ -393,7 +404,7 @@ function SiteFooter(): React.JSX.Element {
  * The standard homepage at `/`: a conventional single page for recruiters, read only from the content modules. The
  * DDI lives at `/ddi`; the header and the hero card link to it.
  */
-export function HomePage(): React.JSX.Element {
+export function HomePage({ content }: ContentProps): React.JSX.Element {
   return (
     <div className="home" id="top">
       <a className="skip-link" href="#main">
@@ -401,11 +412,11 @@ export function HomePage(): React.JSX.Element {
       </a>
       <SiteHeader />
       <main id="main">
-        <Hero />
-        <Experience />
-        <Projects />
-        <Skills />
-        <Contact />
+        <Hero content={content} />
+        <Experience content={content} />
+        <Projects content={content} />
+        <Skills content={content} />
+        <Contact content={content} />
       </main>
       <SiteFooter />
     </div>

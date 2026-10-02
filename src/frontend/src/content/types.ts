@@ -1,15 +1,18 @@
-// Content schema (docs/design.md section 11). Rendering code imports from content/, never the other way round.
-// Limits come from each format's geometry. Content-fit tests enforce them when each page ships.
+// Content schema (docs/design.md section 11): the shapes rendering code reads. The API stores and validates the content
+// (its Pydantic models are the source of truth); `adapt.ts` turns its generated types into these. Rendering code
+// imports from content/, never the other way round. Limits come from each format's geometry. Content-fit tests
+// enforce them against the seed snapshot, and the API enforces them on every save.
 
 export interface LabelValue {
   label: string;
   value: string;
 }
 
-/** About → TGT DATA OWNSHIP [pgB §11]. Limits are enforced by `ddi/pages/about.test.tsx`. */
+/**
+ * About → TGT DATA OWNSHIP [pgB §11]. Limits are enforced by `ddi/pages/about.test.tsx`. The `EMERG` slot above the
+ * box's top-left corner is the site name (`SITE_NAME`), so it is not content.
+ */
 export interface Profile {
-  /** The `EMERG` slot above the box's top-left corner; ≤ 18 chars. */
-  header: string;
   /** The `EXER` slot above the box's top-right corner; ≤ 18 chars. */
   badge: string;
   /** Status quadrant: 5 rows; label ≤ 7 incl. ":", value ≤ 9. */
@@ -32,8 +35,6 @@ export interface Resume {
   left: { heading: string; rows: { name: string; value: string }[] };
   /** Qualifications, likewise. ≤ 12 rows; name ≤ 6, value ≤ 12. */
   right: { heading: string; rows: { name: string; value: string }[] };
-  /** Committed in public/. */
-  pdfPath: "/resume.pdf";
 }
 
 /**
@@ -296,6 +297,115 @@ export interface Checklist {
   stab: { label: string; left: string; right: string };
 }
 
+// /bit → BIT FAILURES and its sublevels [pgB §3]: a showcase page with mock data. Each DCS equipment item becomes a
+// programming check. The page module owns the real DCS structure (which item sits in which list row and on which
+// OSB); the content only themes the items.
+
+/** `BIT_StatMsgs` [pgB §3], plus `NO TEST`, which only the STATUS MONITOR fuel-low rows use. */
+export type BitStatus =
+  | "IN TEST"
+  | "RESTRT"
+  | "SF TEST"
+  | "OFF"
+  | "NOT RDY"
+  | "NO TEST"
+  | "MUX FAIL"
+  | "DEGD+OVRHT"
+  | "OVRHT"
+  | "DEGD"
+  | "OP GO"
+  | "GO"
+  | "PBIT GO";
+
+/** The DCS equipment items the BIT sublevels list (`EquipItems` in `BIT_defs.lua`), plus the two fuel-low rows. */
+export const BIT_ITEM_KEYS = [
+  "MC1",
+  "MC2",
+  "FCSA",
+  "FCSB",
+  "RDR",
+  "FLIR",
+  "LTDR",
+  "SMS",
+  "AWW4",
+  "CLC",
+  "WPNS",
+  "CSC",
+  "ICS",
+  "IFF",
+  "D_L",
+  "COM1",
+  "COM2",
+  "MIDS",
+  "INS",
+  "ADC",
+  "ILS",
+  "RALT",
+  "TCN",
+  "AUG",
+  "BCN",
+  "GPS",
+  "LDDI",
+  "RDDI",
+  "MPCD",
+  "HUD",
+  "IFEI",
+  "DMS",
+  "HMD",
+  "SDC",
+  "MU",
+  "AISI",
+  "RWR",
+  "IBS",
+  "ALE_47",
+  "ASPJ",
+  "TK2FL",
+  "TK3FL",
+] as const;
+
+export type BitItemKey = (typeof BIT_ITEM_KEYS)[number];
+
+export interface BitCheck {
+  /** List name column, ≤ 9 characters, so a space separates it from the status. A check that also has an item legend is ≤ 7, so `"   NAME"` fits its strip. */
+  name: string;
+  /** The status before any test. */
+  status: Exclude<BitStatus, "IN TEST">;
+  /** The status a test resolves to, after `IN TEST`. */
+  afterTest: Exclude<BitStatus, "IN TEST">;
+}
+
+/** Item legends that have no list row of their own, themed. Each is ≤ 7 characters. */
+export const BIT_LEGEND_KEYS = [
+  "FCS",
+  "UFC",
+  "DDI",
+  "DFIRS",
+  "FQTY",
+  "FXFR",
+] as const;
+
+export type BitLegendKey = (typeof BIT_LEGEND_KEYS)[number];
+
+export interface SwConfigEntry {
+  /** ≤ 6 characters, like the longest DCS name (`ALE-47`), so a gap separates it from the value. */
+  name: string;
+  /** ≤ 8 characters, the width of the DCS sample `XXXXXXXX`. */
+  value: string;
+}
+
+export interface Bit {
+  checks: Readonly<Record<BitItemKey, BitCheck>>;
+  legendNames: Readonly<Record<BitLegendKey, string>>;
+  /**
+   * S/W CONFIGURATION: the site's own stack. The left column lists tools and versions; the right lists a role and the
+   * tool that fills it. The left column keeps the DCS blank row (the ATARS slot) as `null`.
+   */
+  swConfig: {
+    left: readonly (SwConfigEntry | null)[];
+    right: readonly SwConfigEntry[];
+  };
+}
+
 /** /radar → RDR ATTK in RWS; fake data (docs/pages/radar.md). */
 export interface RadarScene {
   ownship: {
@@ -326,4 +436,26 @@ export interface RadarContact {
   track: number;
   /** Feet. The contact flies level, so the elevation bars decide which scans see it. */
   altitude: number;
+}
+
+/** Projects → STORES: the top-row categories and the projects on the stations. */
+export interface Projects {
+  categories: readonly ProjectCategory[];
+  projects: readonly Project[];
+}
+
+/** Every section, as the pages read it. `GET /api/content` serves it; `adapt.ts` shapes it. */
+export interface SiteContent {
+  profile: Profile;
+  resume: Resume;
+  employers: readonly Employer[];
+  projects: Projects;
+  contact: Contact;
+  links: readonly LinkEntry[];
+  server: ServerStats;
+  fuel: FuelReserves;
+  fcs: FlightControls;
+  checklist: Checklist;
+  bit: Bit;
+  radar: RadarScene;
 }

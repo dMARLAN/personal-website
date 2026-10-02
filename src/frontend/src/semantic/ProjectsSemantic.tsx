@@ -1,6 +1,5 @@
 import { Fragment } from "react";
-import { PROJECT_CATEGORIES, PROJECTS } from "@/content/projects";
-import type { ProjectStatus, ProjectStore } from "@/content/types";
+import type { ProjectStatus, ProjectStore, Projects } from "@/content/types";
 import { projectsByCategory } from "@/ddi/pages/projects";
 
 /** The DCS status words in plain English. */
@@ -28,18 +27,22 @@ function storeText(store: ProjectStore): string {
  * Every project as real HTML (design section 10.2). The glass shows one selected station and either its PROG block
  * or its DATA sublevel; these are in-section state with no URL, so this lists every project's content in full.
  */
-export function ProjectsSemantic(): React.JSX.Element {
+export function ProjectsSemantic({
+  projects: { categories, projects },
+}: {
+  projects: Projects;
+}): React.JSX.Element {
   return (
     <>
       <p>
         Projects drawn as stores on the F/A-18C STORES page: each station on the
         wing carries one project.
       </p>
-      {[...projectsByCategory(PROJECTS, PROJECT_CATEGORIES)].map(
-        ([category, projects]) => (
+      {[...projectsByCategory(projects, categories)].map(
+        ([category, members]) => (
           <section key={category.legend}>
             <h2>{category.name}</h2>
-            {projects.map((project) => (
+            {members.map((project) => (
               <article key={project.slug}>
                 <h3>{project.name}</h3>
                 <p>{project.description}</p>

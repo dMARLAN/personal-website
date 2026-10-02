@@ -1,3 +1,4 @@
+import { getProjects } from "@/content/projects";
 import { DdiPage } from "@/ddi/pages/DdiPage";
 import { pageMetadata } from "@/ddi/pages/metadata";
 import { projectsScreens } from "@/ddi/pages/projects";
@@ -10,13 +11,14 @@ export const metadata = pageMetadata(
   "Side projects, loaded on the wing of an F/A-18C STORES page: one project per station.",
 );
 
-export default function ProjectsPage(): React.JSX.Element {
+export default async function ProjectsPage(): Promise<React.JSX.Element> {
+  const projects = await getProjects();
   return (
     <DdiPage
-      screens={projectsScreens()}
+      screens={projectsScreens(projects)}
       semantic={
         <SemanticPage heading={PAGES.projects.label}>
-          <ProjectsSemantic />
+          <ProjectsSemantic projects={projects} />
         </SemanticPage>
       }
     />

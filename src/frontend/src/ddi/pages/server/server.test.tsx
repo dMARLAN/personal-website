@@ -1,6 +1,5 @@
 import { act, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { SERVER_STATS } from "@/content/server";
 import { SERVER_METRICS, type ServerSnapshot } from "@/content/types";
 import { FullViewportFrame } from "../../frame/FullViewportFrame";
 import {
@@ -12,8 +11,12 @@ import {
   type SnapshotListener,
 } from "./provider";
 import { describeReading, engValues, formatReading } from "./readings";
+import { ServerReadingsProvider } from "./islands";
 import { SERVER_LEGENDS, serverScreens } from "./screens";
 import { createSnapshotStore } from "./store";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
+
+const SERVER_STATS = SNAPSHOT_CONTENT.server;
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
@@ -157,7 +160,11 @@ describe("the /server screen", () => {
   });
 
   it("renders RECORD as a disabled button and MENU as a link", () => {
-    render(<FullViewportFrame screens={serverScreens()} />);
+    render(
+      <ServerReadingsProvider stats={SERVER_STATS}>
+        <FullViewportFrame screens={serverScreens(SERVER_STATS)} />
+      </ServerReadingsProvider>,
+    );
     const record = screen.getByRole("button", { name: "Record" });
     expect(record).toHaveAttribute("aria-disabled", "true");
     expect(record).toHaveAttribute("data-pb", "16");
@@ -169,7 +176,9 @@ describe("the /server screen", () => {
 
   it("draws the headers, 13 labels and 26 values in the square", () => {
     const { container } = render(
-      <FullViewportFrame screens={serverScreens()} />,
+      <ServerReadingsProvider stats={SERVER_STATS}>
+        <FullViewportFrame screens={serverScreens(SERVER_STATS)} />
+      </ServerReadingsProvider>,
     );
     const square = container.querySelector("#ddi-square");
     expect(square?.querySelectorAll("path")).toHaveLength(2 + 13 + 26);
@@ -179,7 +188,9 @@ describe("the /server screen", () => {
     stubReducedMotion(false);
     vi.useFakeTimers();
     const { container } = render(
-      <FullViewportFrame screens={serverScreens()} />,
+      <ServerReadingsProvider stats={SERVER_STATS}>
+        <FullViewportFrame screens={serverScreens(SERVER_STATS)} />
+      </ServerReadingsProvider>,
     );
     const paths = (): string[] =>
       [

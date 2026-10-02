@@ -1,4 +1,5 @@
 import type { LabelValue, Profile } from "@/content/types";
+import { SITE_NAME } from "@/lib/site";
 
 function withoutColon(label: string): string {
   return label.replace(/:$/, "");
@@ -26,7 +27,7 @@ export function AboutSemantic({
   return (
     <>
       <p>
-        {profile.header}. {profile.badge}.
+        {SITE_NAME}. {profile.badge}.
       </p>
       <p>{profile.bio}</p>
       <h2>Profile</h2>

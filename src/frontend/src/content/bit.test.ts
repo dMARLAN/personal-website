@@ -6,12 +6,12 @@ import { textPath } from "@/ddi/font/layout";
 import { measure } from "@/ddi/geometry";
 import { failingItems } from "@/ddi/pages/bit/screens";
 import { SUBLEVELS } from "@/ddi/pages/bit/structure";
-import {
-  BIT_CHECKS,
-  BIT_LEGEND_NAMES,
-  SW_CONFIG,
-  type BitItemKey,
-} from "./bit";
+import { SNAPSHOT_CONTENT } from "./snapshot";
+import type { BitItemKey } from "./types";
+
+const BIT_CHECKS = SNAPSHOT_CONTENT.bit.checks;
+const BIT_LEGEND_NAMES = SNAPSHOT_CONTENT.bit.legendNames;
+const SW_CONFIG = SNAPSHOT_CONTENT.bit.swConfig;
 
 const ADVANCE = FONTS.BIT.width + FONTS.BIT.interchar;
 
@@ -91,6 +91,6 @@ describe("the BIT content", () => {
   });
 
   it("fails more than one page of checks, so PAGE has work to do", () => {
-    expect(failingItems().length).toBeGreaterThan(BIT.rowsPerPage);
+    expect(failingItems(BIT_CHECKS).length).toBeGreaterThan(BIT.rowsPerPage);
   });
 });

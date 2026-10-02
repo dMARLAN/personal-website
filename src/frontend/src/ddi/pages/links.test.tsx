@@ -1,7 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { LINKS } from "@/content/links";
 import type { LinkEntry } from "@/content/types";
 import { measure } from "../geometry";
 import { placedTextBounds } from "../formats/placedText";
@@ -13,6 +12,9 @@ import {
 } from "../formats/ufcBu";
 import { FullViewportFrame } from "../frame/FullViewportFrame";
 import { KEYPAD, NO_SELECTION, linksScreens } from "./links";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
+
+const LINKS = SNAPSHOT_CONTENT.links;
 
 const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));

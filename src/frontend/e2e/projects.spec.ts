@@ -1,6 +1,9 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { PROJECT_CATEGORIES, PROJECTS } from "../src/content/projects";
+import { SNAPSHOT_CONTENT } from "../src/content/snapshot";
+
+const PROJECT_CATEGORIES = SNAPSHOT_CONTENT.projects.categories;
+const PROJECTS = SNAPSHOT_CONTENT.projects.projects;
 
 const byStation = PROJECTS.toSorted((a, b) => a.station - b.station);
 const [firstCategory, secondCategory] = PROJECT_CATEGORIES;

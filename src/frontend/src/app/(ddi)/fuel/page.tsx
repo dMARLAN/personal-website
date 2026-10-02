@@ -1,4 +1,4 @@
-import { FUEL_RESERVES } from "@/content/fuel";
+import { getFuelReserves } from "@/content/fuel";
 import { DdiPage } from "@/ddi/pages/DdiPage";
 import { fuelScreens } from "@/ddi/pages/fuel";
 import { pageMetadata } from "@/ddi/pages/metadata";
@@ -11,13 +11,14 @@ export const metadata = pageMetadata(
   "The Hornet's fuel page, with coffee, sleep and focus in place of fuel.",
 );
 
-export default function FuelPage(): React.JSX.Element {
+export default async function FuelPage(): Promise<React.JSX.Element> {
+  const reserves = await getFuelReserves();
   return (
     <DdiPage
-      screens={fuelScreens()}
+      screens={fuelScreens(reserves)}
       semantic={
         <SemanticPage heading={PAGES.fuel.label}>
-          <FuelSemantic reserves={FUEL_RESERVES} />
+          <FuelSemantic reserves={reserves} />
         </SemanticPage>
       }
     />

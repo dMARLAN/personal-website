@@ -1,7 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { EMPLOYERS } from "@/content/work";
 import type { Employer } from "@/content/types";
 import {
   WORK_BULLET_CHARS,
@@ -17,6 +16,9 @@ import { FullViewportFrame } from "../frame/FullViewportFrame";
 import { LEGEND_FONT, legendBounds, pbLabelLayout } from "../frame/legend";
 import { measure } from "../geometry";
 import { WORK_TAB_PBS, workScreens, workState } from "./work";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
+
+const EMPLOYERS = SNAPSHOT_CONTENT.employers;
 
 const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));

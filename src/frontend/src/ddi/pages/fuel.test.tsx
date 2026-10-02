@@ -6,10 +6,11 @@ import {
   ScreenStateSlot,
   useScreenState,
 } from "../frame/screenState";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
 import { FUEL_STATES, fuelScreens } from "./fuel";
 
 describe("the FUEL screens", () => {
-  const { initial, screens } = fuelScreens();
+  const { initial, screens } = fuelScreens(SNAPSHOT_CONTENT.fuel);
   const legend = (state: string, pb: number) =>
     screens[state].legends.find((candidate) => candidate.pb === pb);
 

@@ -1,6 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { PROJECT_CATEGORIES, PROJECTS } from "@/content/projects";
 import type { LegendSpec } from "../frame/types";
 import { FullViewportFrame } from "../frame/FullViewportFrame";
 import { textPath } from "../font/layout";
@@ -23,10 +22,14 @@ import {
   projectsByCategory,
   projectsScreens,
 } from "./projects";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
+
+const PROJECT_CATEGORIES = SNAPSHOT_CONTENT.projects.categories;
+const PROJECTS = SNAPSHOT_CONTENT.projects.projects;
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
-const SCREENS = projectsScreens();
+const SCREENS = projectsScreens(SNAPSHOT_CONTENT.projects);
 const BY_CATEGORY = projectsByCategory(PROJECTS, PROJECT_CATEGORIES);
 const [[firstCategory, firstMembers], [secondCategory, secondMembers]] = [
   ...BY_CATEGORY,

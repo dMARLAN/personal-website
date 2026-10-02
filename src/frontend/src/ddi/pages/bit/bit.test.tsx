@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { BIT_CHECKS, BIT_LEGEND_NAMES } from "@/content/bit";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { measure, pbEdge } from "../../geometry";
 import { FullViewportFrame } from "../../frame/FullViewportFrame";
@@ -7,6 +6,10 @@ import { BIT } from "../../formats/bitFormat";
 import { bitScreens, failingItems } from "./screens";
 import { bitTests, TEST_DURATION_MS } from "./store";
 import { SUBLEVELS } from "./structure";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
+
+const BIT_CHECKS = SNAPSHOT_CONTENT.bit.checks;
+const BIT_LEGEND_NAMES = SNAPSHOT_CONTENT.bit.legendNames;
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
@@ -27,7 +30,9 @@ afterEach(() => {
 });
 
 function renderBit(): HTMLElement {
-  return render(<FullViewportFrame screens={bitScreens()} />).container;
+  return render(
+    <FullViewportFrame screens={bitScreens(SNAPSHOT_CONTENT.bit)} />,
+  ).container;
 }
 
 function press(name: string): void {
@@ -46,7 +51,9 @@ function cell(container: HTMLElement, checks: string): Element {
 
 describe("the BIT screens", () => {
   it("give no two legends the same OSB on any level, and MENU opens TAC", () => {
-    for (const [state, page] of Object.entries(bitScreens().screens)) {
+    for (const [state, page] of Object.entries(
+      bitScreens(SNAPSHOT_CONTENT.bit).screens,
+    )) {
       const pbs = page.legends.map((legend) => legend.pb);
       expect(new Set(pbs).size, state).toBe(pbs.length);
       expect(page.legends.find((legend) => legend.pb === 18)).toMatchObject({
@@ -57,12 +64,12 @@ describe("the BIT screens", () => {
   });
 
   it("page the failures 17 rows at a time", () => {
-    const { screens } = bitScreens();
+    const { screens } = bitScreens(SNAPSHOT_CONTENT.bit);
     const pages = Object.keys(screens).filter((state) =>
       state.startsWith("MAIN-"),
     );
     expect(pages).toHaveLength(
-      Math.ceil(failingItems().length / BIT.rowsPerPage),
+      Math.ceil(failingItems(BIT_CHECKS).length / BIT.rowsPerPage),
     );
   });
 
@@ -168,7 +175,7 @@ describe("the BIT page", () => {
 
   it("pages with PAGE and opens S/W CONFIGURATION with CONFIG", () => {
     const container = renderBit();
-    const firstRow = failingItems()[0];
+    const firstRow = failingItems(BIT_CHECKS)[0];
     expect(cell(container, firstRow)).toBeInTheDocument();
     press("Next page of failures");
     expect(

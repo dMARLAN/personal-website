@@ -1,4 +1,4 @@
-import { FUEL_RESERVES } from "@/content/fuel";
+import type { FuelReserves } from "@/content/types";
 import { FlbitTimeout } from "../formats/FlbitTimeout";
 import { FuelFormat } from "../formats/fuel";
 import type { DdiScreens, LegendSpec } from "../frame/types";
@@ -18,9 +18,9 @@ const RESET_SDC: LegendSpec = {
  * /fuel: the real FUEL format with "energy" reserves. PB20 `FLBIT` runs the fuel low BIT: the legend is boxed for
  * 13 s, then the page returns to its idle state [gpg §5]. Neither state changes the URL.
  */
-export function fuelScreens(): DdiScreens {
+export function fuelScreens(reserves: FuelReserves): DdiScreens {
   const symbology = (
-    <FuelFormat tanks={FUEL_RESERVES.tanks} bingo={FUEL_RESERVES.bingo} />
+    <FuelFormat tanks={reserves.tanks} bingo={reserves.bingo} />
   );
   return {
     initial: FUEL_STATES.idle,

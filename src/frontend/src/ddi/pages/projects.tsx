@@ -1,5 +1,9 @@
-import { PROJECT_CATEGORIES, PROJECTS } from "@/content/projects";
-import type { Project, ProjectCategory, ProjectLink } from "@/content/types";
+import type {
+  Project,
+  ProjectCategory,
+  ProjectLink,
+  Projects,
+} from "@/content/types";
 import type { DdiScreen, DdiScreens, LegendSpec } from "../frame/types";
 import {
   DATA_ROW_CHARS,
@@ -145,8 +149,11 @@ function screen(
  * the main page or its DATA sublevel. A category OSB selects the category's first station, `STEP` the next station in
  * the category, and `DATA` toggles the sublevel. None of them changes the URL.
  */
-export function projectsScreens(): DdiScreens {
-  const byCategory = projectsByCategory(PROJECTS, PROJECT_CATEGORIES);
+export function projectsScreens({
+  categories,
+  projects,
+}: Projects): DdiScreens {
+  const byCategory = projectsByCategory(projects, categories);
   const screens: Record<string, DdiScreen> = {};
   for (const [category, members] of byCategory) {
     members.forEach((project, index) => {
@@ -154,7 +161,7 @@ export function projectsScreens(): DdiScreens {
       for (const data of [false, true]) {
         screens[projectState(project, data)] = screen(
           { project, category, next, data },
-          PROJECTS,
+          projects,
           byCategory,
         );
       }

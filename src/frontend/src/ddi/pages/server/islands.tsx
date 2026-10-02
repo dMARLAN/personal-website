@@ -1,36 +1,67 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { SERVER_STATS } from "@/content/server";
-import type { ServerSnapshot } from "@/content/types";
+import {
+  createContext,
+  useContext,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import type { ServerSnapshot, ServerStats } from "@/content/types";
 import { EngValues } from "../../formats/eng";
 import { fakeServerStatsProvider } from "./provider";
 import { describeReading, engValues } from "./readings";
-import { createSnapshotStore } from "./store";
+import { createSnapshotStore, type SnapshotStore } from "./store";
 
-// One store for the glass and the semantic layer, so both show the same readings.
-const STORE = createSnapshotStore(
-  SERVER_STATS.baseline,
-  fakeServerStatsProvider(SERVER_STATS.baseline),
-);
+interface ServerReadings {
+  stats: ServerStats;
+  store: SnapshotStore;
+}
 
-function useServerSnapshot(): ServerSnapshot {
-  return useSyncExternalStore(
-    STORE.subscribe,
-    STORE.getSnapshot,
-    STORE.getServerSnapshot,
+const ServerReadingsContext = createContext<ServerReadings | null>(null);
+
+/** One store for the glass and the semantic layer, so both show the same readings. Wrap the whole page in it. */
+export function ServerReadingsProvider({
+  stats,
+  children,
+}: {
+  stats: ServerStats;
+  children: React.ReactNode;
+}): React.JSX.Element {
+  const [store] = useState(() =>
+    createSnapshotStore(
+      stats.baseline,
+      fakeServerStatsProvider(stats.baseline),
+    ),
   );
+  return (
+    <ServerReadingsContext value={{ stats, store }}>
+      {children}
+    </ServerReadingsContext>
+  );
+}
+
+function useServerReadings(): ServerReadings & { snapshot: ServerSnapshot } {
+  const readings = useContext(ServerReadingsContext);
+  if (readings === null) {
+    throw new Error("server readings are used outside ServerReadingsProvider");
+  }
+  const { store } = readings;
+  const snapshot = useSyncExternalStore(
+    store.subscribe,
+    store.getSnapshot,
+    store.getServerSnapshot,
+  );
+  return { ...readings, snapshot };
 }
 
 /** The ENG value columns, redrawn on each new snapshot. */
 export function ServerValues(): React.JSX.Element {
-  return (
-    <EngValues values={engValues(SERVER_STATS.rows, useServerSnapshot())} />
-  );
+  const { stats, snapshot } = useServerReadings();
+  return <EngValues values={engValues(stats.rows, snapshot)} />;
 }
 
 export interface ServerReadingProps {
-  /** Index into `SERVER_STATS.rows`. */
+  /** Index into the stats' `rows`. */
   row: number;
   /** 0 is the left host, 1 the right. */
   host: 0 | 1;
@@ -41,7 +72,7 @@ export function ServerReading({
   row,
   host,
 }: ServerReadingProps): React.JSX.Element {
-  const spec = SERVER_STATS.rows[row];
-  const value = useServerSnapshot().hosts[host][spec.metric];
-  return <>{describeReading(value, spec)}</>;
+  const { stats, snapshot } = useServerReadings();
+  const spec = stats.rows[row];
+  return <>{describeReading(snapshot.hosts[host][spec.metric], spec)}</>;
 }

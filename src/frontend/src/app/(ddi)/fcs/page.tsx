@@ -1,4 +1,4 @@
-import { FLIGHT_CONTROLS } from "@/content/fcs";
+import { getFlightControls } from "@/content/fcs";
 import { DdiPage } from "@/ddi/pages/DdiPage";
 import { fcsScreens } from "@/ddi/pages/fcs";
 import { pageMetadata } from "@/ddi/pages/metadata";
@@ -11,13 +11,14 @@ export const metadata = pageMetadata(
   "The Hornet's flight control system page, with mock system-health data.",
 );
 
-export default function FcsPage(): React.JSX.Element {
+export default async function FcsPage(): Promise<React.JSX.Element> {
+  const controls = await getFlightControls();
   return (
     <DdiPage
-      screens={fcsScreens()}
+      screens={fcsScreens(controls)}
       semantic={
         <SemanticPage heading={PAGES.fcs.label}>
-          <FcsSemantic controls={FLIGHT_CONTROLS} />
+          <FcsSemantic controls={controls} />
         </SemanticPage>
       }
     />

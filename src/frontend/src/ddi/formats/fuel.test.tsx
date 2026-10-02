@@ -1,7 +1,6 @@
 import { act, render } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { FUEL_RESERVES } from "@/content/fuel";
 import { measure } from "../geometry";
 import { FuelFormat } from "./fuel";
 import { FUEL_TICK_MS } from "./fuelClock";
@@ -12,6 +11,9 @@ import {
   tankFraction,
   type FuelTankSpec,
 } from "./fuelModel";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
+
+const FUEL_RESERVES = SNAPSHOT_CONTENT.fuel;
 
 const TANK: FuelTankSpec = {
   id: "tk1",

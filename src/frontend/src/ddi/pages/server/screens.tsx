@@ -1,4 +1,4 @@
-import { SERVER_STATS } from "@/content/server";
+import type { ServerStats } from "@/content/types";
 import type { DdiScreens, LegendSpec } from "../../frame/types";
 import { EngLabels } from "../../formats/eng";
 import { MENU_LEGEND } from "../menuLegend";
@@ -19,8 +19,11 @@ export const SERVER_LEGENDS: readonly LegendSpec[] = [
   MENU_LEGEND,
 ];
 
-/** /server: the ENG format with two hosts in the engine columns. It has one screen and no in-section state. */
-export function serverScreens(): DdiScreens {
+/**
+ * /server: the ENG format with two hosts in the engine columns. It has one screen and no in-section state. Render it
+ * inside `ServerReadingsProvider`.
+ */
+export function serverScreens(stats: ServerStats): DdiScreens {
   return {
     initial: "ENG",
     screens: {
@@ -29,11 +32,8 @@ export function serverScreens(): DdiScreens {
         symbology: (
           <>
             <EngLabels
-              headers={[
-                SERVER_STATS.hosts[0].header,
-                SERVER_STATS.hosts[1].header,
-              ]}
-              labels={SERVER_STATS.rows.map((row) => row.label)}
+              headers={[stats.hosts[0].header, stats.hosts[1].header]}
+              labels={stats.rows.map((row) => row.label)}
             />
             <ServerValues />
           </>

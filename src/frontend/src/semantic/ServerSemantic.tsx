@@ -1,9 +1,13 @@
-import { SERVER_STATS } from "@/content/server";
+import type { ServerStats } from "@/content/types";
 import { ServerReading } from "@/ddi/pages/server/islands";
 
 /** The ENG table as real HTML (design section 10.2): one row per metric, one column per host. */
-export function ServerSemantic(): React.JSX.Element {
-  const [left, right] = SERVER_STATS.hosts;
+export function ServerSemantic({
+  stats,
+}: {
+  stats: ServerStats;
+}): React.JSX.Element {
+  const [left, right] = stats.hosts;
   return (
     <>
       <p>
@@ -21,7 +25,7 @@ export function ServerSemantic(): React.JSX.Element {
           </tr>
         </thead>
         <tbody>
-          {SERVER_STATS.rows.map((row, index) => (
+          {stats.rows.map((row, index) => (
             <tr key={row.metric}>
               <th scope="row">{row.name}</th>
               <td>

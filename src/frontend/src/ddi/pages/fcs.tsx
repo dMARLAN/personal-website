@@ -1,10 +1,10 @@
-import { FLIGHT_CONTROLS } from "@/content/fcs";
+import type { FlightControls } from "@/content/types";
 import { FcsFormat } from "../formats/fcs";
 import type { DdiScreens } from "../frame/types";
 import { MENU_LEGEND } from "./menuLegend";
 
 /** /fcs: the real FCS format with playful system-health data. BLIN and AOA are real legends, inert here. */
-export function fcsScreens(): DdiScreens {
+export function fcsScreens(controls: FlightControls): DdiScreens {
   return {
     initial: "FCS",
     screens: {
@@ -24,7 +24,7 @@ export function fcsScreens(): DdiScreens {
           },
           MENU_LEGEND,
         ],
-        symbology: <FcsFormat {...FLIGHT_CONTROLS} />,
+        symbology: <FcsFormat {...controls} />,
       },
     },
   };

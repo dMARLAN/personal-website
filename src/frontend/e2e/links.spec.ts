@@ -1,6 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { LINKS } from "../src/content/links";
+import { SNAPSHOT_CONTENT } from "../src/content/snapshot";
+
+const LINKS = SNAPSHOT_CONTENT.links;
 
 function osb(page: Page, pb: number): ReturnType<Page["locator"]> {
   return page.locator(`.ddi-osb[data-pb='${pb}']`);

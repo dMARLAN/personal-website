@@ -1,6 +1,5 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { RADAR_SCENE } from "@/content/radar";
 import { scopePoint } from "../../formats/rdrAttk";
 import { LEGEND_FONT, legendBounds, pbLabelLayout } from "../../frame/legend";
 import { PBS, measure, pbEdge, type Pb, type Rect } from "../../geometry";
@@ -15,6 +14,9 @@ import {
   type RadarState,
 } from "./settings";
 import { radarStore, resetRadarState } from "./store";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
+
+const RADAR_SCENE = SNAPSHOT_CONTENT.radar;
 
 function overlaps(a: Rect, b: Rect): boolean {
   return (

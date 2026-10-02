@@ -40,13 +40,13 @@ test("PB18 MENU returns to TAC", async ({ page }) => {
 test("serves the PDF and the semantic content without JavaScript", async ({
   request,
 }) => {
-  const pdf = await request.get("/resume.pdf");
+  const pdf = await request.get("/api/resume.pdf");
   expect(pdf.status()).toBe(200);
   expect(pdf.headers()["content-type"]).toContain("application/pdf");
   const html = await (await request.get("/resume")).text();
   expect(html).toContain("<h2>Skills</h2>");
   expect(html).toContain("<h2>Qualifications</h2>");
-  expect(html).toMatch(/<a[^>]*href="\/resume.pdf"[^>]*download/);
+  expect(html).toMatch(/<a[^>]*href="\/api\/resume.pdf"[^>]*download/);
 });
 
 for (const { scheme, theme } of [

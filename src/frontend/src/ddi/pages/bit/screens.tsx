@@ -1,9 +1,4 @@
-import {
-  BIT_CHECKS,
-  BIT_LEGEND_NAMES,
-  SW_CONFIG,
-  type BitItemKey,
-} from "@/content/bit";
+import type { Bit, BitItemKey } from "@/content/types";
 import {
   BIT,
   BitBracketLegend,
@@ -42,14 +37,14 @@ export function mainState(page: number): string {
   return `MAIN-${page}`;
 }
 
-export function liveCheck(item: BitItemKey): LiveCheck {
-  const { status, afterTest } = BIT_CHECKS[item];
+export function liveCheck(checks: Bit["checks"], item: BitItemKey): LiveCheck {
+  const { status, afterTest } = checks[item];
   return { id: item, status, afterTest };
 }
 
 /** The checks on BIT FAILURES: every listed item that is not passing before any test, in `EquipItems` order. */
-export function failingItems(): BitItemKey[] {
-  return EQUIP_ORDER.filter((item) => !isPassing(BIT_CHECKS[item].status));
+export function failingItems(checks: Bit["checks"]): BitItemKey[] {
+  return EQUIP_ORDER.filter((item) => !isPassing(checks[item].status));
 }
 
 /** A status cell showing one check, or a group's summary of several. */
@@ -127,8 +122,12 @@ function testCommand(items: readonly BitItemKey[]): BitCommand {
   return { kind: "test", ids: items };
 }
 
-function mainScreen(page: number, pageCount: number): DdiScreen {
-  const failures = failingItems().slice(
+function mainScreen(
+  { checks }: Bit,
+  page: number,
+  pageCount: number,
+): DdiScreen {
+  const failures = failingItems(checks).slice(
     (page - 1) * BIT.rowsPerPage,
     page * BIT.rowsPerPage,
   );
@@ -160,8 +159,8 @@ function mainScreen(page: number, pageCount: number): DdiScreen {
           <BitRow
             key={item}
             index={index}
-            name={BIT_CHECKS[item].name}
-            status={liveStatus([liveCheck(item)], "check")}
+            name={checks[item].name}
+            status={liveStatus([liveCheck(checks, item)], "check")}
           />
         ))}
       </>
@@ -173,7 +172,10 @@ function mainScreen(page: number, pageCount: number): DdiScreen {
           <BitGroupBlock
             pb={sublevel.groupPb}
             label={sublevel.groupLabel}
-            status={liveStatus(sublevel.rows.map(liveCheck), "group")}
+            status={liveStatus(
+              sublevel.rows.map((item) => liveCheck(checks, item)),
+              "group",
+            )}
           />
         ),
       })),
@@ -181,14 +183,14 @@ function mainScreen(page: number, pageCount: number): DdiScreen {
   };
 }
 
-function itemLegendName(item: ItemLegend): string {
+function itemLegendName(bit: Bit, item: ItemLegend): string {
   return "item" in item
-    ? BIT_CHECKS[item.item].name
-    : BIT_LEGEND_NAMES[item.legend];
+    ? bit.checks[item.item].name
+    : bit.legendNames[item.legend];
 }
 
-function itemLegendSpec(item: ItemLegend): LegendSpec {
-  const name = itemLegendName(item);
+function itemLegendSpec(bit: Bit, item: ItemLegend): LegendSpec {
+  const name = itemLegendName(bit, item);
   const tests = "item" in item ? [item.item] : item.tests;
   // Item legends draw themselves in the edge strip (BitItemLegend), so the frame draws no lines for them.
   return tests.length === 0
@@ -196,7 +198,8 @@ function itemLegendSpec(item: ItemLegend): LegendSpec {
     : commandLegend(item.pb, [], `Test ${name}`, testCommand(tests));
 }
 
-function sublevelScreen(sublevel: Sublevel): DdiScreen {
+function sublevelScreen(bit: Bit, sublevel: Sublevel): DdiScreen {
+  const { checks } = bit;
   const { bracket, extraRows = [] } = sublevel;
   const allItems = [...sublevel.rows, ...extraRows.map(({ item }) => item)];
   const legends: LegendSpec[] = [
@@ -208,21 +211,21 @@ function sublevelScreen(sublevel: Sublevel): DdiScreen {
     ),
     stateLegend(8, ["BIT"], "BIT failures", MAIN_STATE),
     ...commonLegends(),
-    ...sublevel.items.map(itemLegendSpec),
+    ...sublevel.items.map((item) => itemLegendSpec(bit, item)),
     ...sublevel.fixed.map(({ pb, text, label }) =>
       inertLegend(pb, text, label),
     ),
   ];
   const edgeParts = sublevel.items.map((item) => ({
     pb: item.pb,
-    node: <BitItemLegend pb={item.pb} name={itemLegendName(item)} />,
+    node: <BitItemLegend pb={item.pb} name={itemLegendName(bit, item)} />,
   }));
   if (bracket !== undefined) {
     const [group, middle, bottom] = bracket.labels;
     const names = [
-      BIT_LEGEND_NAMES[group],
-      BIT_CHECKS[middle].name,
-      BIT_CHECKS[bottom].name,
+      bit.legendNames[group],
+      checks[middle].name,
+      checks[bottom].name,
     ] as const;
     legends.push(
       commandLegend(
@@ -265,16 +268,16 @@ function sublevelScreen(sublevel: Sublevel): DdiScreen {
           <BitRow
             key={item}
             index={index}
-            name={BIT_CHECKS[item].name}
-            status={liveStatus([liveCheck(item)], "check")}
+            name={checks[item].name}
+            status={liveStatus([liveCheck(checks, item)], "check")}
           />
         ))}
         {extraRows.map(({ index, item }) => (
           <BitRow
             key={item}
             index={index}
-            name={BIT_CHECKS[item].name}
-            status={liveStatus([liveCheck(item)], "check")}
+            name={checks[item].name}
+            status={liveStatus([liveCheck(checks, item)], "check")}
           />
         ))}
       </>
@@ -283,7 +286,7 @@ function sublevelScreen(sublevel: Sublevel): DdiScreen {
   };
 }
 
-function configScreen(): DdiScreen {
+function configScreen({ swConfig }: Bit): DdiScreen {
   return {
     legends: [
       stateLegend(8, ["BIT"], "BIT failures", MAIN_STATE),
@@ -293,8 +296,8 @@ function configScreen(): DdiScreen {
     symbology: (
       <SwConfig
         title={["S/W CONFIGURATION", "USN"]}
-        left={SW_CONFIG.left}
-        right={SW_CONFIG.right}
+        left={swConfig.left}
+        right={swConfig.right}
       />
     ),
   };
@@ -305,18 +308,18 @@ function configScreen(): DdiScreen {
  * sublevels and S/W CONFIGURATION. The page opens on BIT FAILURES, page 1. Tests are a shared client store, not
  * states, so a running test survives a level change.
  */
-export function bitScreens(): DdiScreens {
+export function bitScreens(bit: Bit): DdiScreens {
   const pageCount = Math.max(
     1,
-    Math.ceil(failingItems().length / BIT.rowsPerPage),
+    Math.ceil(failingItems(bit.checks).length / BIT.rowsPerPage),
   );
   const screens: Record<string, DdiScreen> = {};
   for (let page = 1; page <= pageCount; page++) {
-    screens[mainState(page)] = mainScreen(page, pageCount);
+    screens[mainState(page)] = mainScreen(bit, page, pageCount);
   }
   for (const sublevel of SUBLEVELS) {
-    screens[sublevel.id] = sublevelScreen(sublevel);
+    screens[sublevel.id] = sublevelScreen(bit, sublevel);
   }
-  screens[CONFIG_STATE] = configScreen();
+  screens[CONFIG_STATE] = configScreen(bit);
   return { initial: MAIN_STATE, screens };
 }

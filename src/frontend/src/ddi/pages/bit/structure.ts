@@ -1,4 +1,4 @@
-import type { BitItemKey, BitLegendKey } from "@/content/bit";
+import type { BitItemKey, BitLegendKey } from "@/content/types";
 import type { Pb } from "../../geometry";
 
 /**

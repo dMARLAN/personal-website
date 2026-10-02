@@ -1,12 +1,14 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { CHECKLIST } from "@/content/checklist";
 import { measure } from "../geometry";
 import {
   CHECKLIST_ITEM_SPAN,
   CHECKLIST_LAYOUT,
   ChecklistFormat,
 } from "./checklist";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
+
+const CHECKLIST = SNAPSHOT_CONTENT.checklist;
 
 const FONT = "F150";
 /** One inter-character gap, so a column never touches the next. */

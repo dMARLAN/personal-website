@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CONTACT } from "@/content/contact";
-import { LINKS } from "@/content/links";
-import { PROFILE } from "@/content/profile";
-import { PROJECT_CATEGORIES } from "@/content/projects";
-import { RESUME } from "@/content/resume";
 import type { Employer } from "@/content/types";
-import { EMPLOYERS } from "@/content/work";
 import {
   categoryName,
   currentPosition,
@@ -18,6 +12,15 @@ import {
   spanStartYear,
   yearsOfExperience,
 } from "./model";
+import { RESUME_PDF_URL } from "@/content/resume";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
+
+const CONTACT = SNAPSHOT_CONTENT.contact;
+const LINKS = SNAPSHOT_CONTENT.links;
+const PROFILE = SNAPSHOT_CONTENT.profile;
+const PROJECT_CATEGORIES = SNAPSHOT_CONTENT.projects.categories;
+const RESUME = SNAPSHOT_CONTENT.resume;
+const EMPLOYERS = SNAPSHOT_CONTENT.employers;
 
 function employer(span: string, roleTitles: string[]): Employer {
   return {
@@ -81,7 +84,7 @@ describe("the homepage model", () => {
     expect(
       externalLinks([
         { name: "Code", tag: "CODE", url: "https://example.com/code" },
-        { name: "Resume", tag: "PDF", url: "/resume.pdf" },
+        { name: "Resume", tag: "PDF", url: "/api/resume.pdf" },
       ]).map((link) => link.name),
     ).toEqual(["Code"]);
   });
@@ -111,7 +114,7 @@ describe("the homepage model", () => {
       email: `mailto:${CONTACT.email}`,
     });
     expect(person.knowsAbout).toEqual(RESUME.left.rows.map((row) => row.name));
-    expect(person.sameAs).not.toContain(RESUME.pdfPath);
+    expect(person.sameAs).not.toContain(RESUME_PDF_URL);
   });
 
   it("escapes < so inline JSON cannot close its script", () => {

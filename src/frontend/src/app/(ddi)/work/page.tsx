@@ -1,4 +1,4 @@
-import { EMPLOYERS } from "@/content/work";
+import { getEmployers } from "@/content/work";
 import { DdiPage } from "@/ddi/pages/DdiPage";
 import { pageMetadata } from "@/ddi/pages/metadata";
 import { PAGES } from "@/ddi/pages/registry";
@@ -11,14 +11,15 @@ const DESCRIPTION = `The work history of ${SITE_NAME}: employers, roles and high
 
 export const metadata = pageMetadata("work", DESCRIPTION);
 
-export default function WorkPage(): React.JSX.Element {
+export default async function WorkPage(): Promise<React.JSX.Element> {
+  const employers = await getEmployers();
   return (
     <DdiPage
-      screens={workScreens(EMPLOYERS)}
+      screens={workScreens(employers)}
       semantic={
         <SemanticPage heading={PAGES.work.label}>
           <p>{DESCRIPTION}</p>
-          <WorkSemantic employers={EMPLOYERS} />
+          <WorkSemantic employers={employers} />
         </SemanticPage>
       }
     />

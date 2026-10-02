@@ -1,4 +1,5 @@
 import type { Profile } from "@/content/types";
+import { SITE_NAME } from "@/lib/site";
 import { wrapText } from "../font/wrap";
 import {
   FREE_TEXT_CHARS,
@@ -11,7 +12,7 @@ import { MENU_LEGEND } from "./menuLegend";
 /** The profile in TGT DATA OWNSHIP's slots (docs/pages/about.md). */
 export function aboutFormatProps(profile: Profile): TgtDataOwnshipProps {
   return {
-    topLeft: profile.header,
+    topLeft: SITE_NAME,
     topRight: profile.badge,
     status: profile.status,
     stores: profile.loadout,

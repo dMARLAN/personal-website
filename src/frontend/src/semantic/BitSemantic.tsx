@@ -1,4 +1,4 @@
-import { BIT_CHECKS, SW_CONFIG, type BitItemKey } from "@/content/bit";
+import type { Bit, BitItemKey } from "@/content/types";
 import { BitSession } from "@/ddi/pages/bit/islands";
 import { failingItems, liveCheck } from "@/ddi/pages/bit/screens";
 import { groupStatus, INITIAL_TEST_STATE } from "@/ddi/pages/bit/status";
@@ -7,9 +7,11 @@ import { PAGES } from "@/ddi/pages/registry";
 import { SemanticPage } from "./SemanticPage";
 
 function CheckTable({
+  checks,
   items,
   caption,
 }: {
+  checks: Bit["checks"];
   items: readonly BitItemKey[];
   caption: string;
 }): React.JSX.Element {
@@ -26,9 +28,9 @@ function CheckTable({
       <tbody>
         {items.map((item) => (
           <tr key={item}>
-            <th scope="row">{BIT_CHECKS[item].name}</th>
-            <td>{BIT_CHECKS[item].status}</td>
-            <td>{BIT_CHECKS[item].afterTest}</td>
+            <th scope="row">{checks[item].name}</th>
+            <td>{checks[item].status}</td>
+            <td>{checks[item].afterTest}</td>
           </tr>
         ))}
       </tbody>
@@ -40,7 +42,11 @@ function CheckTable({
  * `/bit` as real HTML (design section 10.2). The BIT levels are in-section state, so this lists every level's
  * content: the failures, each group with its checks, and the software configuration.
  */
-export function BitSemantic(): React.JSX.Element {
+export function BitSemantic({
+  bit: { checks, swConfig },
+}: {
+  bit: Bit;
+}): React.JSX.Element {
   return (
     <SemanticPage heading={PAGES.bit.label}>
       <BitSession />
@@ -52,7 +58,8 @@ export function BitSemantic(): React.JSX.Element {
       <section>
         <h2>BIT failures</h2>
         <CheckTable
-          items={failingItems()}
+          checks={checks}
+          items={failingItems(checks)}
           caption="Checks that are not passing"
         />
       </section>
@@ -62,21 +69,25 @@ export function BitSemantic(): React.JSX.Element {
           ...(sublevel.extraRows ?? []).map(({ item }) => item),
         ];
         const summary = groupStatus(
-          sublevel.rows.map(liveCheck),
+          sublevel.rows.map((item) => liveCheck(checks, item)),
           INITIAL_TEST_STATE,
         );
         return (
           <section key={sublevel.id}>
             <h2>{sublevel.title}</h2>
             <p>Group status: {summary}</p>
-            <CheckTable items={items} caption={`${sublevel.title} checks`} />
+            <CheckTable
+              checks={checks}
+              items={items}
+              caption={`${sublevel.title} checks`}
+            />
           </section>
         );
       })}
       <section>
         <h2>Software configuration</h2>
         <dl>
-          {[...SW_CONFIG.left, ...SW_CONFIG.right].flatMap((entry) =>
+          {[...swConfig.left, ...swConfig.right].flatMap((entry) =>
             entry === null
               ? []
               : [

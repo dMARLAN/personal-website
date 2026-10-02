@@ -20,7 +20,7 @@ test("/ is the standard homepage, with the name, sections and no DDI", async ({
   await expect(page.locator(".ddi-frame")).toHaveCount(0);
   await expect(
     page.getByRole("link", { name: "Download résumé" }),
-  ).toHaveAttribute("href", "/resume.pdf");
+  ).toHaveAttribute("href", "/api/resume.pdf");
 });
 
 test("serves full metadata and a Person schema without JavaScript", async ({

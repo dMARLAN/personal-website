@@ -1,6 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { CONTACT } from "../src/content/contact";
+import { SNAPSHOT_CONTENT } from "../src/content/snapshot";
+
+const CONTACT = SNAPSHOT_CONTENT.contact;
 
 test("TAC PB8 opens Contact on press", async ({ page }) => {
   await page.goto("/ddi");

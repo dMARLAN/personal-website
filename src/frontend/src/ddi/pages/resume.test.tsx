@@ -1,8 +1,5 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { RESUME } from "@/content/resume";
 import {
   SW_CONFIG,
   SW_CONFIG_RIGHT_LIMIT,
@@ -11,8 +8,10 @@ import {
 } from "../formats/swConfig";
 import { measure } from "../geometry";
 import { resumeLegends, resumeScreens } from "./resume";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
 
-const PUBLIC_DIR = path.resolve(import.meta.dirname, "../../../public");
+const RESUME = SNAPSHOT_CONTENT.resume;
+
 const width = (text: string): number => measure(text, SW_CONFIG.font).width;
 
 describe("the S/W CONFIGURATION format", () => {
@@ -76,9 +75,9 @@ describe("the resume content", () => {
 describe("the resume page", () => {
   it("downloads the PDF from PB20 and returns to the menu from PB18", () => {
     expect(
-      resumeLegends(RESUME).map(({ pb, lines, action }) => [pb, lines, action]),
+      resumeLegends().map(({ pb, lines, action }) => [pb, lines, action]),
     ).toEqual([
-      [20, ["PDF"], { kind: "download", href: "/resume.pdf" }],
+      [20, ["PDF"], { kind: "download", href: "/api/resume.pdf" }],
       [18, ["MENU"], { kind: "link", href: "/ddi" }],
     ]);
   });
@@ -86,11 +85,5 @@ describe("the resume page", () => {
   it("has one screen and no in-section state", () => {
     const screens = resumeScreens(RESUME);
     expect(Object.keys(screens.screens)).toEqual([screens.initial]);
-  });
-
-  it("ships a real PDF at the download path", () => {
-    const pdf = readFileSync(path.join(PUBLIC_DIR, RESUME.pdfPath));
-    expect(pdf.subarray(0, 5).toString()).toBe("%PDF-");
-    expect(pdf.toString()).toContain("PLACEHOLDER RESUME");
   });
 });

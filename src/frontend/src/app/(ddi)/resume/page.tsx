@@ -1,4 +1,4 @@
-import { RESUME } from "@/content/resume";
+import { getResume } from "@/content/resume";
 import { DdiPage } from "@/ddi/pages/DdiPage";
 import { pageMetadata } from "@/ddi/pages/metadata";
 import { PAGES } from "@/ddi/pages/registry";
@@ -11,14 +11,15 @@ const DESCRIPTION = `Skills and qualifications of ${SITE_NAME}, with the resume 
 
 export const metadata = pageMetadata("resume", DESCRIPTION);
 
-export default function ResumePage(): React.JSX.Element {
+export default async function ResumePage(): Promise<React.JSX.Element> {
+  const resume = await getResume();
   return (
     <DdiPage
-      screens={resumeScreens(RESUME)}
+      screens={resumeScreens(resume)}
       semantic={
         <SemanticPage heading={PAGES.resume.label}>
           <p>{DESCRIPTION}</p>
-          <ResumeSemantic resume={RESUME} />
+          <ResumeSemantic resume={resume} />
         </SemanticPage>
       }
     />

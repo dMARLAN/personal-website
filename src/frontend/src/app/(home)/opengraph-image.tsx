@@ -1,15 +1,15 @@
 import { ImageResponse } from "next/og";
-import { EMPLOYERS } from "@/content/work";
+import { getEmployers } from "@/content/work";
 import { currentPosition } from "@/home/model";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
-export const alt = `${SITE_NAME}, ${currentPosition(EMPLOYERS).title}`;
+export const alt = `The personal website of ${SITE_NAME}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-/** The homepage's share card, built at build time from the same content as the page. */
-export default function OpenGraphImage(): ImageResponse {
-  const position = currentPosition(EMPLOYERS);
+/** The homepage's share card, from the same content as the page, cached and revalidated with it. */
+export default async function OpenGraphImage(): Promise<ImageResponse> {
+  const position = currentPosition(await getEmployers());
   return new ImageResponse(
     <div
       style={{

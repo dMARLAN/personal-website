@@ -7,7 +7,7 @@ from typing import Final
 
 # `main` builds its module-level app at import, which reads these. Each test still gets its own data dir below.
 os.environ.setdefault("STORAGE_DATA_DIR", tempfile.mkdtemp(prefix="pw-api-tests-"))
-os.environ.setdefault("REVALIDATE_URL", "http://frontend.test/api/revalidate")
+os.environ.setdefault("REVALIDATE_URL", "http://frontend.test/revalidate")
 os.environ.setdefault("REVALIDATE_SECRET", "test-revalidate-secret")
 
 import httpx2  # noqa: E402
@@ -28,7 +28,7 @@ from main import create_app  # noqa: E402
 from tests.support import AdminClient, RevalidationEndpoint  # noqa: E402
 
 _ADMIN_PASSWORD: Final[str] = "correct horse battery staple"
-_REVALIDATE_URL: Final[str] = "http://frontend.test/api/revalidate"
+_REVALIDATE_URL: Final[str] = "http://frontend.test/revalidate"
 _REVALIDATE_SECRET: Final[str] = "test-revalidate-secret"
 # Cheap argon2 parameters keep the suite fast; production hashes come from `cli.py hash-password`.
 _TEST_HASHER: Final[PasswordHasher] = PasswordHasher(time_cost=1, memory_cost=8, parallelism=1)

@@ -1,7 +1,6 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { CONTACT } from "@/content/contact";
 import { placedTextBounds } from "../formats/placedText";
 import { MIDS_STATUS_Y, midsStatusTexts } from "../formats/mids";
 import { contactRows, contactScreens } from "./contact";
@@ -11,6 +10,9 @@ import {
   CopyOsb,
   MailOsb,
 } from "./contactIslands";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
+
+const CONTACT = SNAPSHOT_CONTENT.contact;
 
 /** The inner edge of the side legends' text: x = ±500 less one 14 DI glyph, as the research measures it [pgB §1]. */
 const SIDE_LEGEND_INNER = 470;

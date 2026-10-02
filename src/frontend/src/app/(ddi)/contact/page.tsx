@@ -1,4 +1,4 @@
-import { CONTACT } from "@/content/contact";
+import { getContact } from "@/content/contact";
 import { contactScreens } from "@/ddi/pages/contact";
 import { DdiPage } from "@/ddi/pages/DdiPage";
 import { pageMetadata } from "@/ddi/pages/metadata";
@@ -9,13 +9,14 @@ import { SemanticPage } from "@/semantic/SemanticPage";
 
 export const metadata = pageMetadata("contact", `How to reach ${SITE_NAME}.`);
 
-export default function ContactPage(): React.JSX.Element {
+export default async function ContactPage(): Promise<React.JSX.Element> {
+  const contact = await getContact();
   return (
     <DdiPage
-      screens={contactScreens(CONTACT)}
+      screens={contactScreens(contact)}
       semantic={
         <SemanticPage heading={PAGES.contact.label}>
-          <ContactSemantic contact={CONTACT} />
+          <ContactSemantic contact={contact} />
         </SemanticPage>
       }
     />

@@ -1,4 +1,4 @@
-import { RADAR_SCENE } from "@/content/radar";
+import { getRadarScene } from "@/content/radar";
 import { DdiPage } from "@/ddi/pages/DdiPage";
 import { pageMetadata } from "@/ddi/pages/metadata";
 import { PAGES } from "@/ddi/pages/registry";
@@ -11,13 +11,14 @@ export const metadata = pageMetadata(
   "A simulated F/A-18C attack radar (RDR ATTK) in range-while-search and track-while-scan modes, with moving fake contacts.",
 );
 
-export default function RadarPage(): React.JSX.Element {
+export default async function RadarPage(): Promise<React.JSX.Element> {
+  const scene = await getRadarScene();
   return (
     <DdiPage
-      screens={radarScreens(RADAR_SCENE)}
+      screens={radarScreens(scene)}
       semantic={
         <SemanticPage heading={PAGES.radar.label}>
-          <RadarSemantic scene={RADAR_SCENE} />
+          <RadarSemantic scene={scene} />
         </SemanticPage>
       }
     />

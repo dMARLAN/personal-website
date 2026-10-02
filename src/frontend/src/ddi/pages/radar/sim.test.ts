@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { RADAR_SCENE } from "@/content/radar";
 import type { RadarContact } from "@/content/types";
 import { OPENING_SCAN, type ScanSettings } from "./settings";
 import {
@@ -26,6 +25,9 @@ import {
   type ScanContext,
   type ScanState,
 } from "./sim";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
+
+const RADAR_SCENE = SNAPSHOT_CONTENT.radar;
 
 const OWN_ALTITUDE = 20480;
 

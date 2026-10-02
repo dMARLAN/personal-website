@@ -21,10 +21,1379 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/content": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Site Content */
+    get: operations["getSiteContent"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/resume.pdf": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Download Resume */
+    get: operations["downloadResume"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/login": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Login */
+    post: operations["adminLogin"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/session": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Session */
+    get: operations["adminSession"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/logout": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Logout */
+    post: operations["adminLogout"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/content/profile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Profile */
+    get: operations["adminGetProfile"];
+    /** Put Profile */
+    put: operations["adminPutProfile"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/content/resume": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Resume */
+    get: operations["adminGetResume"];
+    /** Put Resume */
+    put: operations["adminPutResume"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/content/work": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Work */
+    get: operations["adminGetWork"];
+    /** Put Work */
+    put: operations["adminPutWork"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/content/projects": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Projects */
+    get: operations["adminGetProjects"];
+    /** Put Projects */
+    put: operations["adminPutProjects"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/content/contact": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Contact */
+    get: operations["adminGetContact"];
+    /** Put Contact */
+    put: operations["adminPutContact"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/content/links": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Links */
+    get: operations["adminGetLinks"];
+    /** Put Links */
+    put: operations["adminPutLinks"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/content/server": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Server */
+    get: operations["adminGetServer"];
+    /** Put Server */
+    put: operations["adminPutServer"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/content/fuel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Fuel */
+    get: operations["adminGetFuel"];
+    /** Put Fuel */
+    put: operations["adminPutFuel"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/content/fcs": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Fcs */
+    get: operations["adminGetFcs"];
+    /** Put Fcs */
+    put: operations["adminPutFcs"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/content/checklist": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Checklist */
+    get: operations["adminGetChecklist"];
+    /** Put Checklist */
+    put: operations["adminPutChecklist"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/content/bit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Bit */
+    get: operations["adminGetBit"];
+    /** Put Bit */
+    put: operations["adminPutBit"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/content/radar": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Radar */
+    get: operations["adminGetRadar"];
+    /** Put Radar */
+    put: operations["adminPutRadar"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/admin/resume": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Upload Resume */
+    put: operations["adminUploadResume"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: never;
+  schemas: {
+    /**
+     * AdminSessionInfo
+     * @description Send `csrfToken` as the `X-CSRF-Token` header on every mutating admin request.
+     */
+    AdminSessionInfo: {
+      /** Csrftoken */
+      csrfToken: string;
+      /**
+       * Expiresat
+       * Format: date-time
+       */
+      expiresAt: string;
+    };
+    /**
+     * Bit
+     * @description /bit → BIT FAILURES and its sublevels (docs/pages/bit.md); themed mock checks.
+     */
+    Bit: {
+      /** Checks */
+      checks: {
+        [key: string]: components["schemas"]["BitCheck"];
+      };
+      /** Legendnames */
+      legendNames: {
+        [key: string]: string;
+      };
+      swConfig: components["schemas"]["SwConfig"];
+    };
+    /** BitCheck */
+    BitCheck: {
+      /** Name */
+      name: string;
+      status: components["schemas"]["BitCheckStatus"];
+      afterTest: components["schemas"]["BitCheckStatus"];
+    };
+    /**
+     * BitCheckStatus
+     * @description `BIT_StatMsgs` [pgB §3] without `IN TEST`, which only a running test shows, plus `NO TEST`.
+     * @enum {string}
+     */
+    BitCheckStatus:
+      | "RESTRT"
+      | "SF TEST"
+      | "OFF"
+      | "NOT RDY"
+      | "NO TEST"
+      | "MUX FAIL"
+      | "DEGD+OVRHT"
+      | "OVRHT"
+      | "DEGD"
+      | "OP GO"
+      | "GO"
+      | "PBIT GO";
+    /**
+     * BitItemKey
+     * @description The DCS equipment items the BIT sublevels list (`EquipItems` in `BIT_defs.lua`), plus the two fuel-low rows.
+     * @enum {string}
+     */
+    BitItemKey:
+      | "MC1"
+      | "MC2"
+      | "FCSA"
+      | "FCSB"
+      | "RDR"
+      | "FLIR"
+      | "LTDR"
+      | "SMS"
+      | "AWW4"
+      | "CLC"
+      | "WPNS"
+      | "CSC"
+      | "ICS"
+      | "IFF"
+      | "D_L"
+      | "COM1"
+      | "COM2"
+      | "MIDS"
+      | "INS"
+      | "ADC"
+      | "ILS"
+      | "RALT"
+      | "TCN"
+      | "AUG"
+      | "BCN"
+      | "GPS"
+      | "LDDI"
+      | "RDDI"
+      | "MPCD"
+      | "HUD"
+      | "IFEI"
+      | "DMS"
+      | "HMD"
+      | "SDC"
+      | "MU"
+      | "AISI"
+      | "RWR"
+      | "IBS"
+      | "ALE_47"
+      | "ASPJ"
+      | "TK2FL"
+      | "TK3FL";
+    /**
+     * BitLegendKey
+     * @description Item legends that have no list row of their own.
+     * @enum {string}
+     */
+    BitLegendKey: "FCS" | "UFC" | "DDI" | "DFIRS" | "FQTY" | "FXFR";
+    /** Body_adminUploadResume */
+    Body_adminUploadResume: {
+      /** File */
+      file: string;
+    };
+    /**
+     * Checklist
+     * @description /chklst → CHKLST (docs/pages/chklst.md).
+     */
+    Checklist: {
+      left: components["schemas"]["LeftChecklistColumn"];
+      right: components["schemas"]["RightChecklistColumn"];
+      weight: components["schemas"]["ChecklistWeight"];
+      /** Maxnz */
+      maxNz: string;
+      stab: components["schemas"]["ChecklistStab"];
+    };
+    /** ChecklistStab */
+    ChecklistStab: {
+      /** Label */
+      label: string;
+      /** Left */
+      left: string;
+      /** Right */
+      right: string;
+    };
+    /** ChecklistWeight */
+    ChecklistWeight: {
+      /** Label */
+      label: string;
+      /** Value */
+      value: string;
+    };
+    /**
+     * Contact
+     * @description Contact → MIDS (docs/pages/contact.md). The email fills the first row; `rows` fill the other three.
+     */
+    Contact: {
+      /** Email */
+      email: string;
+      /** Rows */
+      rows: [
+        components["schemas"]["ContactRow"],
+        components["schemas"]["ContactRow"],
+        components["schemas"]["ContactRow"],
+      ];
+    };
+    /** ContactRow */
+    ContactRow: {
+      /** Label */
+      label: string;
+      /** Value */
+      value: string;
+    };
+    /**
+     * DrainMotion
+     * @description Drains from full to `low` over the period, then refills at once.
+     */
+    DrainMotion: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      kind: "drain";
+      low: components["schemas"]["Fraction"];
+      periodSeconds: components["schemas"]["Period"];
+    };
+    /** Employer */
+    Employer: {
+      id: components["schemas"]["Slug"];
+      /** Tab */
+      tab: string;
+      /** Name */
+      name: string;
+      /** Location */
+      location: string;
+      /** Span */
+      span: string;
+      /** Roles */
+      roles: components["schemas"]["Role"][];
+    };
+    /** FcsAoa */
+    FcsAoa: {
+      /** Left */
+      left: string;
+      /** Right */
+      right: string;
+    };
+    /**
+     * FcsArrow
+     * @enum {string}
+     */
+    FcsArrow: "up" | "down" | "left" | "right";
+    /**
+     * FcsFailure
+     * @description One X in a channel table: that channel has failed.
+     */
+    FcsFailure: {
+      table: components["schemas"]["FcsTable"];
+      /** Row */
+      row: number;
+      /** Channel */
+      channel: number;
+    };
+    /** FcsStatusRow */
+    FcsStatusRow: {
+      /** Label */
+      label: string;
+      /** Meaning */
+      meaning: string;
+    };
+    /** FcsSurface */
+    FcsSurface: {
+      /** Label */
+      label: string;
+      left: components["schemas"]["FcsSurfaceSide"];
+      right: components["schemas"]["FcsSurfaceSide"];
+    };
+    /** FcsSurfaceSide */
+    FcsSurfaceSide: {
+      /** Value */
+      value: string;
+      arrow: components["schemas"]["FcsArrow"] | null;
+    };
+    /**
+     * FcsTable
+     * @enum {string}
+     */
+    FcsTable: "left" | "right" | "bottom";
+    /**
+     * FlightControls
+     * @description /fcs → FCS (docs/pages/fcs.md); fake data.
+     */
+    FlightControls: {
+      /** Surfaces */
+      surfaces: [
+        components["schemas"]["FcsSurface"],
+        components["schemas"]["FcsSurface"],
+        components["schemas"]["FcsSurface"],
+        components["schemas"]["FcsSurface"],
+        components["schemas"]["FcsSurface"],
+      ];
+      /** Statusrows */
+      statusRows: components["schemas"]["FcsStatusRow"][];
+      /** Channels */
+      channels: [string, string, string, string];
+      /** Failures */
+      failures: components["schemas"]["FcsFailure"][];
+      /** Glimit */
+      gLimit: string;
+      aoa: components["schemas"]["FcsAoa"];
+      /** Blincode */
+      blinCode: string;
+    };
+    Fraction: number;
+    FuelMotion:
+      | components["schemas"]["WaveMotion"]
+      | components["schemas"]["DrainMotion"];
+    /**
+     * FuelReserves
+     * @description /fuel → FUEL (docs/pages/fuel.md); fake "energy" reserves.
+     */
+    FuelReserves: {
+      /** Tanks */
+      tanks: components["schemas"]["FuelTank"][];
+      bingo: components["schemas"]["Pounds"];
+    };
+    /** FuelTank */
+    FuelTank: {
+      id: components["schemas"]["FuelTankId"];
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /** Capacity */
+      capacity: number;
+      motion: components["schemas"]["FuelMotion"];
+    };
+    /**
+     * FuelTankId
+     * @enum {string}
+     */
+    FuelTankId:
+      | "tk1"
+      | "leftFeed"
+      | "rightFeed"
+      | "tk4"
+      | "leftWing"
+      | "rightWing"
+      | "leftExternal"
+      | "centreline"
+      | "rightExternal";
+    /** HTTPValidationError */
+    HTTPValidationError: {
+      /** Detail */
+      detail?: components["schemas"]["ValidationError"][];
+    };
+    HostReadings: {
+      [key: string]: number;
+    };
+    /**
+     * LeftChecklistColumn
+     * @description ≤ 6 items of ≤ 13 characters, so they clear the right column.
+     */
+    LeftChecklistColumn: {
+      /** Title */
+      title: string;
+      /** Meaning */
+      meaning: string;
+      /** Items */
+      items: string[];
+    };
+    /**
+     * LeftField
+     * @description PROG block, left column: label and value each ≤ 7 (F100, 130 DI columns).
+     */
+    LeftField: {
+      /** Label */
+      label: string;
+      /** Value */
+      value: string;
+    };
+    /** LinkEntry */
+    LinkEntry: {
+      /** Name */
+      name: string;
+      /** Tag */
+      tag: string;
+      /** Url */
+      url: string;
+    };
+    /**
+     * LinkKind
+     * @description The DATA sublevel legend: `REPO` at PB16, `DEMO` at PB19.
+     * @enum {string}
+     */
+    LinkKind: "REPO" | "DEMO";
+    /**
+     * Links
+     * @description Links → UFC BU (docs/pages/links.md): one row per keypad digit.
+     */
+    Links: {
+      /** Links */
+      links: components["schemas"]["LinkEntry"][];
+    };
+    LoadoutRow: string;
+    /** LoginRequest */
+    LoginRequest: {
+      /** Password */
+      password: string;
+    };
+    /** MissileStore */
+    MissileStore: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      kind: "missile";
+    };
+    /** Ownship */
+    Ownship: {
+      /** Heading */
+      heading: number;
+      /** Airspeed */
+      airspeed: number;
+      /** Mach */
+      mach: string;
+      /** Altitude */
+      altitude: number;
+    };
+    /** PairStore */
+    PairStore: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      kind: "pair";
+    };
+    Period: number;
+    Pounds: number;
+    /**
+     * Profile
+     * @description About → TGT DATA OWNSHIP (docs/pages/about.md).
+     *
+     *     The `header` slot is the site name: the frontend fills it from `SITE_NAME`, so it is not stored here.
+     */
+    Profile: {
+      /** Badge */
+      badge: string;
+      /** Status */
+      status: [
+        components["schemas"]["StatusRow"],
+        components["schemas"]["StatusRow"],
+        components["schemas"]["StatusRow"],
+        components["schemas"]["StatusRow"],
+        components["schemas"]["StatusRow"],
+      ];
+      /** Loadout */
+      loadout: [
+        components["schemas"]["LoadoutRow"],
+        components["schemas"]["LoadoutRow"],
+        components["schemas"]["LoadoutRow"],
+        components["schemas"]["LoadoutRow"],
+        components["schemas"]["LoadoutRow"],
+      ];
+      /** Footer */
+      footer: string;
+      /** Tags */
+      tags: [
+        components["schemas"]["TagRow"],
+        components["schemas"]["TagRow"],
+        components["schemas"]["TagRow"],
+      ];
+      /** Bio */
+      bio: string;
+    };
+    /** Project */
+    Project: {
+      slug: components["schemas"]["Slug"];
+      /** Station */
+      station: number;
+      /** Name */
+      name: string;
+      /** Code */
+      code: string;
+      store: components["schemas"]["ProjectStore"];
+      status: components["schemas"]["ProjectStatus"];
+      /** Category */
+      category: string;
+      fields: components["schemas"]["ProjectFields"];
+      /** Description */
+      description: string;
+      /** Links */
+      links: components["schemas"]["ProjectLink"][];
+    };
+    /** ProjectCategory */
+    ProjectCategory: {
+      /** Legend */
+      legend: string;
+      /** Name */
+      name: string;
+    };
+    /** ProjectFields */
+    ProjectFields: {
+      /** Left */
+      left: components["schemas"]["LeftField"][];
+      /** Right */
+      right: components["schemas"]["RightField"][];
+    };
+    /** ProjectLink */
+    ProjectLink: {
+      kind: components["schemas"]["LinkKind"];
+      /** Url */
+      url: string;
+    };
+    /**
+     * ProjectStatus
+     * @description Words from the DCS `Status_Set` (STORES.lua line 9).
+     * @enum {string}
+     */
+    ProjectStatus: "RDY" | "STBY" | "DEGD" | "HUNG";
+    ProjectStore:
+      | components["schemas"]["MissileStore"]
+      | components["schemas"]["PairStore"]
+      | components["schemas"]["RackStore"]
+      | components["schemas"]["TankStore"];
+    /**
+     * Projects
+     * @description Projects → STORES (docs/pages/projects.md): one category per top-row OSB (PB6–10), one project per station.
+     */
+    Projects: {
+      /** Categories */
+      categories: components["schemas"]["ProjectCategory"][];
+      /** Projects */
+      projects: components["schemas"]["Project"][];
+    };
+    /** QualificationColumn */
+    QualificationColumn: {
+      /** Heading */
+      heading: string;
+      /** Rows */
+      rows: components["schemas"]["QualificationRow"][];
+    };
+    /**
+     * QualificationRow
+     * @description Right column: the value must end before the side legends (x = 470), so ≤ 12.
+     */
+    QualificationRow: {
+      /** Name */
+      name: string;
+      /** Value */
+      value: string;
+    };
+    /** RackStore */
+    RackStore: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      kind: "rack";
+      /** Amount */
+      amount: number;
+    };
+    /**
+     * RadarContact
+     * @description A contact at t = 0, moving in a straight line relative to our aircraft.
+     */
+    RadarContact: {
+      /** Range */
+      range: number;
+      /** Azimuth */
+      azimuth: number;
+      /** Speed */
+      speed: number;
+      /** Track */
+      track: number;
+      /** Altitude */
+      altitude: number;
+    };
+    /**
+     * RadarScene
+     * @description /radar → RDR ATTK in RWS (docs/pages/radar.md); fake data.
+     */
+    RadarScene: {
+      ownship: components["schemas"]["Ownship"];
+      /** Weapon */
+      weapon: string;
+      /** Contacts */
+      contacts: components["schemas"]["RadarContact"][];
+    };
+    /**
+     * Resume
+     * @description Resume → S/W CONFIGURATION (docs/pages/resume.md). The PDF is uploaded separately (`PUT /api/admin/resume`).
+     */
+    Resume: {
+      /** Title */
+      title: [
+        components["schemas"]["TitleLine"],
+        components["schemas"]["TitleLine"],
+      ];
+      left: components["schemas"]["SkillColumn"];
+      right: components["schemas"]["QualificationColumn"];
+    };
+    /**
+     * RevalidationStatus
+     * @description Whether Next.js accepted the revalidation call after a write. The write itself is saved either way.
+     * @enum {string}
+     */
+    RevalidationStatus: "done" | "failed";
+    /**
+     * RightChecklistColumn
+     * @description ≤ 9 items of ≤ 16 characters, so they stay inside the glass.
+     */
+    RightChecklistColumn: {
+      /** Title */
+      title: string;
+      /** Meaning */
+      meaning: string;
+      /** Items */
+      items: string[];
+    };
+    /** RightField */
+    RightField: {
+      /** Label */
+      label: string;
+      /** Value */
+      value: string;
+    };
+    /** Role */
+    Role: {
+      /** Title */
+      title: string;
+      /** Span */
+      span: string;
+      /** Bullets */
+      bullets: string[];
+    };
+    /** SavedResume */
+    SavedResume: {
+      /** Etag */
+      etag: string;
+      /** Size */
+      size: number;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
+    /** SavedSection[Bit] */
+    SavedSection_Bit_: {
+      document: components["schemas"]["Bit"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
+    /** SavedSection[Checklist] */
+    SavedSection_Checklist_: {
+      document: components["schemas"]["Checklist"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
+    /** SavedSection[Contact] */
+    SavedSection_Contact_: {
+      document: components["schemas"]["Contact"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
+    /** SavedSection[FlightControls] */
+    SavedSection_FlightControls_: {
+      document: components["schemas"]["FlightControls"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
+    /** SavedSection[FuelReserves] */
+    SavedSection_FuelReserves_: {
+      document: components["schemas"]["FuelReserves"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
+    /** SavedSection[Links] */
+    SavedSection_Links_: {
+      document: components["schemas"]["Links"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
+    /** SavedSection[Profile] */
+    SavedSection_Profile_: {
+      document: components["schemas"]["Profile"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
+    /** SavedSection[Projects] */
+    SavedSection_Projects_: {
+      document: components["schemas"]["Projects"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
+    /** SavedSection[RadarScene] */
+    SavedSection_RadarScene_: {
+      document: components["schemas"]["RadarScene"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
+    /** SavedSection[Resume] */
+    SavedSection_Resume_: {
+      document: components["schemas"]["Resume"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
+    /** SavedSection[ServerStats] */
+    SavedSection_ServerStats_: {
+      document: components["schemas"]["ServerStats"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
+    /** SavedSection[Work] */
+    SavedSection_Work_: {
+      document: components["schemas"]["Work"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
+    /** SectionState[Bit] */
+    SectionState_Bit_: {
+      document: components["schemas"]["Bit"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionState[Checklist] */
+    SectionState_Checklist_: {
+      document: components["schemas"]["Checklist"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionState[Contact] */
+    SectionState_Contact_: {
+      document: components["schemas"]["Contact"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionState[FlightControls] */
+    SectionState_FlightControls_: {
+      document: components["schemas"]["FlightControls"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionState[FuelReserves] */
+    SectionState_FuelReserves_: {
+      document: components["schemas"]["FuelReserves"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionState[Links] */
+    SectionState_Links_: {
+      document: components["schemas"]["Links"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionState[Profile] */
+    SectionState_Profile_: {
+      document: components["schemas"]["Profile"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionState[Projects] */
+    SectionState_Projects_: {
+      document: components["schemas"]["Projects"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionState[RadarScene] */
+    SectionState_RadarScene_: {
+      document: components["schemas"]["RadarScene"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionState[Resume] */
+    SectionState_Resume_: {
+      document: components["schemas"]["Resume"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionState[ServerStats] */
+    SectionState_ServerStats_: {
+      document: components["schemas"]["ServerStats"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionState[Work] */
+    SectionState_Work_: {
+      document: components["schemas"]["Work"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** ServerHost */
+    ServerHost: {
+      /** Header */
+      header: string;
+      /** Name */
+      name: string;
+    };
+    /**
+     * ServerMetric
+     * @description `SERVER_METRICS` in the frontend: the 13 ENG rows, top row first.
+     * @enum {string}
+     */
+    ServerMetric:
+      | "inletTemp"
+      | "cpu"
+      | "ram"
+      | "cpuTemp"
+      | "power"
+      | "fan"
+      | "memPressure"
+      | "throughput"
+      | "jitter"
+      | "diskTemp"
+      | "loadAvg"
+      | "disk"
+      | "uptime";
+    /** ServerRow */
+    ServerRow: {
+      metric: components["schemas"]["ServerMetric"];
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /** Unit */
+      unit: string;
+      /** Decimals */
+      decimals: number;
+      /** Suffix */
+      suffix: string;
+    };
+    /**
+     * ServerSnapshot
+     * @description Both hosts' readings at one moment, left host first.
+     */
+    ServerSnapshot: {
+      /** Hosts */
+      hosts: [
+        components["schemas"]["HostReadings"],
+        components["schemas"]["HostReadings"],
+      ];
+    };
+    /**
+     * ServerStats
+     * @description /server → ENG (docs/pages/eng.md); fake data.
+     */
+    ServerStats: {
+      /** Hosts */
+      hosts: [
+        components["schemas"]["ServerHost"],
+        components["schemas"]["ServerHost"],
+      ];
+      /** Rows */
+      rows: components["schemas"]["ServerRow"][];
+      baseline: components["schemas"]["ServerSnapshot"];
+    };
+    /**
+     * SiteContent
+     * @description Every section, as `GET /api/content` returns it.
+     */
+    SiteContent: {
+      profile: components["schemas"]["Profile"];
+      resume: components["schemas"]["Resume"];
+      work: components["schemas"]["Work"];
+      projects: components["schemas"]["Projects"];
+      contact: components["schemas"]["Contact"];
+      links: components["schemas"]["Links"];
+      server: components["schemas"]["ServerStats"];
+      fuel: components["schemas"]["FuelReserves"];
+      fcs: components["schemas"]["FlightControls"];
+      checklist: components["schemas"]["Checklist"];
+      bit: components["schemas"]["Bit"];
+      radar: components["schemas"]["RadarScene"];
+    };
+    /** SkillColumn */
+    SkillColumn: {
+      /** Heading */
+      heading: string;
+      /** Rows */
+      rows: components["schemas"]["SkillRow"][];
+    };
+    /**
+     * SkillRow
+     * @description Left column: the value must end before the right column (x = 80), so ≤ 15.
+     */
+    SkillRow: {
+      /** Name */
+      name: string;
+      /** Value */
+      value: string;
+    };
+    Slug: string;
+    /**
+     * StatusRow
+     * @description A status-quadrant row: label ≤ 7 including the colon, value ≤ 9.
+     */
+    StatusRow: {
+      /** Label */
+      label: string;
+      /** Value */
+      value: string;
+    };
+    /**
+     * SwConfig
+     * @description S/W CONFIGURATION: the site's own stack. `null` is a blank row.
+     */
+    SwConfig: {
+      /** Left */
+      left: (components["schemas"]["SwConfigEntry"] | null)[];
+      /** Right */
+      right: components["schemas"]["SwConfigEntry"][];
+    };
+    /** SwConfigEntry */
+    SwConfigEntry: {
+      /** Name */
+      name: string;
+      /** Value */
+      value: string;
+    };
+    /**
+     * TagRow
+     * @description An IFF-quadrant row, drawn as `label value` in ≤ 18 characters.
+     */
+    TagRow: {
+      /** Label */
+      label: string;
+      /** Value */
+      value: string;
+    };
+    /** TankStore */
+    TankStore: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      kind: "tank";
+    };
+    TitleLine: string;
+    /** ValidationError */
+    ValidationError: {
+      /** Location */
+      loc: (string | number)[];
+      /** Message */
+      msg: string;
+      /** Error Type */
+      type: string;
+      /** Input */
+      input?: unknown;
+      /** Context */
+      ctx?: Record<string, never>;
+    };
+    /**
+     * WaveMotion
+     * @description A slow sine: `level` at t = 0, ± `swing`.
+     */
+    WaveMotion: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      kind: "wave";
+      level: components["schemas"]["Fraction"];
+      swing: components["schemas"]["Fraction"];
+      periodSeconds: components["schemas"]["Period"];
+    };
+    /**
+     * Work
+     * @description Work history (docs/pages/work.md): one employer per top-row tab (PB6–10), newest first.
+     */
+    Work: {
+      /** Employers */
+      employers: components["schemas"]["Employer"][];
+    };
+  };
   responses: never;
   parameters: never;
   requestBodies: never;
@@ -51,6 +1420,1264 @@ export interface operations {
           "application/json": {
             [key: string]: string;
           };
+        };
+      };
+    };
+  };
+  getSiteContent: {
+    parameters: {
+      query?: never;
+      header?: {
+        "if-none-match"?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SiteContent"];
+        };
+      };
+      /** @description The content still has the `If-None-Match` ETag. */
+      304: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  downloadResume: {
+    parameters: {
+      query?: never;
+      header?: {
+        "if-none-match"?: string | null;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description The resume PDF. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/pdf": unknown;
+        };
+      };
+      /** @description The PDF still has the `If-None-Match` ETag. */
+      304: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No resume has been uploaded. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminLogin: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LoginRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminSessionInfo"];
+        };
+      };
+      /** @description Wrong password. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Too many failed logins; see `Retry-After`. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No admin password hash is configured. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  adminSession: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdminSessionInfo"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminLogout: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetProfile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionState_Profile_"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutProfile: {
+    parameters: {
+      query?: never;
+      header?: {
+        /** @description The section's `etag`, to refuse a lost update. */
+        "If-Match"?: string | null;
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Profile"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedSection_Profile_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The section changed since the `If-Match` ETag. */
+      412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetResume: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionState_Resume_"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutResume: {
+    parameters: {
+      query?: never;
+      header?: {
+        /** @description The section's `etag`, to refuse a lost update. */
+        "If-Match"?: string | null;
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Resume"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedSection_Resume_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The section changed since the `If-Match` ETag. */
+      412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetWork: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionState_Work_"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutWork: {
+    parameters: {
+      query?: never;
+      header?: {
+        /** @description The section's `etag`, to refuse a lost update. */
+        "If-Match"?: string | null;
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Work"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedSection_Work_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The section changed since the `If-Match` ETag. */
+      412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetProjects: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionState_Projects_"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutProjects: {
+    parameters: {
+      query?: never;
+      header?: {
+        /** @description The section's `etag`, to refuse a lost update. */
+        "If-Match"?: string | null;
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Projects"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedSection_Projects_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The section changed since the `If-Match` ETag. */
+      412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetContact: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionState_Contact_"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutContact: {
+    parameters: {
+      query?: never;
+      header?: {
+        /** @description The section's `etag`, to refuse a lost update. */
+        "If-Match"?: string | null;
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Contact"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedSection_Contact_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The section changed since the `If-Match` ETag. */
+      412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetLinks: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionState_Links_"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutLinks: {
+    parameters: {
+      query?: never;
+      header?: {
+        /** @description The section's `etag`, to refuse a lost update. */
+        "If-Match"?: string | null;
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Links"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedSection_Links_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The section changed since the `If-Match` ETag. */
+      412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetServer: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionState_ServerStats_"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutServer: {
+    parameters: {
+      query?: never;
+      header?: {
+        /** @description The section's `etag`, to refuse a lost update. */
+        "If-Match"?: string | null;
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ServerStats"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedSection_ServerStats_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The section changed since the `If-Match` ETag. */
+      412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetFuel: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionState_FuelReserves_"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutFuel: {
+    parameters: {
+      query?: never;
+      header?: {
+        /** @description The section's `etag`, to refuse a lost update. */
+        "If-Match"?: string | null;
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["FuelReserves"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedSection_FuelReserves_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The section changed since the `If-Match` ETag. */
+      412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetFcs: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionState_FlightControls_"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutFcs: {
+    parameters: {
+      query?: never;
+      header?: {
+        /** @description The section's `etag`, to refuse a lost update. */
+        "If-Match"?: string | null;
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["FlightControls"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedSection_FlightControls_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The section changed since the `If-Match` ETag. */
+      412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetChecklist: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionState_Checklist_"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutChecklist: {
+    parameters: {
+      query?: never;
+      header?: {
+        /** @description The section's `etag`, to refuse a lost update. */
+        "If-Match"?: string | null;
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Checklist"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedSection_Checklist_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The section changed since the `If-Match` ETag. */
+      412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetBit: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionState_Bit_"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutBit: {
+    parameters: {
+      query?: never;
+      header?: {
+        /** @description The section's `etag`, to refuse a lost update. */
+        "If-Match"?: string | null;
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Bit"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedSection_Bit_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The section changed since the `If-Match` ETag. */
+      412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetRadar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionState_RadarScene_"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutRadar: {
+    parameters: {
+      query?: never;
+      header?: {
+        /** @description The section's `etag`, to refuse a lost update. */
+        "If-Match"?: string | null;
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RadarScene"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedSection_RadarScene_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The section changed since the `If-Match` ETag. */
+      412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminUploadResume: {
+    parameters: {
+      query?: never;
+      header?: {
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["Body_adminUploadResume"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedResume"];
+        };
+      };
+      /** @description Larger than 10485760 bytes. */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not a PDF. */
+      415: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
