@@ -1,7 +1,7 @@
 import { SERVER_STATS } from "@/content/server";
 import type { DdiScreens, LegendSpec } from "../../frame/types";
 import { EngLabels } from "../../formats/eng";
-import { MENU_LABELS, MENU_PB, PAGES } from "../registry";
+import { MENU_LEGEND } from "../menuLegend";
 import { ServerValues } from "./islands";
 
 /**
@@ -16,12 +16,7 @@ export const SERVER_LEGENDS: readonly LegendSpec[] = [
     label: "Record",
     action: { kind: "inert" },
   },
-  {
-    pb: MENU_PB,
-    lines: ["MENU"],
-    label: MENU_LABELS.TAC,
-    action: { kind: "link", href: PAGES.menu.path },
-  },
+  MENU_LEGEND,
 ];
 
 /** /server: the ENG format with two hosts in the engine columns. It has one screen and no in-section state. */

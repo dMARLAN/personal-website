@@ -14,7 +14,7 @@ test("TAC PB20 opens About on press, and PB18 MENU returns to TAC", async ({
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("About");
 
   const menu = page.locator(".ddi-osb[data-pb='18']");
-  await expect(menu).toHaveAccessibleName("Menu");
+  await expect(menu).toHaveAccessibleName("Tactical menu");
   await menu.click();
   await expect(page).toHaveURL(/\/$/);
   await expect(

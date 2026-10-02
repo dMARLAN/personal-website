@@ -218,7 +218,7 @@ describe("the work history OSBs", () => {
     press(EMPLOYERS[0].name);
     expect(glass()).toBe(first);
     expect(push).not.toHaveBeenCalled();
-    expect(screen.getByRole("link", { name: "Menu" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Tactical menu" })).toHaveAttribute(
       "href",
       "/",
     );

@@ -195,3 +195,103 @@ export interface ServerStats {
   /** What the server renders, and the centre the fake readings wander around. */
   baseline: ServerSnapshot;
 }
+
+/** /fcs → FCS [pgA §4]; fake data. A direction arrow beside a surface number. */
+export type FcsArrow = "up" | "down" | "left" | "right";
+
+export interface FcsSurfaceSide {
+  /** ≤ 3 chars, right-aligned. */
+  value: string;
+  arrow: FcsArrow | null;
+}
+
+/** One row of the surface block: LEF, TEF, AIL, RUD and STAB in DCS order. */
+export interface FcsSurface {
+  /** ≤ 4 chars. */
+  label: string;
+  left: FcsSurfaceSide;
+  right: FcsSurfaceSide;
+}
+
+/** One X in a channel table: that channel has failed. */
+export interface FcsFailure {
+  table: "left" | "right" | "bottom";
+  /** Row from the top: 0–6 in the top tables, 0–10 in the bottom table. */
+  row: number;
+  channel: 1 | 2 | 3 | 4;
+}
+
+export interface FlightControls {
+  /** Exactly 5 rows. */
+  surfaces: FcsSurface[];
+  /** The bottom-right table: exactly 11 rows. `label` ≤ 5 chars; `meaning` is for the semantic layer. */
+  statusRows: { label: string; meaning: string }[];
+  /** What channels 1–4 stand for, for the semantic layer. */
+  channels: [string, string, string, string];
+  failures: FcsFailure[];
+  /** 200 % between "G-LIM" and "G"; ≤ 3 chars. */
+  gLimit: string;
+  /** L and R AOA values; ≤ 5 chars. */
+  aoa: { left: string; right: string };
+  /** The BLIN code slot at (−345, −190); ≤ 10 chars. */
+  blinCode: string;
+}
+
+/** /fuel → FUEL [pgA §3]; fake "energy" reserves that move gently. */
+export type FuelTankId =
+  | "tk1"
+  | "leftFeed"
+  | "rightFeed"
+  | "tk4"
+  | "leftWing"
+  | "rightWing"
+  | "leftExternal"
+  | "centreline"
+  | "rightExternal";
+
+/** How a tank's level moves, as a fraction of its capacity. */
+export type FuelMotion =
+  /** A slow sine: `level` at t = 0, ± `swing`. */
+  | { kind: "wave"; level: number; swing: number; periodSeconds: number }
+  /** Drains from full to `low` over the period, then refills at once. */
+  | { kind: "drain"; low: number; periodSeconds: number };
+
+export interface FuelTank {
+  id: FuelTankId;
+  /** F100 above the box; it must fit the box width. */
+  label: string;
+  /** The semantic layer's name, for example "Coffee". */
+  name: string;
+  /** Pounds when full; ≤ 4 digits. */
+  capacity: number;
+  motion: FuelMotion;
+}
+
+export interface FuelReserves {
+  /** All nine tanks, each id once. */
+  tanks: FuelTank[];
+  /** Pounds; ≤ 4 digits. */
+  bingo: number;
+}
+
+/** /chklst → CHKLST [pgB §2]. */
+export interface ChecklistColumn {
+  /** The heading: "LAND" or "T.O." in DCS. */
+  title: string;
+  /** What the heading means, for the semantic layer. */
+  meaning: string;
+  items: string[];
+}
+
+export interface Checklist {
+  /** ≤ 6 items, ≤ 13 chars each, so they clear the right column. */
+  left: ChecklistColumn;
+  /** ≤ 9 items, ≤ 16 chars each. */
+  right: ChecklistColumn;
+  /** The A/C WT row: value at x = −79.5, ≤ 6 chars. */
+  weight: { label: string; value: string };
+  /** The MAX NZ row; DCS shows no value. */
+  maxNz: string;
+  /** The STAB POS row, for example " 1° NU". */
+  stab: { label: string; left: string; right: string };
+}

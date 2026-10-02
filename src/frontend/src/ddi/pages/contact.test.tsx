@@ -76,7 +76,7 @@ describe("the Contact content", () => {
     ).toEqual([
       [16, ["COPY"], "Copy email address", "island"],
       [17, ["XMIT", "MAIL"], "Send email", "island"],
-      [18, ["MENU"], "Menu", "link"],
+      [18, ["MENU"], "Tactical menu", "link"],
     ]);
   });
 });

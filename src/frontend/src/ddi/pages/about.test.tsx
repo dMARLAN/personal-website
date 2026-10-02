@@ -137,7 +137,7 @@ describe("the About content", () => {
       {
         pb: 18,
         lines: ["MENU"],
-        label: "Menu",
+        label: "Tactical menu",
         action: { kind: "link", href: "/" },
       },
     ]);

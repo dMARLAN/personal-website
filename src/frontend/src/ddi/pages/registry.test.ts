@@ -106,7 +106,23 @@ describe("the page registry", () => {
     }
   });
 
-  it("shows each shipped TAC section at its PB", () => {
+  it("shows each shipped TAC section and SUPT showcase at its PB", () => {
+    const supt = menuLegends("SUPT").map(({ pb, lines, action }) => [
+      pb,
+      lines,
+      action,
+    ]);
+    expect(supt).toContainEqual([
+      11,
+      ["CHKLST"],
+      { kind: "link", href: "/chklst" },
+    ]);
+    expect(supt).toContainEqual([15, ["FCS"], { kind: "link", href: "/fcs" }]);
+    expect(supt).toContainEqual([
+      20,
+      ["FUEL"],
+      { kind: "link", href: "/fuel" },
+    ]);
     const legends = menuLegends("TAC").map(({ pb, lines, action }) => [
       pb,
       lines,
@@ -183,6 +199,9 @@ describe("the page registry", () => {
       "/contact",
       "/links",
       "/server",
+      "/fcs",
+      "/fuel",
+      "/chklst",
     ]) {
       expect(urls).toContain(`${SITE_URL}${route}`);
     }

@@ -10,7 +10,10 @@ export type PageId =
   | "contact"
   | "links"
   | "radar"
-  | "server";
+  | "server"
+  | "fcs"
+  | "fuel"
+  | "chklst";
 
 /** The two menus. Both live at `/`: they are in-section state, not URLs (docs/design.md section 9.4). */
 export const MENU_NAMES = ["TAC", "SUPT"] as const;
@@ -106,6 +109,30 @@ export const PAGES: Readonly<Record<PageId, PageDef>> = {
     kind: "showcase",
     menu: { on: "SUPT", pb: 12, legend: ["ENG"] },
     label: "Home server, simulated",
+    available: true,
+  },
+  fcs: {
+    id: "fcs",
+    path: "/fcs",
+    kind: "showcase",
+    menu: { on: "SUPT", pb: 15, legend: ["FCS"] },
+    label: "Flight controls, simulated",
+    available: true,
+  },
+  fuel: {
+    id: "fuel",
+    path: "/fuel",
+    kind: "showcase",
+    menu: { on: "SUPT", pb: 20, legend: ["FUEL"] },
+    label: "Fuel, simulated",
+    available: true,
+  },
+  chklst: {
+    id: "chklst",
+    path: "/chklst",
+    kind: "showcase",
+    menu: { on: "SUPT", pb: 11, legend: ["CHKLST"] },
+    label: "Pre-flight checklist",
     available: true,
   },
 };

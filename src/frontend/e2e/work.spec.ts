@@ -97,7 +97,7 @@ test("the plain view lists every employer and hides the state OSBs", async ({
     page.getByRole("heading", { level: 2, name: "Harbor Digital" }),
   ).toBeVisible();
   await expect(page.locator(".ddi-osb[data-pb='6']")).toBeHidden();
-  await expect(page.getByRole("link", { name: "Menu" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Tactical menu" })).toBeVisible();
 });
 
 for (const { scheme, theme } of [
