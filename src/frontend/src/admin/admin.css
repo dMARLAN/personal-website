@@ -1,0 +1,94 @@
+/* The admin console: plain and functional, separate from the DDI and the homepage (docs/design.md section 13.7). */
+:root {
+  color-scheme: light dark;
+}
+
+body.admin {
+  margin: 0;
+  font:
+    16px/1.5 system-ui,
+    sans-serif;
+  background: Canvas;
+  color: CanvasText;
+}
+
+.admin main {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.admin-console {
+  display: grid;
+  grid-template-columns: 14rem 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 40rem) {
+  .admin-console {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.admin nav li button {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 0.25rem;
+}
+
+.admin button[aria-pressed="true"] {
+  font-weight: 700;
+  outline: 2px solid currentColor;
+}
+
+.admin fieldset {
+  margin: 0 0 1rem;
+}
+
+.admin-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+}
+
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.75rem;
+}
+
+.admin-field input,
+.admin-field textarea {
+  font: inherit;
+  padding: 0.25rem;
+}
+
+.admin-json {
+  font-family: ui-monospace, monospace;
+  font-size: 0.875rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-field-error,
+.admin-error {
+  color: light-dark(#a00000, #ff9a9a);
+}
+
+.admin-ok {
+  color: light-dark(#1a6300, #8fe07a);
+}
+
+.admin [aria-invalid="true"] {
+  border: 2px solid light-dark(#a00000, #ff9a9a);
+}
+
+.admin button {
+  font: inherit;
+}
