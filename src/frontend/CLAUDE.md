@@ -1,6 +1,7 @@
 # Frontend
 
-Next.js App Router app (outside the uv workspace). It is a single placeholder page for now.
+Next.js App Router app (outside the uv workspace): the F/A-18C DDI site specified in `docs/design.md`. Phase 1 (frame,
+controls, TAC/SUPT menus) is built; `make e2e` runs the Playwright + axe suite.
 
 - IMPORTANT: Always read and adhere to ALL rules defined in
   [`.claude/skills/typescript/SKILL.md`](../../.claude/skills/typescript/SKILL.md).
@@ -9,7 +10,7 @@ Next.js App Router app (outside the uv workspace). It is a single placeholder pa
   neutral for now). Add shadcn components with `npx shadcn@latest add <name>`; they land in `src/components/ui/`.
 - The typed API client is `src/lib/api/client.ts` (`openapi-fetch`). `src/lib/api/schema.ts` is generated: run
   `npm run openapi:gen` against a running API (or the Tilt "Generate Types" button) after API changes.
-- Styling stays minimal until the F/A-18C DDI theme lands. Its research is in `docs/research/`.
+- The DDI code is in `src/ddi/` (frame, controls, pages registry); content stubs are in `src/content/`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

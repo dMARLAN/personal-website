@@ -1,4 +1,9 @@
 import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
+
+// Vitest globals are off, so Testing Library cannot register its own cleanup.
+afterEach(cleanup);
 
 // Node 22+ ships a built-in localStorage that shadows jsdom's and is
 // non-functional without --localstorage-file, so replace both storages

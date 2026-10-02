@@ -3,7 +3,7 @@
 	format format-api format-frontend \
 	format_diff format_diff-api format_diff-frontend \
 	validate validate-api validate-frontend \
-	ci ci-api ci-frontend \
+	ci ci-api ci-frontend e2e \
 	bootstrap system-deps local-cluster tilt-up tilt-down tilt-reset \
 	dcs-assets
 
@@ -59,6 +59,10 @@ ci-frontend:
 ci: \
   ci-api \
   ci-frontend
+
+# Frontend browser tests (Playwright + axe). Not part of validate or ci.
+e2e:
+	cd src/frontend && make e2e
 
 bootstrap:
 	./scripts/bootstrap.sh

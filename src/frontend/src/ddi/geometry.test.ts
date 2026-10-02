@@ -4,9 +4,13 @@ import {
   align,
   lineEnd,
   measure,
+  pbAnchor,
+  pbEdge,
+  PBS,
   polylinePath,
   toSvg,
   type Align,
+  type Pb,
 } from "./geometry";
 
 describe("toSvg", () => {
@@ -104,5 +108,44 @@ describe("lineEnd", () => {
     expect(leftY).toBeCloseTo(0);
     const [rightX] = lineEnd([5, 5], 10, -90);
     expect(rightX).toBeCloseTo(15);
+  });
+});
+
+describe("pbAnchor", () => {
+  // MPD_PB_defs.lua [fnd §5.2]
+  const table: [Pb, number, number][] = [
+    [1, -500, -361],
+    [2, -500, -194],
+    [3, -500, -27],
+    [4, -500, 140],
+    [5, -500, 307],
+    [6, -336, 500],
+    [7, -167, 500],
+    [8, 2, 500],
+    [9, 171, 500],
+    [10, 340, 500],
+    [11, 500, 307],
+    [12, 500, 140],
+    [13, 500, -27],
+    [14, 500, -194],
+    [15, 500, -361],
+    [16, 340, -500],
+    [17, 171, -500],
+    [18, 2, -500],
+    [19, -167, -500],
+    [20, -336, -500],
+  ];
+
+  it.each(table)("puts PB%i at (%i, %i)", (pb, x, y) => {
+    expect(pbAnchor(pb)).toEqual([x, y]);
+  });
+
+  it("numbers the edges clockwise from the lowest left button", () => {
+    expect(PBS.map(pbEdge)).toEqual([
+      ...Array<string>(5).fill("left"),
+      ...Array<string>(5).fill("top"),
+      ...Array<string>(5).fill("right"),
+      ...Array<string>(5).fill("bottom"),
+    ]);
   });
 });

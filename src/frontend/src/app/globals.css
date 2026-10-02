@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "../ddi/primitives/emissive.css";
+@import "../ddi/frame/frame.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -117,8 +118,5 @@
 @layer base {
     * {
         @apply border-border outline-ring/50;
-    }
-    body {
-        @apply bg-background text-foreground;
     }
 }

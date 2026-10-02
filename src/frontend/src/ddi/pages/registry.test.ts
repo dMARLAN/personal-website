@@ -1,0 +1,109 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { describe, expect, it } from "vitest";
+import { measure, pbEdge } from "../geometry";
+import {
+  LEGEND_FONT,
+  legendBounds,
+  menuTitleBox,
+  pbLabelLayout,
+} from "../frame/legend";
+import type { Rect } from "../geometry";
+import {
+  ALL_PAGES,
+  MENU_PB,
+  PAGES,
+  menuLegends,
+  type MenuName,
+} from "./registry";
+
+const MENUS: readonly MenuName[] = ["TAC", "SUPT"];
+const APP_DIR = path.resolve(import.meta.dirname, "../../app");
+
+function overlaps(a: Rect, b: Rect): boolean {
+  return (
+    a.left < b.right && b.left < a.right && a.bottom < b.top && b.bottom < a.top
+  );
+}
+
+/** Every legend each menu will ever show, including pages that have not shipped. */
+function fullMenu(menu: MenuName): ReturnType<typeof menuLegends> {
+  return menuLegends(menu, ALL_PAGES);
+}
+
+describe("the page registry", () => {
+  it("keys every page by its own id", () => {
+    for (const [id, page] of Object.entries(PAGES)) {
+      expect(page.id).toBe(id);
+    }
+  });
+
+  it.each(MENUS)("gives no two legends on %s the same OSB", (menu) => {
+    const pbs = fullMenu(menu).map((legend) => legend.pb);
+    expect(new Set(pbs).size).toBe(pbs.length);
+  });
+
+  it.each(MENUS)(
+    "keeps every %s legend clear of the others and of the title box",
+    (menu) => {
+      const inks = fullMenu(menu).map((legend) => ({
+        pb: legend.pb,
+        rects: legendBounds(
+          pbLabelLayout(legend.pb, legend.lines, legend.boxed ?? false),
+        ),
+      }));
+      inks.push({ pb: MENU_PB, rects: [menuTitleBox()] });
+      inks.forEach((first, index) => {
+        for (const second of inks.slice(index + 1)) {
+          for (const a of first.rects) {
+            for (const b of second.rects) {
+              expect(overlaps(a, b), `PB${first.pb} and PB${second.pb}`).toBe(
+                false,
+              );
+            }
+          }
+        }
+      });
+    },
+  );
+
+  it("fits every row legend within the 169 DI pitch", () => {
+    for (const menu of MENUS) {
+      for (const legend of fullMenu(menu)) {
+        if (pbEdge(legend.pb) === "top" || pbEdge(legend.pb) === "bottom") {
+          for (const line of legend.lines) {
+            expect(measure(line, LEGEND_FONT).width).toBeLessThan(169);
+          }
+        }
+      }
+    }
+  });
+
+  it("has a page module for every available route", () => {
+    for (const page of ALL_PAGES.filter((candidate) => candidate.available)) {
+      expect(
+        existsSync(path.join(APP_DIR, page.path, "page.tsx")),
+        page.path,
+      ).toBe(true);
+    }
+  });
+
+  it("shows only shipped pages: in Phase 1 the menus have MENU alone", () => {
+    for (const menu of MENUS) {
+      expect(menuLegends(menu).map(({ pb, lines }) => [pb, lines])).toEqual([
+        [18, ["MENU"]],
+      ]);
+    }
+  });
+
+  it("toggles TAC and SUPT with PB18", () => {
+    const [tacMenu] = menuLegends("TAC");
+    const [suptMenu] = menuLegends("SUPT");
+    expect(tacMenu.action).toEqual({ kind: "link", href: "/supt" });
+    expect(suptMenu.action).toEqual({ kind: "link", href: "/" });
+    expect([tacMenu.label, suptMenu.label]).toEqual([
+      "Support menu",
+      "Tactical menu",
+    ]);
+  });
+});

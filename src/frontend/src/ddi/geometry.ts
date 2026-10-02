@@ -1,4 +1,4 @@
-import { FONTS, type FontId } from "./constants";
+import { FONTS, PB_LEGEND, type FontId } from "./constants";
 
 /** A point in DCS display increments (DI): origin at the screen centre, +y up. */
 export type Point = readonly [x: number, y: number];
@@ -104,4 +104,65 @@ export function polylinePath(points: readonly Point[], closed = false): string {
     return `${index === 0 ? "M" : "L"}${formatNumber(x)},${formatNumber(y)}`;
   });
   return commands.join(" ") + (closed ? " Z" : "");
+}
+
+/** An OSB number. DCS numbers them clockwise from the lowest button on the left [bzl §1]. */
+export type Pb =
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9
+  | 10
+  | 11
+  | 12
+  | 13
+  | 14
+  | 15
+  | 16
+  | 17
+  | 18
+  | 19
+  | 20;
+
+export const PBS: readonly Pb[] = [
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+];
+
+export type Edge = "left" | "top" | "right" | "bottom";
+
+/** Which bezel edge `pb` sits on: 1–5 left, 6–10 top, 11–15 right, 16–20 bottom. */
+export function pbEdge(pb: Pb): Edge {
+  if (pb <= 5) {
+    return "left";
+  }
+  if (pb <= 10) {
+    return "top";
+  }
+  return pb <= 15 ? "right" : "bottom";
+}
+
+// MPD_PB_defs.lua [fnd §5.2]
+const PB_ROW_START = -336;
+const PB_ROW_PITCH = 169;
+const PB_COLUMN_TOP = 307;
+const PB_COLUMN_PITCH = 167;
+const PB_EDGE = PB_LEGEND.edge;
+
+/** The legend anchor of `pb` [fnd §5.2]: the outer text edge, in DI from the screen centre. */
+export function pbAnchor(pb: Pb): Point {
+  switch (pbEdge(pb)) {
+    case "left":
+      return [-PB_EDGE, PB_COLUMN_TOP - PB_COLUMN_PITCH * (5 - pb)];
+    case "top":
+      return [PB_ROW_START + PB_ROW_PITCH * (pb - 6), PB_EDGE];
+    case "right":
+      return [PB_EDGE, PB_COLUMN_TOP - PB_COLUMN_PITCH * (pb - 11)];
+    case "bottom":
+      return [PB_ROW_START + PB_ROW_PITCH * (20 - pb), -PB_EDGE];
+  }
 }
