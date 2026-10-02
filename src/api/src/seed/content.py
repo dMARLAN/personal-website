@@ -29,6 +29,7 @@ from content.fcs import (
 )
 from content.fuel import DrainMotion, FuelReserves, FuelTank, FuelTankId, MotionKind, WaveMotion
 from content.links import LinkEntry, Links
+from content.mumi import IdField, LoadErrors, MissionData, MuId, VersionField
 from content.profile import Profile, StatusRow, TagRow
 from content.projects import (
     LeftField,
@@ -737,6 +738,15 @@ _RADAR: Final[RadarScene] = RadarScene(
     ],
 )
 
+_MUMI: Final[MissionData] = MissionData(
+    mu_id=MuId(value="HOMELAB-01", meaning="Home server"),
+    loaded_mu_id="ADMIN",
+    id_fields=(IdField(value="WEB", meaning="Frontend image"), IdField(value="API", meaning="API image")),
+    mc=VersionField(value="WEB-26.10", meaning="Site build"),
+    sms=VersionField(value="CDB-0042", meaning="Content database schema"),
+    errors=LoadErrors(value="FONTS, CDN", meaning="Fonts and the asset CDN"),
+)
+
 SEED_DOCUMENTS: Final[dict[ContentSection, ContentModel]] = {
     ContentSection.PROFILE: _PROFILE,
     ContentSection.RESUME: _RESUME,
@@ -750,6 +760,7 @@ SEED_DOCUMENTS: Final[dict[ContentSection, ContentModel]] = {
     ContentSection.CHECKLIST: _CHECKLIST,
     ContentSection.BIT: _BIT,
     ContentSection.RADAR: _RADAR,
+    ContentSection.MUMI: _MUMI,
 }
 
 

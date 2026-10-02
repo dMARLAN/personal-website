@@ -458,4 +458,29 @@ export interface SiteContent {
   checklist: Checklist;
   bit: Bit;
   radar: RadarScene;
+  mumi: MissionData;
+}
+
+/** One MUMI slot: the value on the glass and what it stands for, for the semantic layer. */
+export interface MissionDataEntry {
+  value: string;
+  meaning: string;
+}
+
+/**
+ * /mumi → MUMI; the site's deployment as fake mission data (docs/pages/mumi.md). Limits are `MUMI_LIMITS` in
+ * `ddi/formats/mumi.tsx`.
+ */
+export interface MissionData {
+  /** The memory unit: the home server the site is loaded from. ≤ 15 chars. */
+  muId: MissionDataEntry;
+  /** The MU ID after the load: the console the load opens. ≤ 15 chars. */
+  loadedMuId: string;
+  /** The two ID fields: the two images the cluster runs. ≤ 10 chars each. */
+  idFields: readonly [MissionDataEntry, MissionDataEntry];
+  /** MC (mission computer) is the site build; SMS (stores management) is the content database. ≤ 10 chars each. */
+  mc: MissionDataEntry;
+  sms: MissionDataEntry;
+  /** The ERRORS list from the last load, ≤ 15 chars. A new load clears it. */
+  errors: MissionDataEntry;
 }

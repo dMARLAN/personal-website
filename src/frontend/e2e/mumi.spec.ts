@@ -1,8 +1,16 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-// /admin is another app's route and may not exist here, so the tests check only the navigation's target URL.
 const ADMIN_URL = /\/admin$/;
+
+/** The load ends on the admin console: its URL, then its sign-in form once the console has rendered. */
+async function expectAdminConsole(page: Page): Promise<void> {
+  await page.waitForURL(ADMIN_URL);
+  await expect(
+    page.getByRole("heading", { level: 2, name: "Sign in" }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Password")).toBeVisible();
+}
 
 function loadPhase(page: Page): Promise<string | null> {
   return page
@@ -56,6 +64,7 @@ test("ID runs the load on the glass, then opens /admin", async ({ page }) => {
 
   await page.waitForURL(ADMIN_URL);
   expect(Date.now() - started).toBeGreaterThanOrEqual(1500);
+  await expectAdminConsole(page);
 });
 
 test("Enter on ID runs the same load", async ({ page }) => {
@@ -63,7 +72,7 @@ test("Enter on ID runs the same load", async ({ page }) => {
   await page.locator(".ddi-osb-island[data-pb='11'] a").focus();
   await page.keyboard.press("Enter");
   await expect.poll(() => loadPhase(page)).toBe("loading");
-  await page.waitForURL(ADMIN_URL);
+  await expectAdminConsole(page);
 });
 
 test.describe("reduced motion", () => {
@@ -77,6 +86,7 @@ test.describe("reduced motion", () => {
     await page.locator(".ddi-osb-island[data-pb='11'] a").click();
     await page.waitForURL(ADMIN_URL);
     expect(Date.now() - started).toBeLessThan(1500);
+    await expectAdminConsole(page);
   });
 });
 

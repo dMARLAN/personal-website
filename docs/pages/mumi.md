@@ -34,8 +34,9 @@ Content limits (ours, checked with `measure` in `mumi.test.tsx`): MU ID value â‰
 
 ## Content
 
-`src/frontend/src/ddi/pages/mumi/data.ts` (PLACEHOLDER). It lives with the page, not in `content/`, because it is
-page furniture rather than site content.
+The `mumi` content section (PLACEHOLDER), served by the API and edited in `/admin` like the other showcase pages'
+fake data (`docs/design.md` section 13). The API schema is `src/api/src/content/mumi.py`, which enforces the limits
+above; the page reads it through `getMissionData()`.
 
 | Slot | DCS sample | Ours | Meaning |
 |---|---|---|---|
@@ -61,8 +62,8 @@ boxing a data type selects it for loading: `ID` at PB11, the identity that the a
 - Under `prefers-reduced-motion: reduce` it navigates at once.
 - The OSB is an `<a href="/admin">`, so it works without JavaScript too. The semantic layer has a plain
   "Admin console" link.
-- `/admin` is another app's route. It is reachable only over Tailscale in production, so the public site may answer
-  403 or 404. That is fine.
+- `/admin` is the admin console (`docs/design.md` section 13.8). It is reachable only over Tailscale in production,
+  so on the public host the load ends on the ingress's block page. That is fine.
 - The load state is a small `useSyncExternalStore` store (`pages/mumi/store.ts`). It resets when the page unmounts and
   when the browser restores the page from the back/forward cache, so Back from `/admin` shows an idle page.
 

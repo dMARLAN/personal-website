@@ -122,6 +122,10 @@ CASES: list[tuple[ContentSection, Mutation, str]] = [
     (ContentSection.RADAR, _set("contacts.0.azimuth", 71), "less than or equal to 70"),
     (ContentSection.RADAR, _set("contacts", []), "at least 3"),
     (ContentSection.RADAR, _set("weapon", "AIM-120C"), "at most 6"),
+    (ContentSection.MUMI, _set("muId.value", "X" * 16), "at most 15"),
+    (ContentSection.MUMI, _set("idFields.0.value", "X" * 11), "at most 10"),
+    (ContentSection.MUMI, _set("sms.value", "CDB~42"), "no glyph"),
+    (ContentSection.MUMI, _set("errors.value", "X" * 16), "at most 15"),
 ]
 
 

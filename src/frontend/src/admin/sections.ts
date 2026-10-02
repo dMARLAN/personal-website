@@ -23,6 +23,7 @@ export const SECTIONS: readonly SectionInfo[] = [
   { id: "checklist", label: "Checklist", page: "chklst", editor: "json" },
   { id: "bit", label: "BIT", page: "bit", editor: "json" },
   { id: "radar", label: "Radar", page: "radar", editor: "json" },
+  { id: "mumi", label: "MUMI", page: "mumi", editor: "json" },
 ];
 
 export function livePath(section: SectionInfo): string {

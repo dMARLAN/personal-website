@@ -6,11 +6,11 @@ import {
 } from "../../formats/mumi";
 import { PlacedTexts } from "../../formats/placedText";
 import { pbLabelLayout } from "../../frame/legend";
+import type { MissionData } from "@/content/types";
 import type { DdiScreen, DdiScreens, LegendSpec } from "../../frame/types";
 import { MenuTitle } from "../../primitives/MenuTitle";
 import { StrokeBox } from "../../primitives/StrokeBox";
 import { MENU_LEGEND } from "../menuLegend";
-import { MISSION_DATA } from "./data";
 import { LoadOsb, LoadSlot } from "./islands";
 import {
   LOAD_PB,
@@ -56,18 +56,18 @@ function loadBox(): React.JSX.Element {
 }
 
 /** The MU ID, the ERRORS list and the blinking `MU LOAD` cue: what a load changes in the information block. */
-function liveInformation(): React.JSX.Element {
-  const muId = <PlacedTexts texts={[muIdText(MISSION_DATA.muId.value)]} />;
+function liveInformation(data: MissionData): React.JSX.Element {
+  const muId = <PlacedTexts texts={[muIdText(data.muId.value)]} />;
   return (
     <>
       <LoadSlot
         idle={muId}
         loading={muId}
         blink={muId}
-        complete={<PlacedTexts texts={[muIdText(MISSION_DATA.loadedMuId)]} />}
+        complete={<PlacedTexts texts={[muIdText(data.loadedMuId)]} />}
       />
       <LoadSlot
-        idle={<PlacedTexts texts={[errorsText(MISSION_DATA.errors.value)]} />}
+        idle={<PlacedTexts texts={[errorsText(data.errors.value)]} />}
         loading={null}
         blink={null}
         complete={null}
@@ -83,6 +83,7 @@ function liveInformation(): React.JSX.Element {
 }
 
 function screen(
+  data: MissionData,
   legends: readonly LegendSpec[],
   right?: React.ReactNode,
 ): DdiScreen {
@@ -90,28 +91,26 @@ function screen(
     legends: [...legends, MENU_AT_TITLE],
     symbology: (
       <MumiInformation
-        idFields={[
-          MISSION_DATA.idFields[0].value,
-          MISSION_DATA.idFields[1].value,
-        ]}
-        mc={MISSION_DATA.mc.value}
-        sms={MISSION_DATA.sms.value}
+        idFields={[data.idFields[0].value, data.idFields[1].value]}
+        mc={data.mc.value}
+        sms={data.sms.value}
       />
     ),
-    live: liveInformation(),
+    live: liveInformation(data),
     edges: { bottom: <MenuTitle name="MENU" />, right },
   };
 }
 
 /**
- * /mumi: the real MUMI format with the site's "mission data". `MORE` and `RETURN` switch the legend sets in place.
+ * /mumi: the real MUMI format with the site's "mission data" from the API. `MORE` and `RETURN` switch the legend sets in place.
  * `ID` (PB11) runs the load and then opens the admin console. The other legends are inert (docs/pages/mumi.md).
  */
-export function mumiScreens(): DdiScreens {
+export function mumiScreens(data: MissionData): DdiScreens {
   return {
     initial: MAIN_STATE,
     screens: {
       [MAIN_STATE]: screen(
+        data,
         [
           ...MAIN_LEGENDS.map(dataLegend),
           {
@@ -123,7 +122,7 @@ export function mumiScreens(): DdiScreens {
         ],
         loadBox(),
       ),
-      [MORE_STATE]: screen([
+      [MORE_STATE]: screen(data, [
         ...MORE_LEGENDS.map(dataLegend),
         {
           pb: SUBLEVEL_PB,

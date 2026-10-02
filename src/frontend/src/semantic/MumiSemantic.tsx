@@ -1,11 +1,14 @@
 import { Fragment } from "react";
-import { MISSION_DATA } from "@/ddi/pages/mumi/data";
+import type { MissionData } from "@/content/types";
 import { MumiSession } from "@/ddi/pages/mumi/islands";
 import { ADMIN_PATH } from "@/ddi/pages/mumi/structure";
 
 /** The MUMI page as HTML (design section 10.2): the mission data, and the load as a plain link. */
-export function MumiSemantic(): React.JSX.Element {
-  const { muId, idFields, mc, sms, errors } = MISSION_DATA;
+export function MumiSemantic({
+  data: { muId, idFields, mc, sms, errors },
+}: {
+  data: MissionData;
+}): React.JSX.Element {
   const rows = [
     muId,
     ...idFields,

@@ -1041,7 +1041,7 @@ content-fit tests (for example 1–5 employers with 1–4 roles, unique project 
 | `PUT /api/admin/resume` | session + CSRF | Multipart `file`: `application/pdf`, starting `%PDF-`, ≤ 10 MB (415 / 413 otherwise). Returns `{etag, size, revalidation}`. |
 
 `{section}` is one of `profile`, `resume`, `work`, `projects`, `contact`, `links`, `server`, `fuel`, `fcs`,
-`checklist`, `bit`, `radar`. Each has its own route pair and `operationId` (`adminGetProfile`,
+`checklist`, `bit`, `radar`, `mumi`. Each has its own route pair and `operationId` (`adminGetProfile`,
 `adminPutProfile`, …), so every document is exactly typed in the generated schema. Errors are
 `{"detail": "<CODE>"}`, or FastAPI's validation list for 422.
 
@@ -1078,8 +1078,8 @@ Content-Type: application/json
 - It also revalidates the `(home)` route group's layout, `revalidatePath("/(home)", "layout")`, on every save:
   the homepage shows every section, and its share card (`/opengraph-image-<hash>`) shows the current role.
 - Paths per section: profile `/about`, resume `/resume`, work `/work`, projects `/projects`, contact `/contact`,
-  links `/links`, server `/server`, fuel `/fuel`, fcs `/fcs`, checklist `/chklst`, bit `/bit`, radar `/radar`. A
-  PDF upload revalidates `/resume`.
+  links `/links`, server `/server`, fuel `/fuel`, fcs `/fcs`, checklist `/chklst`, bit `/bit`, radar `/radar`,
+  mumi `/mumi`. A PDF upload revalidates `/resume`.
 - Timeout 5 s. A failure does not undo the save: the PUT answers 200 with `revalidation: "failed"`, and the API
   logs it, so the admin can retry by saving again.
 

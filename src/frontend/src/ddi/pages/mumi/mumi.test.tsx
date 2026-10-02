@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { SNAPSHOT_CONTENT } from "@/content/snapshot";
 import {
   MUMI_FRAME,
   MUMI_LIMITS,
@@ -10,7 +11,6 @@ import {
 } from "../../formats/mumi";
 import { placedTextBounds } from "../../formats/placedText";
 import { PAGES } from "../registry";
-import { MISSION_DATA } from "./data";
 import { MAIN_STATE, MORE_STATE, mumiScreens } from "./screens";
 import {
   BLINK_MS,
@@ -20,6 +20,8 @@ import {
   type MumiLoad,
 } from "./store";
 import { LOAD_PB, MAIN_LEGENDS, MORE_LEGENDS } from "./structure";
+
+const MISSION_DATA = SNAPSHOT_CONTENT.mumi;
 
 /** One character advance at 120 %: a 14 DI glyph and a 6 DI gap. */
 const F120_ADVANCE = 20;
@@ -66,7 +68,7 @@ describe("the MUMI limits", () => {
     expect(bounds.left - labelInk).toBeGreaterThanOrEqual(F120_ADVANCE);
   });
 
-  it("fits the mission data in its limits", () => {
+  it("fits the seed mission data in its limits", () => {
     expect(MISSION_DATA.muId.value.length).toBeLessThanOrEqual(
       MUMI_LIMITS.muId,
     );
@@ -95,7 +97,7 @@ describe("the MUMI legends", () => {
   });
 
   it("draws both MUMI.lua legend sets, PB10 switching them in place", () => {
-    const { initial, screens } = mumiScreens();
+    const { initial, screens } = mumiScreens(MISSION_DATA);
     expect(initial).toBe(MAIN_STATE);
     const legendsOf = (state: string): [number, readonly string[]][] =>
       screens[state].legends.map(({ pb, lines }) => [pb, lines]);
@@ -116,7 +118,7 @@ describe("the MUMI legends", () => {
   });
 
   it("makes ID the load, MENU (drawn at the title) the menu link and every other data legend inert", () => {
-    const { screens } = mumiScreens();
+    const { screens } = mumiScreens(MISSION_DATA);
     for (const { pb, action } of screens[MAIN_STATE].legends) {
       if (pb === LOAD_PB) {
         expect(action.kind).toBe("island");

@@ -1514,5 +1514,34 @@
         "altitude": 27500
       }
     ]
+  },
+  "mumi": {
+    "muId": {
+      "value": "HOMELAB-01",
+      "meaning": "Home server"
+    },
+    "loadedMuId": "ADMIN",
+    "idFields": [
+      {
+        "value": "WEB",
+        "meaning": "Frontend image"
+      },
+      {
+        "value": "API",
+        "meaning": "API image"
+      }
+    ],
+    "mc": {
+      "value": "WEB-26.10",
+      "meaning": "Site build"
+    },
+    "sms": {
+      "value": "CDB-0042",
+      "meaning": "Content database schema"
+    },
+    "errors": {
+      "value": "FONTS, CDN",
+      "meaning": "Fonts and the asset CDN"
+    }
   }
 }

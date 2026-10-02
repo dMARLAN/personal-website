@@ -322,6 +322,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/admin/content/mumi": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Mumi */
+    get: operations["adminGetMumi"];
+    /** Put Mumi */
+    put: operations["adminPutMumi"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/admin/resume": {
     parameters: {
       query?: never;
@@ -651,6 +669,16 @@ export interface components {
       [key: string]: number;
     };
     /**
+     * IdField
+     * @description One ID field, over its 200 DI rule.
+     */
+    IdField: {
+      /** Value */
+      value: string;
+      /** Meaning */
+      meaning: string;
+    };
+    /**
      * LeftChecklistColumn
      * @description ≤ 6 items of ≤ 13 characters, so they clear the right column.
      */
@@ -695,6 +723,16 @@ export interface components {
       /** Links */
       links: components["schemas"]["LinkEntry"][];
     };
+    /**
+     * LoadErrors
+     * @description The ERRORS list from the last load, a character clear of `ERRORS:`. A new load clears it.
+     */
+    LoadErrors: {
+      /** Value */
+      value: string;
+      /** Meaning */
+      meaning: string;
+    };
     LoadoutRow: string;
     /** LoginRequest */
     LoginRequest: {
@@ -708,6 +746,33 @@ export interface components {
        * @enum {string}
        */
       kind: "missile";
+    };
+    /**
+     * MissionData
+     * @description /mumi → MUMI (docs/pages/mumi.md); the site's deployment as fake mission data.
+     */
+    MissionData: {
+      muId: components["schemas"]["MuId"];
+      /** Loadedmuid */
+      loadedMuId: string;
+      /** Idfields */
+      idFields: [
+        components["schemas"]["IdField"],
+        components["schemas"]["IdField"],
+      ];
+      mc: components["schemas"]["VersionField"];
+      sms: components["schemas"]["VersionField"];
+      errors: components["schemas"]["LoadErrors"];
+    };
+    /**
+     * MuId
+     * @description The memory unit, on the 570 DI rule.
+     */
+    MuId: {
+      /** Value */
+      value: string;
+      /** Meaning */
+      meaning: string;
     };
     /** Ownship */
     Ownship: {
@@ -1007,6 +1072,18 @@ export interface components {
       updatedAt: string;
       revalidation: components["schemas"]["RevalidationStatus"];
     };
+    /** SavedSection[MissionData] */
+    SavedSection_MissionData_: {
+      document: components["schemas"]["MissionData"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+      revalidation: components["schemas"]["RevalidationStatus"];
+    };
     /** SavedSection[Profile] */
     SavedSection_Profile_: {
       document: components["schemas"]["Profile"];
@@ -1137,6 +1214,17 @@ export interface components {
     /** SectionState[Links] */
     SectionState_Links_: {
       document: components["schemas"]["Links"];
+      /** Etag */
+      etag: string;
+      /**
+       * Updatedat
+       * Format: date-time
+       */
+      updatedAt: string;
+    };
+    /** SectionState[MissionData] */
+    SectionState_MissionData_: {
+      document: components["schemas"]["MissionData"];
       /** Etag */
       etag: string;
       /**
@@ -1293,6 +1381,7 @@ export interface components {
       checklist: components["schemas"]["Checklist"];
       bit: components["schemas"]["Bit"];
       radar: components["schemas"]["RadarScene"];
+      mumi: components["schemas"]["MissionData"];
     };
     /** SkillColumn */
     SkillColumn: {
@@ -1370,6 +1459,16 @@ export interface components {
       input?: unknown;
       /** Context */
       ctx?: Record<string, never>;
+    };
+    /**
+     * VersionField
+     * @description The MC or SMS value, a character clear of its label and the vertical rule.
+     */
+    VersionField: {
+      /** Value */
+      value: string;
+      /** Meaning */
+      meaning: string;
     };
     /**
      * WaveMotion
@@ -2604,6 +2703,90 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["SavedSection_RadarScene_"];
+        };
+      };
+      /** @description Missing or wrong `X-CSRF-Token`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The section changed since the `If-Match` ETag. */
+      412: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminGetMumi: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SectionState_MissionData_"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  adminPutMumi: {
+    parameters: {
+      query?: never;
+      header?: {
+        /** @description The section's `etag`, to refuse a lost update. */
+        "If-Match"?: string | null;
+        "X-CSRF-Token"?: string | null;
+      };
+      path?: never;
+      cookie?: {
+        pw_admin_session?: string | null;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MissionData"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SavedSection_MissionData_"];
         };
       };
       /** @description Missing or wrong `X-CSRF-Token`. */

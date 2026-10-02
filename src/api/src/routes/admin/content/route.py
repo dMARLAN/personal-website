@@ -14,6 +14,7 @@ from content.contact import Contact
 from content.fcs import FlightControls
 from content.fuel import FuelReserves
 from content.links import Links
+from content.mumi import MissionData
 from content.profile import Profile
 from content.projects import Projects
 from content.radar import RadarScene
@@ -25,6 +26,7 @@ from content.sections import (
     FCS,
     FUEL,
     LINKS,
+    MUMI,
     PROFILE,
     PROJECTS,
     RADAR,
@@ -232,3 +234,17 @@ async def put_radar(
     document: RadarScene, content_service: ContentServiceDep, if_match: IfMatch = None
 ) -> SavedSection[RadarScene]:
     return await content_service.save(RADAR, document, if_match_etag(if_match))
+
+
+@router.get("/mumi", operation_id="adminGetMumi")
+@inject
+async def get_mumi(content_service: ContentServiceDep) -> SectionState[MissionData]:
+    return await content_service.get(MUMI)
+
+
+@router.put("/mumi", operation_id="adminPutMumi", dependencies=[Depends(require_admin_write)], responses=_PUT_RESPONSES)
+@inject
+async def put_mumi(
+    document: MissionData, content_service: ContentServiceDep, if_match: IfMatch = None
+) -> SavedSection[MissionData]:
+    return await content_service.save(MUMI, document, if_match_etag(if_match))

@@ -50,6 +50,7 @@ export function adaptSiteContent(content: ApiSiteContent): SiteContent {
       swConfig: content.bit.swConfig,
     },
     radar: content.radar,
+    mumi: content.mumi,
   };
 }
 

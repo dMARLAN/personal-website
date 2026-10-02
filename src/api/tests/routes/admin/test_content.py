@@ -11,6 +11,7 @@ from content.sections import (
     FCS,
     FUEL,
     LINKS,
+    MUMI,
     PROFILE,
     PROJECTS,
     RADAR,
@@ -37,6 +38,7 @@ ALL_SPECS = [
     CHECKLIST,
     BIT,
     RADAR,
+    MUMI,
 ]
 
 

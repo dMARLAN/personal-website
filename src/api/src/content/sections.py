@@ -9,6 +9,7 @@ from content.contact import Contact
 from content.fcs import FlightControls
 from content.fuel import FuelReserves
 from content.links import Links
+from content.mumi import MissionData
 from content.profile import Profile
 from content.projects import Projects
 from content.radar import RadarScene
@@ -32,6 +33,7 @@ class ContentSection(StrEnum):
     CHECKLIST = auto()
     BIT = auto()
     RADAR = auto()
+    MUMI = auto()
 
 
 @dataclass(frozen=True, slots=True)
@@ -54,6 +56,7 @@ FCS: Final[SectionSpec[FlightControls]] = SectionSpec(ContentSection.FCS, Flight
 CHECKLIST: Final[SectionSpec[Checklist]] = SectionSpec(ContentSection.CHECKLIST, Checklist, ("/chklst",))
 BIT: Final[SectionSpec[Bit]] = SectionSpec(ContentSection.BIT, Bit, ("/bit",))
 RADAR: Final[SectionSpec[RadarScene]] = SectionSpec(ContentSection.RADAR, RadarScene, ("/radar",))
+MUMI: Final[SectionSpec[MissionData]] = SectionSpec(ContentSection.MUMI, MissionData, ("/mumi",))
 
 # The site paths that show the resume PDF's download legend.
 RESUME_PDF_PATHS: Final[tuple[str, ...]] = ("/resume",)
@@ -74,3 +77,4 @@ class SiteContent(ContentModel):
     checklist: Checklist
     bit: Bit
     radar: RadarScene
+    mumi: MissionData
