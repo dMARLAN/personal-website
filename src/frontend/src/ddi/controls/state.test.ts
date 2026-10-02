@@ -4,7 +4,6 @@ import {
   accumulateWheel,
   applyControls,
   brightnessCurve,
-  canStepMode,
   clampKnob,
   contrastHalo,
   controlsReducer,
@@ -13,27 +12,9 @@ import {
   dragKnob,
   knobAngle,
   parseControls,
+  snapKnob,
   type ControlsState,
 } from "./state";
-
-describe("the OFF/NIGHT/DAY selector", () => {
-  it("steps one detent at a time and never wraps", () => {
-    const off: ControlsState = { ...DEFAULT_CONTROLS, mode: "OFF" };
-    const night = controlsReducer(off, { type: "mode", step: 1 });
-    const day = controlsReducer(night, { type: "mode", step: 1 });
-    expect([night.mode, day.mode]).toEqual(["NIGHT", "DAY"]);
-    expect(controlsReducer(day, { type: "mode", step: 1 })).toBe(day);
-    expect(controlsReducer(off, { type: "mode", step: -1 })).toBe(off);
-  });
-
-  it("disables its end stops", () => {
-    expect(canStepMode("OFF", -1)).toBe(false);
-    expect(canStepMode("OFF", 1)).toBe(true);
-    expect(canStepMode("NIGHT", -1)).toBe(true);
-    expect(canStepMode("NIGHT", 1)).toBe(true);
-    expect(canStepMode("DAY", 1)).toBe(false);
-  });
-});
 
 describe("BRT and CONT", () => {
   it.each(["brt", "cont"] as const)("clamps %s steps to 0–1", (knob) => {
@@ -85,14 +66,9 @@ describe("BRT and CONT", () => {
     expect(brightnessCurve(0.25)).toBeCloseTo(0.525);
   });
 
-  it("scales NIGHT to 0.126 × f and DAY to f", () => {
+  it("sets the gain to f(BRT)", () => {
     for (let brt = 0; brt <= 1; brt += 0.1) {
-      expect(displayGain({ mode: "NIGHT", brt, cont: 0.5 })).toBeCloseTo(
-        0.126 * brightnessCurve(brt),
-      );
-      expect(displayGain({ mode: "DAY", brt, cont: 0.5 })).toBe(
-        brightnessCurve(brt),
-      );
+      expect(displayGain({ brt, cont: 0.5 })).toBe(brightnessCurve(brt));
     }
   });
 
@@ -104,10 +80,10 @@ describe("BRT and CONT", () => {
   });
 
   it("boosts the halo above BRT 0.5, halfway to opaque at BRT 1", () => {
-    expect(haloOpacity({ mode: "DAY", brt: 0.3, cont: 0.5 })).toBe(0.5);
-    expect(haloOpacity({ mode: "DAY", brt: 0.75, cont: 0.5 })).toBe(0.625);
-    expect(haloOpacity({ mode: "DAY", brt: 1, cont: 0.5 })).toBe(0.75);
-    expect(haloOpacity({ mode: "DAY", brt: 1, cont: 0 })).toBe(0.875);
+    expect(haloOpacity({ brt: 0.3, cont: 0.5 })).toBe(0.5);
+    expect(haloOpacity({ brt: 0.75, cont: 0.5 })).toBe(0.625);
+    expect(haloOpacity({ brt: 1, cont: 0.5 })).toBe(0.75);
+    expect(haloOpacity({ brt: 1, cont: 0 })).toBe(0.875);
   });
 });
 
@@ -141,6 +117,38 @@ describe("dragKnob", () => {
   });
 });
 
+describe("snapKnob, the centre detent", () => {
+  it("commits exactly 0.5 within 0.04 of 12 o'clock", () => {
+    for (const raw of [0.461, 0.48, 0.5, 0.52, 0.539]) {
+      expect(snapKnob(raw), String(raw)).toBe(0.5);
+    }
+  });
+
+  it("passes the unsnapped value through outside the window", () => {
+    for (const raw of [0, 0.3, 0.459, 0.541, 0.7, 1]) {
+      expect(snapKnob(raw), String(raw)).toBe(raw);
+    }
+  });
+
+  it("holds a drag at 0.5 until it travels through the window, then escapes", () => {
+    // 2.5 px of drag is 0.01. Starting at the centre, the first 10 px stay in the notch.
+    let raw = 0.5;
+    const shown: number[] = [];
+    for (let move = 0; move < 6; move += 1) {
+      raw = dragKnob(raw, 2.5);
+      shown.push(snapKnob(raw));
+    }
+    expect(shown.slice(0, 3)).toEqual([0.5, 0.5, 0.5]);
+    expect(shown.at(-1)).toBeCloseTo(0.56);
+  });
+
+  it("catches a drag that arrives from either side", () => {
+    expect(snapKnob(dragKnob(0.4, 20))).toBe(0.5);
+    expect(snapKnob(dragKnob(0.6, -20))).toBe(0.5);
+    expect(snapKnob(dragKnob(0.4, 5))).toBeCloseTo(0.42);
+  });
+});
+
 describe("clampKnob", () => {
   it("clamps to 0–1 and rounds to thousandths", () => {
     expect([clampKnob(-1), clampKnob(0.1 + 0.2), clampKnob(2)]).toEqual([
@@ -151,8 +159,7 @@ describe("clampKnob", () => {
 
 describe("parseControls", () => {
   it("reads valid stored state", () => {
-    expect(parseControls('{"mode":"NIGHT","brt":0.3,"cont":0.875}')).toEqual({
-      mode: "NIGHT",
+    expect(parseControls('{"brt":0.3,"cont":0.875}')).toEqual({
       brt: 0.3,
       cont: 0.875,
     });
@@ -167,16 +174,15 @@ describe("parseControls", () => {
     '"DAY"',
     "[]",
     "{}",
-    '{"mode":"day","brt":"1","cont":null}',
-    '{"mode":"STANDBY","brt":true,"cont":{}}',
-    '{"mode":1,"brt":"0.5","cont":[0.5]}',
+    '{"brt":"1","cont":null}',
+    '{"brt":true,"cont":{}}',
+    '{"brt":"0.5","cont":[0.5]}',
   ])("reads %j as the defaults", (raw) => {
     expect(parseControls(raw)).toEqual(DEFAULT_CONTROLS);
   });
 
   it("clamps and rounds stored knob numbers", () => {
-    expect(parseControls('{"mode":"OFF","brt":99,"cont":-1e308}')).toEqual({
-      mode: "OFF",
+    expect(parseControls('{"brt":99,"cont":-1e308}')).toEqual({
       brt: 1,
       cont: 0,
     });
@@ -184,8 +190,7 @@ describe("parseControls", () => {
   });
 
   it("keeps the valid fields of a partly invalid value", () => {
-    expect(parseControls('{"mode":"OFF","brt":"x","cont":0.2}')).toEqual({
-      mode: "OFF",
+    expect(parseControls('{"brt":"x","cont":0.2}')).toEqual({
       brt: 0.5,
       cont: 0.2,
     });
@@ -193,24 +198,13 @@ describe("parseControls", () => {
 });
 
 describe("applyControls", () => {
-  it("sets the mode and the custom properties on the element", () => {
+  it("sets the custom properties on the element", () => {
     const element = document.createElement("html");
-    applyControls(element, { mode: "NIGHT", brt: 0.5, cont: 0 });
-    expect(element.dataset.ddiMode).toBe("NIGHT");
-    expect(element.style.getPropertyValue("--ddi-gain")).toBe("0.126");
+    applyControls(element, { brt: 0.25, cont: 0 });
+    expect(element.style.getPropertyValue("--ddi-gain")).toBe("0.525");
     expect(element.style.getPropertyValue("--ddi-halo")).toBe("0.75");
-    expect(element.style.getPropertyValue("--ddi-selector-angle")).toBe(
-      "-25deg",
-    );
-    expect(element.style.getPropertyValue("--ddi-brt-angle")).toBe("0deg");
+    expect(element.style.getPropertyValue("--ddi-brt-angle")).toBe("-75deg");
     expect(element.style.getPropertyValue("--ddi-cont-angle")).toBe("-150deg");
-  });
-
-  it("gives OFF zero gain", () => {
-    const element = document.createElement("html");
-    applyControls(element, { mode: "OFF", brt: 1, cont: 0.5 });
-    expect(element.dataset.ddiMode).toBe("OFF");
-    expect(element.style.getPropertyValue("--ddi-gain")).toBe("0");
   });
 });
 

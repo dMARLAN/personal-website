@@ -1,16 +1,14 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CONTROLS_STORAGE_KEY } from "../controls/state";
-import { menuScreen } from "../pages/menus";
+import { menuScreens } from "../pages/menus";
 import { FullViewportFrame } from "./FullViewportFrame";
 
 const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
 
 function renderTac(): HTMLElement {
-  const { container } = render(
-    <FullViewportFrame screen={menuScreen("TAC")} />,
-  );
+  const { container } = render(<FullViewportFrame screens={menuScreens()} />);
   return container;
 }
 
@@ -19,13 +17,14 @@ beforeEach(() => {
 });
 
 describe("the OSBs", () => {
-  it("render the PB18 legend as a link with its accessible name", () => {
+  it("render the PB18 legend as a button with its accessible name", () => {
     renderTac();
     const nav = screen.getByRole("navigation", { name: "Display pushbuttons" });
-    const links = within(nav).getAllByRole("link");
-    expect(links).toHaveLength(1);
-    expect(links[0]).toHaveAccessibleName("Support menu");
-    expect(links[0]).toHaveAttribute("href", "/supt");
+    const buttons = within(nav).getAllByRole("button");
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]).toHaveAccessibleName("Support menu");
+    expect(buttons[0]).toHaveAttribute("data-pb", "18");
+    expect(within(nav).queryAllByRole("link")).toHaveLength(0);
   });
 
   it("hide blank OSBs from assistive technology and the tab order", () => {
@@ -38,33 +37,48 @@ describe("the OSBs", () => {
     }
   });
 
-  it("fire on press and swallow the click that follows", () => {
+  it("switch TAC and SUPT in place on press, without navigating", () => {
     renderTac();
-    const menu = screen.getByRole("link", { name: "Support menu" });
-    fireEvent.pointerDown(menu, { button: 0 });
-    expect(push).toHaveBeenCalledWith("/supt");
+    fireEvent.pointerDown(
+      screen.getByRole("button", { name: "Support menu" }),
+      {
+        button: 0,
+      },
+    );
+    const toTac = screen.getByRole("button", { name: "Tactical menu" });
     const click = new MouseEvent("click", { bubbles: true, cancelable: true });
-    menu.dispatchEvent(click);
+    toTac.dispatchEvent(click);
     expect(click.defaultPrevented).toBe(true);
-    expect(push).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: "Tactical menu" })).toBe(toTac);
+    fireEvent.pointerDown(toTac, { button: 0 });
+    expect(screen.getByRole("button", { name: "Support menu" })).toBeVisible();
+    expect(push).not.toHaveBeenCalled();
   });
 
   it("fire on Enter and Space, once per press", () => {
     renderTac();
-    const menu = screen.getByRole("link", { name: "Support menu" });
+    const menu = screen.getByRole("button", { name: "Support menu" });
     fireEvent.keyDown(menu, { key: "Enter" });
     fireEvent.keyDown(menu, { key: "Enter", repeat: true });
     fireEvent.keyUp(menu, { key: "Enter" });
+    expect(menu).toHaveAccessibleName("Tactical menu");
     fireEvent.keyDown(menu, { key: " " });
-    expect(push).toHaveBeenCalledTimes(2);
+    expect(menu).toHaveAccessibleName("Support menu");
+  });
+
+  it("fire a state action on a click with no press before it", () => {
+    renderTac();
+    fireEvent.click(screen.getByRole("button", { name: "Support menu" }));
+    expect(
+      screen.getByRole("button", { name: "Tactical menu" }),
+    ).toBeInTheDocument();
   });
 
   it("ignore secondary-button presses", () => {
     renderTac();
-    fireEvent.pointerDown(screen.getByRole("link", { name: "Support menu" }), {
-      button: 2,
-    });
-    expect(push).not.toHaveBeenCalled();
+    const menu = screen.getByRole("button", { name: "Support menu" });
+    fireEvent.pointerDown(menu, { button: 2 });
+    expect(menu).toHaveAccessibleName("Support menu");
   });
 });
 
@@ -110,30 +124,5 @@ describe("the bezel controls", () => {
     expect(
       JSON.parse(localStorage.getItem(CONTROLS_STORAGE_KEY) ?? "{}").cont,
     ).toBe(0.1);
-  });
-
-  it("stop the selector at its end stops", () => {
-    renderTac();
-    const toOff = screen.getByRole("button", { name: "Turn toward OFF" });
-    const toDay = screen.getByRole("button", { name: "Turn toward DAY" });
-    const mode = (): string | null =>
-      screen.getByTestId("ddi-mode").textContent;
-    for (let press = 0; press < 4; press += 1) {
-      fireEvent.click(toDay);
-    }
-    expect(mode()).toBe("DAY");
-    expect(toDay).toHaveAttribute("aria-disabled", "true");
-    fireEvent.click(toOff);
-    expect(mode()).toBe("NIGHT");
-    fireEvent.click(toOff);
-    expect(mode()).toBe("OFF");
-    expect(toOff).toHaveAttribute("aria-disabled", "true");
-    expect(document.documentElement.dataset.ddiMode).toBe("OFF");
-    fireEvent.click(toOff);
-    expect(mode()).toBe("OFF");
-    fireEvent.wheel(screen.getByRole("group", { name: "Display mode" }), {
-      deltaY: -100,
-    });
-    expect(mode()).toBe("NIGHT");
   });
 });

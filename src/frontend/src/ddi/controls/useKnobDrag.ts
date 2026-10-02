@@ -2,14 +2,17 @@
 
 import { useRef, useState } from "react";
 import { KNOB_DRAG_THRESHOLD_PX } from "../constants";
-import { dragKnob } from "./state";
+import { dragKnob, snapKnob } from "./state";
 
 interface Press {
   pointerId: number;
   startX: number;
   startY: number;
   lastX: number;
-  /** The unrounded value while dragging, or null until the press has moved far enough to be a drag. */
+  /**
+   * The unsnapped, unrounded value while dragging, or null until the press has moved far enough to be a drag. It
+   * accumulates the drag; the knob shows it snapped to the centre detent.
+   */
   value: number | null;
 }
 
@@ -26,8 +29,8 @@ interface KnobDrag {
 }
 
 /**
- * Turns a knob by dragging sideways (design section 5.3): `onTurn` gets the new value after each move. A press that
- * moves less than `KNOB_DRAG_THRESHOLD_PX` stays a click.
+ * Turns a knob by dragging sideways (design section 5.3): `onTurn` gets the new value after each move, snapped to the
+ * centre detent. A press that moves less than `KNOB_DRAG_THRESHOLD_PX` stays a click.
  */
 export function useKnobDrag(
   value: number,
@@ -84,7 +87,7 @@ export function useKnobDrag(
           event.clientX - current.lastX,
         );
         current.lastX = event.clientX;
-        onTurn(current.value);
+        onTurn(snapKnob(current.value));
       },
       onPointerUp: end,
       onPointerCancel: end,

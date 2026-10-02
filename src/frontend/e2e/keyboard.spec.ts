@@ -1,28 +1,40 @@
 import { expect, test } from "@playwright/test";
 
-test("the keyboard reaches the skip link, the OSBs, then the controls", async ({
+test("the keyboard reaches the skip link, the OSBs, the knobs, then the theme toggle", async ({
   page,
 }) => {
   await page.goto("/");
-  await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Text view" })).toBeFocused();
-  await expect(page.getByRole("link", { name: "Text view" })).toBeInViewport();
-  await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Support menu" })).toBeFocused();
-  await page.keyboard.press("Tab");
-  await expect(
-    page.getByRole("button", { name: "Turn toward OFF" }),
-  ).toBeFocused();
+  const order = [
+    page.getByRole("link", { name: "Text view" }),
+    page.getByRole("button", { name: "Support menu" }),
+    page.getByRole("slider", { name: "Brightness" }),
+    page.getByRole("slider", { name: "Contrast" }),
+    page.getByRole("button", { name: "Night mode" }),
+  ];
+  for (const target of order) {
+    await page.keyboard.press("Tab");
+    await expect(target).toBeFocused();
+    await expect(target).toBeInViewport();
+  }
 });
 
-test("Enter on an OSB navigates, and arrow keys, Home and End turn a knob", async ({
+test("Enter on PB18 switches the menu in place and keeps focus", async ({
   page,
 }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Support menu" }).focus();
+  await page.getByRole("button", { name: "Support menu" }).focus();
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/\/supt$/);
+  const toTac = page.getByRole("button", { name: "Tactical menu" });
+  await expect(toTac).toBeFocused();
+  await page.keyboard.press("Space");
+  await expect(
+    page.getByRole("button", { name: "Support menu" }),
+  ).toBeFocused();
+  await expect(page).toHaveURL(/\/$/);
+});
 
+test("arrow keys, Home and End turn a knob", async ({ page }) => {
+  await page.goto("/");
   const contrast = page.getByRole("slider", { name: "Contrast" });
   await contrast.focus();
   await page.keyboard.press("ArrowDown");
@@ -36,20 +48,10 @@ test("Enter on an OSB navigates, and arrow keys, Home and End turn a knob", asyn
   await expect(contrast).toHaveAttribute("aria-valuenow", "0");
 });
 
-test("the selector keeps focus at its end stop", async ({ page }) => {
-  await page.goto("/");
-  const toOff = page.getByRole("button", { name: "Turn toward OFF" });
-  await toOff.focus();
-  await page.keyboard.press("Enter");
-  await page.keyboard.press("Space");
-  await expect(page.getByTestId("ddi-mode")).toHaveText("OFF");
-  await expect(toOff).toBeFocused();
-});
-
 test("the skip link opens the plain view", async ({ page }) => {
-  await page.goto("/supt");
+  await page.goto("/");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/\/supt\?view=plain$/);
+  await expect(page).toHaveURL(/\/\?view=plain$/);
   await expect(page.locator("html")).toHaveAttribute("data-view", "plain");
 });

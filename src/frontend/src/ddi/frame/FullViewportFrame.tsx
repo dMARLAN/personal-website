@@ -1,10 +1,8 @@
 import {
-  BAND_BOTTOM,
-  BAND_SIDE,
-  BAND_TOP,
-  COLORS,
+  BAND,
+  BLOOM_BLUR,
   EDGE_STRIP_DEPTH,
-  FRAME_MIN,
+  FRAME_SCALE_CSS,
   GLASS_HALF,
   GLASS_SHORT,
   KNOB_DIAMETER,
@@ -13,8 +11,6 @@ import {
   OSB_CAP_RADIUS,
   OSB_PRESS_OFFSET,
   SCREEN_RADIUS,
-  SELECTOR_PLATE,
-  SELECTOR_STRIP,
   VIGNETTE,
 } from "../constants";
 import { ControlsIsland } from "../controls/ControlsIsland";
@@ -22,7 +18,8 @@ import { PBS, pbEdge, type Edge } from "../geometry";
 import { EmissiveLayer } from "../primitives/EmissiveLayer";
 import { PBLabel } from "../primitives/PBLabel";
 import { Osb } from "./Osb";
-import type { DdiScreen } from "./types";
+import { ScreenStateProvider, ScreenStateSlot } from "./screenState";
+import type { DdiScreen, DdiScreens } from "./types";
 
 const EDGES: readonly Edge[] = ["left", "top", "right", "bottom"];
 
@@ -40,15 +37,12 @@ const PROSE_WIDE_HALF = 768;
 
 /**
  * Every frame size in DI, as CSS custom properties. `--k` is pixels per DI: the one scale for the glass and the
- * bezel, so the layout scales uniformly and is never stretched (design section 4.1).
+ * bezel, so the layout scales uniformly and is never stretched (design section 4.1). Colours are theme tokens in
+ * `theme.css`, not here.
  */
 const FRAME_STYLE: React.CSSProperties = {
-  "--k": `min(calc(100vw / ${FRAME_MIN.width}), calc(100dvh / ${FRAME_MIN.height}))`,
-  "--band-top": BAND_TOP,
-  "--band-side": BAND_SIDE,
-  "--band-bottom": BAND_BOTTOM,
-  "--selector-strip": SELECTOR_STRIP,
-  "--screen-offset": (BAND_TOP - BAND_BOTTOM) / 2,
+  "--k": FRAME_SCALE_CSS,
+  "--band": BAND,
   "--glass": GLASS_SHORT,
   "--screen-radius": SCREEN_RADIUS,
   "--strip": EDGE_STRIP_DEPTH,
@@ -57,93 +51,134 @@ const FRAME_STYLE: React.CSSProperties = {
   "--lip": LIP_RING,
   "--cap": OSB_CAP,
   "--cap-radius": OSB_CAP_RADIUS,
+  // A cap is centred between the viewport edge and the lip ring, so it clears the ring by OSB_LIP_GAP.
+  "--cap-centre": (BAND - LIP_RING) / 2,
   "--press": OSB_PRESS_OFFSET,
   "--knob": KNOB_DIAMETER,
-  "--selector-width": SELECTOR_PLATE.width,
-  "--selector-height": SELECTOR_PLATE.height,
   "--vignette-blur": VIGNETTE.blur,
   "--vignette-spread": VIGNETTE.spread,
-  "--color-screen": COLORS.screenTint,
-  "--color-screen-edge": COLORS.screenEdge,
-  "--color-face": COLORS.face,
-  "--color-face-top": COLORS.faceTop,
-  "--color-face-bottom": COLORS.faceBottom,
-  "--color-cap": COLORS.osbCap,
-  "--color-cap-pressed": COLORS.osbCapPressed,
-  "--color-lip": COLORS.lipRing,
-  "--color-knob": COLORS.knob,
-  "--color-placard": COLORS.placard,
 };
+
+/** Everything one screen draws on the glass: the square, the four edge strips and the prose layer. */
+function EmissiveScreen({ screen }: { screen: DdiScreen }): React.JSX.Element {
+  return (
+    <>
+      <svg
+        className="ddi-square"
+        viewBox={`${-GLASS_HALF} ${-GLASS_HALF} ${GLASS_SHORT} ${GLASS_SHORT}`}
+      >
+        <EmissiveLayer id="ddi-square">{screen.symbology}</EmissiveLayer>
+      </svg>
+      {EDGES.map((edge) => (
+        <svg
+          key={edge}
+          className={`ddi-strip ddi-strip-${edge}`}
+          viewBox={STRIP_VIEWBOX[edge]}
+        >
+          <EmissiveLayer id={`ddi-edge-${edge}`}>
+            {screen.legends
+              .filter((legend) => pbEdge(legend.pb) === edge)
+              .map((legend) => (
+                <PBLabel
+                  key={legend.pb}
+                  pb={legend.pb}
+                  lines={legend.lines}
+                  boxed={legend.boxed}
+                />
+              ))}
+            {screen.edges?.[edge]}
+          </EmissiveLayer>
+        </svg>
+      ))}
+      {screen.prose && (
+        <>
+          <svg
+            className="ddi-prose ddi-prose-square"
+            viewBox={`${-PROSE_SQUARE_HALF} ${-GLASS_HALF} ${2 * PROSE_SQUARE_HALF} ${GLASS_SHORT}`}
+          >
+            <EmissiveLayer id="ddi-prose-square">
+              {screen.prose.square}
+            </EmissiveLayer>
+          </svg>
+          <svg
+            className="ddi-prose ddi-prose-wide"
+            viewBox={`${-PROSE_WIDE_HALF} ${-GLASS_HALF} ${2 * PROSE_WIDE_HALF} ${GLASS_SHORT}`}
+          >
+            <EmissiveLayer id="ddi-prose-wide">
+              {screen.prose.wide}
+            </EmissiveLayer>
+          </svg>
+        </>
+      )}
+    </>
+  );
+}
+
+function ScreenOsbs({ screen }: { screen: DdiScreen }): React.JSX.Element {
+  const legends = new Map(screen.legends.map((legend) => [legend.pb, legend]));
+  return (
+    <>
+      {PBS.map((pb) => (
+        <Osb key={pb} pb={pb} legend={legends.get(pb)} />
+      ))}
+    </>
+  );
+}
+
+/** Maps each in-section state to what `render` draws for its screen. */
+function perState(
+  { screens }: DdiScreens,
+  render: (screen: DdiScreen) => React.ReactNode,
+): Record<string, React.ReactNode> {
+  return Object.fromEntries(
+    Object.entries(screens).map(([state, screen]) => [state, render(screen)]),
+  );
+}
 
 /**
  * The DDI filling the viewport (design section 4). The glass's short side is always 1089.6 DI; the long side takes
- * the rest. Every region is positioned by CSS alone, so nothing is measured and nothing flashes on hydration.
+ * the rest. Every region is positioned by CSS alone, so nothing is measured and nothing flashes on hydration. Every
+ * in-section state is server-rendered; the client shows the current one (section 9.4).
  */
 export function FullViewportFrame({
-  screen,
+  screens,
 }: {
-  screen: DdiScreen;
+  screens: DdiScreens;
 }): React.JSX.Element {
-  const legends = new Map(screen.legends.map((legend) => [legend.pb, legend]));
   return (
-    <div className="ddi-frame" style={FRAME_STYLE}>
-      <div className="ddi-screen" aria-hidden="true">
-        <div className="ddi-emissive">
-          <svg
-            className="ddi-square"
-            viewBox={`${-GLASS_HALF} ${-GLASS_HALF} ${GLASS_SHORT} ${GLASS_SHORT}`}
-          >
-            <EmissiveLayer id="ddi-square">{screen.symbology}</EmissiveLayer>
-          </svg>
-          {EDGES.map((edge) => (
-            <svg
-              key={edge}
-              className={`ddi-strip ddi-strip-${edge}`}
-              viewBox={STRIP_VIEWBOX[edge]}
+    <ScreenStateProvider initial={screens.initial}>
+      <div className="ddi-frame" style={FRAME_STYLE}>
+        <div className="ddi-screen" aria-hidden="true">
+          <svg className="ddi-defs">
+            {/* The optional bloom (section 6.3). The region covers every viewBox, in DI. */}
+            <filter
+              id="ddi-bloom"
+              filterUnits="userSpaceOnUse"
+              x={-PROSE_WIDE_HALF}
+              y={-PROSE_WIDE_HALF}
+              width={2 * PROSE_WIDE_HALF}
+              height={2 * PROSE_WIDE_HALF}
             >
-              <EmissiveLayer id={`ddi-edge-${edge}`}>
-                {screen.legends
-                  .filter((legend) => pbEdge(legend.pb) === edge)
-                  .map((legend) => (
-                    <PBLabel
-                      key={legend.pb}
-                      pb={legend.pb}
-                      lines={legend.lines}
-                      boxed={legend.boxed}
-                    />
-                  ))}
-                {screen.edges?.[edge]}
-              </EmissiveLayer>
-            </svg>
-          ))}
-          {screen.prose && (
-            <>
-              <svg
-                className="ddi-prose ddi-prose-square"
-                viewBox={`${-PROSE_SQUARE_HALF} ${-GLASS_HALF} ${2 * PROSE_SQUARE_HALF} ${GLASS_SHORT}`}
-              >
-                <EmissiveLayer id="ddi-prose-square">
-                  {screen.prose.square}
-                </EmissiveLayer>
-              </svg>
-              <svg
-                className="ddi-prose ddi-prose-wide"
-                viewBox={`${-PROSE_WIDE_HALF} ${-GLASS_HALF} ${2 * PROSE_WIDE_HALF} ${GLASS_SHORT}`}
-              >
-                <EmissiveLayer id="ddi-prose-wide">
-                  {screen.prose.wide}
-                </EmissiveLayer>
-              </svg>
-            </>
-          )}
+              <feGaussianBlur stdDeviation={BLOOM_BLUR} />
+            </filter>
+          </svg>
+          <div className="ddi-emissive">
+            <ScreenStateSlot
+              states={perState(screens, (screen) => (
+                <EmissiveScreen screen={screen} />
+              ))}
+            />
+          </div>
         </div>
+        <nav className="ddi-osbs" aria-label="Display pushbuttons">
+          <ScreenStateSlot
+            states={perState(screens, (screen) => (
+              <ScreenOsbs screen={screen} />
+            ))}
+          />
+        </nav>
+        <ControlsIsland />
       </div>
-      <nav className="ddi-osbs" aria-label="Display pushbuttons">
-        {PBS.map((pb) => (
-          <Osb key={pb} pb={pb} legend={legends.get(pb)} />
-        ))}
-      </nav>
-      <ControlsIsland />
-    </div>
+    </ScreenStateProvider>
   );
 }

@@ -1,24 +1,22 @@
 import { DdiPage } from "@/ddi/pages/DdiPage";
-import { menuScreen } from "@/ddi/pages/menus";
+import { menuScreens } from "@/ddi/pages/menus";
 import { pageMetadata } from "@/ddi/pages/metadata";
 import { SITE_NAME } from "@/lib/site";
+import { MenuSemantic } from "@/semantic/MenuSemantic";
 import { SemanticPage } from "@/semantic/SemanticPage";
 
 const DESCRIPTION = `The personal website of ${SITE_NAME}, drawn as an F/A-18C Hornet digital display indicator.`;
 
-export const metadata = pageMetadata("tac", DESCRIPTION);
+export const metadata = pageMetadata("menu", DESCRIPTION);
 
-export default function TacPage(): React.JSX.Element {
+export default function MenuPage(): React.JSX.Element {
   return (
     <DdiPage
-      screen={menuScreen("TAC")}
+      screens={menuScreens()}
       semantic={
         <SemanticPage heading={SITE_NAME}>
           <p>{DESCRIPTION}</p>
-          <p>
-            This is the tactical menu. Its pushbuttons open the site&apos;s
-            sections as each one ships.
-          </p>
+          <MenuSemantic />
         </SemanticPage>
       }
     />

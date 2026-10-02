@@ -1,12 +1,23 @@
 import { MenuTitle } from "../primitives/MenuTitle";
-import type { DdiScreen } from "../frame/types";
-import { menuLegends, type MenuName } from "./registry";
+import type { DdiScreens } from "../frame/types";
+import { MENU_NAMES, menuLegends } from "./registry";
 
-/** TAC and SUPT: an empty body, the boxed title at (0, −446) and legends from the registry (design section 9.3). */
-export function menuScreen(menu: MenuName): DdiScreen {
+/**
+ * TAC and SUPT, the two in-section states of `/`: each has an empty body, its boxed title at (0, −446) and legends
+ * from the registry (design sections 9.3 and 9.4). The page opens on TAC.
+ */
+export function menuScreens(): DdiScreens {
   return {
-    legends: menuLegends(menu),
-    symbology: null,
-    edges: { bottom: <MenuTitle name={menu} boxed /> },
+    initial: "TAC",
+    screens: Object.fromEntries(
+      MENU_NAMES.map((menu) => [
+        menu,
+        {
+          legends: menuLegends(menu),
+          symbology: null,
+          edges: { bottom: <MenuTitle name={menu} boxed /> },
+        },
+      ]),
+    ),
   };
 }

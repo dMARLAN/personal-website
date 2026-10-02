@@ -6,6 +6,8 @@ export type LegendAction =
   | { kind: "download"; href: string }
   | { kind: "external"; href: string }
   | { kind: "island"; render: React.ReactNode }
+  /** Switches the page's in-section state, for example TAC to SUPT. The URL does not change (section 9.4). */
+  | { kind: "state"; state: string }
   | { kind: "inert" };
 
 /** One OSB: its legend on the glass and what pressing it does. */
@@ -31,5 +33,14 @@ export interface DdiScreen {
   prose?: { square: React.ReactNode; wide: React.ReactNode };
 }
 
-/** A frame renders a screen with its bezel and controls. Pages never know which frame renders them. */
-export type DdiFrame = (props: { screen: DdiScreen }) => React.ReactNode;
+/**
+ * A page's screens, one per in-section state (docs/design.md section 9.4). The URL picks the page; local client state
+ * picks the screen, starting at `initial`. A page without in-section state has one screen.
+ */
+export interface DdiScreens {
+  initial: string;
+  screens: Readonly<Record<string, DdiScreen>>;
+}
+
+/** A frame renders a page's screens with its bezel and controls. Pages never know which frame renders them. */
+export type DdiFrame = (props: { screens: DdiScreens }) => React.ReactNode;

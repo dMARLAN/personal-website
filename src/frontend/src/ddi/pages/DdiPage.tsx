@@ -1,9 +1,9 @@
 import { VIEW_PARAM } from "../controls/state";
 import { Frame } from "../frame";
-import type { DdiScreen } from "../frame/types";
+import type { DdiScreens } from "../frame/types";
 
 export interface DdiPageProps {
-  screen: DdiScreen;
+  screens: DdiScreens;
   /** The page's semantic layer, a `SemanticPage`. */
   semantic: React.ReactNode;
 }
@@ -12,7 +12,10 @@ export interface DdiPageProps {
  * One route: the skip links, the semantic `<main>`, then the frame with its OSBs and controls, in that DOM order
  * (design section 10.2). The view links reload the page, so the pre-paint script applies the view before paint.
  */
-export function DdiPage({ screen, semantic }: DdiPageProps): React.JSX.Element {
+export function DdiPage({
+  screens,
+  semantic,
+}: DdiPageProps): React.JSX.Element {
   return (
     <>
       <header>
@@ -24,7 +27,7 @@ export function DdiPage({ screen, semantic }: DdiPageProps): React.JSX.Element {
         </a>
       </header>
       {semantic}
-      <Frame screen={screen} />
+      <Frame screens={screens} />
     </>
   );
 }

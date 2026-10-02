@@ -1,27 +1,44 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const ROUTES = ["/", "/supt"];
 const VIEWPORTS = [
   { width: 1920, height: 1080 },
   { width: 390, height: 844 },
 ];
+const SCHEMES = [
+  { scheme: "light", theme: "day" },
+  { scheme: "dark", theme: "night" },
+] as const;
 
-for (const route of ROUTES) {
-  for (const viewport of VIEWPORTS) {
-    test(`${route} at ${viewport.width}×${viewport.height} has no axe violations`, async ({
-      page,
-    }) => {
-      await page.setViewportSize(viewport);
-      await page.goto(route);
+for (const { scheme, theme } of SCHEMES) {
+  test.describe(`${theme} theme`, () => {
+    test.use({ colorScheme: scheme });
+
+    for (const viewport of VIEWPORTS) {
+      for (const menu of ["TAC", "SUPT"] as const) {
+        test(`/ on ${menu} at ${viewport.width}×${viewport.height} has no axe violations`, async ({
+          page,
+        }) => {
+          await page.setViewportSize(viewport);
+          await page.goto("/");
+          await expect(page.locator("html")).toHaveAttribute(
+            "data-theme",
+            theme,
+          );
+          if (menu === "SUPT") {
+            await page.getByRole("button", { name: "Support menu" }).click();
+          }
+          const { violations } = await new AxeBuilder({ page }).analyze();
+          expect(violations).toEqual([]);
+        });
+      }
+    }
+
+    test("/ in plain view has no axe violations", async ({ page }) => {
+      await page.goto("/?view=plain");
+      await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
       const { violations } = await new AxeBuilder({ page }).analyze();
       expect(violations).toEqual([]);
     });
-  }
-
-  test(`${route} in plain view has no axe violations`, async ({ page }) => {
-    await page.goto(`${route}?view=plain`);
-    const { violations } = await new AxeBuilder({ page }).analyze();
-    expect(violations).toEqual([]);
   });
 }

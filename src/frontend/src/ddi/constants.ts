@@ -48,58 +48,43 @@ export const GLASS_HALF = GLASS_SHORT / 2;
 export const SYMBOLOGY_HALF = 512;
 /** MDI glass corner radius [fnd §1.2]. */
 export const SCREEN_RADIUS = 174;
-/** (ours) One 80 DI cap plus 12 DI each side. The real side border is about 185 DI [bzl §3]. */
-export const BAND_SIDE = 104;
-export const BAND_BOTTOM = 104;
-/** (ours) A 76 DI selector strip at the outer edge plus a 104 DI OSB row [bzl §3]. */
-export const SELECTOR_STRIP = 76;
-export const BAND_TOP = SELECTOR_STRIP + BAND_SIDE;
+/**
+ * (ours) The bezel band, the same depth on all four edges. A 42 DI cap sits midway between the viewport edge and the
+ * lip ring, so it clears both by 7 DI. The real side border is about 185 DI [bzl §3].
+ */
+export const BAND = 64;
 /** (ours) Cap side and corner radius. The real cap:pitch ratio is 0.56 and the radius 14 % of the side [bzl §3]. */
-export const OSB_CAP = 80;
-export const OSB_CAP_RADIUS = 11;
+export const OSB_CAP = 42;
+export const OSB_CAP_RADIUS = 6;
 /** (ours) How far a pressed cap moves toward the glass. DCS snaps the cap with no animation [bzl §1]. */
-export const OSB_PRESS_OFFSET = 4;
+export const OSB_PRESS_OFFSET = 2;
 /** The recessed ring around the glass [bzl §3]. */
 export const LIP_RING = 8;
-/** (ours) BRT and CONT, sized to the 104 × 104 corner cell. */
-export const KNOB_DIAMETER = 84;
-/** (ours) The OFF/NIGHT/DAY knob and its plate. The plate layout is real [bzl §3]. */
-export const SELECTOR_DIAMETER = 56;
-export const SELECTOR_PLATE = { width: 300, height: 68 } as const;
-/** (ours) BRT and CONT placards: a rounded rect with condensed caps 18 DI high [bzl §3]. */
-export const PLACARD = { width: 72, height: 32, capHeight: 18 } as const;
+/** (ours) The clear gap between a cap and the lip ring: what is left of the band once the cap is centred in it. */
+export const OSB_LIP_GAP = (BAND - LIP_RING - OSB_CAP) / 2;
+/** (ours) BRT and CONT, sized to the 64 × 64 corner cell. */
+export const KNOB_DIAMETER = 50;
+/** (ours) BRT and CONT placards: a rounded rect with condensed caps 12 DI high [bzl §3]. */
+export const PLACARD = { width: 46, height: 22, capHeight: 12 } as const;
 /** (ours) Holds the deepest edge-attached element, the BIT group rule (x −503 to −303) [pgB §3]. */
 export const EDGE_STRIP_DEPTH = 260;
 /** (ours) The inset vignette's blur and spread over the screen tint [fnd §4.2]. */
 export const VIGNETTE = { blur: 120, spread: 20 } as const;
 
+/**
+ * (ours) The optional bloom's blur, in DI. It imitates DCS's engine-wide post-process bloom, which is not part of the
+ * module [fnd §4.3]. The night theme turns it on (section 6.3).
+ */
+export const BLOOM_BLUR = 8;
+
 /** Viewport size in DI that fits exactly: glass plus both side bands, and glass plus top and bottom bands. */
 export const FRAME_MIN = {
-  width: GLASS_SHORT + 2 * BAND_SIDE,
-  height: GLASS_SHORT + BAND_TOP + BAND_BOTTOM,
+  width: GLASS_SHORT + 2 * BAND,
+  height: GLASS_SHORT + 2 * BAND,
 } as const;
 
-// ---------------------------------------------------------------------------------------------------------------
-// Colours (docs/design.md sections 4.5 and 6.1).
-// ---------------------------------------------------------------------------------------------------------------
-
-export const COLORS = {
-  /** Every stroke [fnd §2.1]. */
-  green: "#1e8c00",
-  /** The unlit screen texture: centre and vignette edge [fnd §4.2]. */
-  screenTint: "#1a2218",
-  screenEdge: "#151915",
-  /** Bezel face and its satin top-light gradient [bzl §3]. */
-  face: "#2f302f",
-  faceTop: "#383a3b",
-  faceBottom: "#2b2d2e",
-  osbCap: "#282829",
-  /** (ours) */
-  osbCapPressed: "#222223",
-  lipRing: "#252626",
-  knob: "#222427",
-  placard: "#404242",
-} as const;
+/** `--k`, the pixels per DI, as a CSS length: the largest scale at which the whole frame fits the viewport. */
+export const FRAME_SCALE_CSS = `min(calc(100vw / ${FRAME_MIN.width}), calc(100dvh / ${FRAME_MIN.height}))`;
 
 // ---------------------------------------------------------------------------------------------------------------
 // OSB legends: `add_PB_label` and `addMenuLabel` in MPD_page_defs.lua [fnd §5.3–5.5].
@@ -130,24 +115,6 @@ export const MENU_TITLE = {
 // Bezel controls (docs/design.md section 5).
 // ---------------------------------------------------------------------------------------------------------------
 
-/** OFF/NIGHT/DAY in detent order (DCS arg 0, 0.1, 0.2) [bzl §1]. */
-export const DISPLAY_MODES = ["OFF", "NIGHT", "DAY"] as const;
-export type DisplayMode = (typeof DISPLAY_MODES)[number];
-
-/** Selector pointer angles, clockwise from up, measured from the fan lines in `dcs-tex-ddi-bezel.png`. */
-export const SELECTOR_ANGLES: Readonly<Record<DisplayMode, number>> = {
-  OFF: -70,
-  NIGHT: -25,
-  DAY: 25,
-};
-
-/** Luminance scale per mode. NIGHT is the MDI cockpit value [fnd §2.2]. OFF draws nothing. */
-export const MODE_SCALE: Readonly<Record<DisplayMode, number>> = {
-  OFF: 0,
-  NIGHT: 0.126,
-  DAY: 1,
-};
-
 /** BRT and CONT run 0 to 1. Clicks, the wheel and the arrow keys step 0.1 (DCS gain 0.1) [bzl §1]; a drag is continuous. */
 export const KNOB_STEP = 0.1;
 /** (ours) Knob values are rounded to whole thousandths, so 0.1 steps never drift. */
@@ -164,6 +131,10 @@ export const BRIGHTNESS_CURVE = { floor: 0.05 } as const;
 export const HALO_BOOST = 0.5;
 /** (ours) haloOpacity = soft − range·c. */
 export const HALO_OPACITY = { soft: 0.75, range: 0.5 } as const;
-/** (ours) Accumulated wheel `deltaY` per step: 50 px for the knobs (trackpads), 100 px (one notch) per detent. */
+/** (ours) Accumulated wheel `deltaY` per step, small enough for trackpads. */
 export const KNOB_WHEEL_STEP_PX = 50;
-export const SELECTOR_WHEEL_STEP_PX = 100;
+/**
+ * (ours) A drag snaps to 12 o'clock while its unsnapped value is within `window` of `centre`. The drag must travel
+ * through the window to leave it, which feels like a notch.
+ */
+export const KNOB_DETENT = { centre: 0.5, window: 0.04 } as const;

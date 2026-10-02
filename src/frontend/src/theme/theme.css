@@ -1,0 +1,136 @@
+/*
+ * Theme tokens (docs/design.md section 4.8). `data-theme` on <html> is "day" or "night"; the pre-paint script sets it
+ * before first paint from the stored override or the OS colour scheme. Without JavaScript there is no attribute and
+ * the day tokens apply. Each group (bezel, lip, OSB, knob and placard, screen, emissive, toggle, plain view) has its
+ * own variables, so a theme can restyle one group (for example with textures) without touching the others.
+ */
+
+:root,
+:root[data-theme="day"] {
+  /* Bezel face: satin dark charcoal with a subtle top light [bzl §3] and (ours) a faint static grain. */
+  --bezel-face-top: #383a3b;
+  --bezel-face-bottom: #2b2d2e;
+  --bezel-sheen: rgb(255 255 255 / 0.035);
+  --bezel-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.55 -0.2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+
+  /* The recessed ring round the glass [bzl §3]. */
+  --lip-ring: #252626;
+  --lip-highlight: rgb(255 255 255 / 0.07);
+
+  /* OSB caps: blank and dark [bzl §3]; the pressed colour is ours. */
+  --osb-cap: #282829;
+  --osb-cap-pressed: #222223;
+  --osb-cap-sheen: rgb(255 255 255 / 0.025);
+  --osb-cap-highlight: rgb(255 255 255 / 0.09);
+
+  /* BRT and CONT knobs and their placards [bzl §3]. */
+  --knob-skirt: #222427;
+  --knob-face-light: #3a3e43;
+  --knob-face-mid: #25282c;
+  --knob-face-dark: #181a1d;
+  --knob-ring: #e4e6e6;
+  --knob-knurl: rgb(255 255 255 / 0.09);
+  --knob-pointer: #f2f2f2;
+  --placard: #404242;
+  --placard-ink: #ecedeb;
+
+  /* The unlit screen (ours): near-black with a trace of green, and a darker vignette edge. */
+  --screen-tint: #0a0d0a;
+  --screen-edge: #050605;
+
+  /* Emissive symbology (section 6.2): the halo's falloff multiplier, and the optional bloom (section 6.3), off. */
+  --ddi-halo-spread: 1;
+  --ddi-bloom-display: none;
+  --ddi-bloom-opacity: 0;
+
+  /* The theme toggle and focus rings: a light neutral on the charcoal bezel. */
+  --theme-toggle-ink: #d0d2d0;
+  --focus-ring: #f2f2f2;
+
+  /* Plain view (section 10.2). */
+  --plain-background: #f5f6f4;
+  --plain-text: #1c1f1c;
+  --plain-link: #1d6b00;
+  --plain-toggle-ink: #4a4e4a;
+}
+
+/* Night: a dark cockpit. The bezel is near-black and the symbology glows more. */
+:root[data-theme="night"] {
+  --bezel-face-top: #141516;
+  --bezel-face-bottom: #0b0c0c;
+  --bezel-sheen: rgb(255 255 255 / 0.015);
+  --bezel-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.55 -0.2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+
+  --lip-ring: #070808;
+  --lip-highlight: rgb(255 255 255 / 0.05);
+
+  --osb-cap: #161718;
+  --osb-cap-pressed: #0c0c0d;
+  --osb-cap-sheen: rgb(255 255 255 / 0.012);
+  --osb-cap-highlight: rgb(255 255 255 / 0.07);
+
+  --knob-skirt: #0e0f11;
+  --knob-face-light: #222528;
+  --knob-face-mid: #15171a;
+  --knob-face-dark: #0b0c0e;
+  --knob-ring: #8b8e8e;
+  --knob-knurl: rgb(255 255 255 / 0.05);
+  --knob-pointer: #a9acab;
+  --placard: #1c1d1d;
+  --placard-ink: #a2a5a3;
+
+  --screen-tint: #070907;
+  --screen-edge: #030403;
+
+  --ddi-halo-spread: 2.2;
+  --ddi-bloom-display: inline;
+  --ddi-bloom-opacity: 0.6;
+
+  /* A mid grey: it stands out on the near-black bezel without glaring in a dark room. */
+  --theme-toggle-ink: #8f9290;
+  --focus-ring: #b8bbb9;
+
+  --plain-background: #0f120f;
+  --plain-text: #dfe5db;
+  --plain-link: #8fdc6a;
+  --plain-toggle-ink: #a9afa6;
+}
+
+/* ---- The theme toggle (outside the DDI) ------------------------------------------------------------------------ */
+
+.theme-toggle {
+  position: fixed;
+  z-index: 20;
+  /* ThemeToggle.tsx sets --corner-inset: centred in the top-right bezel corner cell, at least 4px from the edges. */
+  top: var(--corner-inset);
+  right: var(--corner-inset);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--theme-toggle-ink);
+  border-radius: 50%;
+  background: none;
+  color: var(--theme-toggle-ink);
+  cursor: pointer;
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.theme-toggle-icon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.75;
+}
+
+:root[data-theme="night"] .theme-toggle-sun,
+:root:not([data-theme="night"]) .theme-toggle-moon {
+  display: none;
+}
+
+html[data-view="plain"] .theme-toggle {
+  border-color: var(--plain-toggle-ink);
+  color: var(--plain-toggle-ink);
+}

@@ -6,7 +6,7 @@ import { PAGES, type PageId } from "./registry";
 export function pageMetadata(id: PageId, description: string): Metadata {
   const page = PAGES[id];
   return {
-    title: id === "tac" ? { absolute: SITE_NAME } : page.label,
+    title: id === "menu" ? { absolute: SITE_NAME } : page.label,
     description,
     alternates: { canonical: page.path },
   };

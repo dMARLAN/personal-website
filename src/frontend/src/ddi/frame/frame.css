@@ -1,10 +1,11 @@
 /*
  * FullViewportFrame (docs/design.md sections 4–6). Every size is DI × --k; the DI values arrive as unitless custom
- * properties from FullViewportFrame.tsx, and the controls' state (--ddi-*) lives on <html>.
+ * properties from FullViewportFrame.tsx, and the controls' state (--ddi-*) lives on <html>. Every colour is a theme
+ * token from src/theme/theme.css.
  */
 
 html {
-  background: #2b2d2e;
+  background: var(--bezel-face-bottom);
 }
 
 html:not([data-view="plain"]) body {
@@ -17,13 +18,9 @@ html:not([data-view="plain"]) body {
   overflow: hidden;
   /* The satin face with a subtle top light [bzl §3], and (ours) a faint static grain so it reads as a material. */
   background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.55 -0.2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E"),
-    radial-gradient(
-      120% 70% at 50% 0%,
-      rgb(255 255 255 / 0.035),
-      transparent 70%
-    ),
-    linear-gradient(var(--color-face-top), var(--color-face-bottom));
+    var(--bezel-texture),
+    radial-gradient(120% 70% at 50% 0%, var(--bezel-sheen), transparent 70%),
+    linear-gradient(var(--bezel-face-top), var(--bezel-face-bottom));
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -33,17 +30,14 @@ html:not([data-view="plain"]) body {
 
 .ddi-screen {
   position: absolute;
-  top: calc(var(--band-top) * var(--k));
-  left: calc(var(--band-side) * var(--k));
-  right: calc(var(--band-side) * var(--k));
-  bottom: calc(var(--band-bottom) * var(--k));
+  inset: calc(var(--band) * var(--k));
   overflow: hidden;
   border-radius: calc(var(--screen-radius) * var(--k));
-  background: var(--color-screen);
-  /* The vignette never changes with BRT, CONT or the mode [fnd §4.2]. */
+  background: var(--screen-tint);
+  /* The vignette never changes with BRT or CONT [fnd §4.2]. */
   box-shadow:
     inset 0 0 calc(var(--vignette-blur) * var(--k))
-      calc(var(--vignette-spread) * var(--k)) var(--color-screen-edge),
+      calc(var(--vignette-spread) * var(--k)) var(--screen-edge),
     inset 0 calc(2 * var(--k)) calc(3 * var(--k)) rgb(0 0 0 / 0.55);
 }
 
@@ -51,14 +45,11 @@ html:not([data-view="plain"]) body {
 .ddi-frame::before {
   content: "";
   position: absolute;
-  top: calc((var(--band-top) - var(--lip)) * var(--k));
-  left: calc((var(--band-side) - var(--lip)) * var(--k));
-  right: calc((var(--band-side) - var(--lip)) * var(--k));
-  bottom: calc((var(--band-bottom) - var(--lip)) * var(--k));
+  inset: calc((var(--band) - var(--lip)) * var(--k));
   border-radius: calc((var(--screen-radius) + var(--lip)) * var(--k));
-  background: var(--color-lip);
+  background: var(--lip-ring);
   box-shadow:
-    inset 0 calc(-1.5 * var(--k)) calc(1 * var(--k)) rgb(255 255 255 / 0.07),
+    inset 0 calc(-1.5 * var(--k)) calc(1 * var(--k)) var(--lip-highlight),
     0 calc(1.5 * var(--k)) 0 rgb(255 255 255 / 0.05),
     0 calc(-1 * var(--k)) calc(1 * var(--k)) rgb(0 0 0 / 0.45);
 }
@@ -77,13 +68,15 @@ html:not([data-view="plain"]) body {
   }
 }
 
-html[data-ddi-mode="OFF"] .ddi-emissive {
-  display: none;
-}
-
 .ddi-emissive svg {
   position: absolute;
   overflow: visible;
+}
+
+.ddi-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
 }
 
 .ddi-square {
@@ -167,16 +160,16 @@ html[data-ddi-mode="OFF"] .ddi-emissive {
 .ddi-osb-island[data-edge="left"] {
   --in-x: 1;
   --in-y: 0;
-  left: calc(var(--band-side) * var(--k) / 2);
-  top: calc(50% + (var(--screen-offset) - var(--pb-y)) * var(--k));
+  left: calc(var(--cap-centre) * var(--k));
+  top: calc(50% - var(--pb-y) * var(--k));
 }
 
 .ddi-osb[data-edge="right"],
 .ddi-osb-island[data-edge="right"] {
   --in-x: -1;
   --in-y: 0;
-  left: calc(100% - var(--band-side) * var(--k) / 2);
-  top: calc(50% + (var(--screen-offset) - var(--pb-y)) * var(--k));
+  left: calc(100% - var(--cap-centre) * var(--k));
+  top: calc(50% - var(--pb-y) * var(--k));
 }
 
 .ddi-osb[data-edge="top"],
@@ -184,7 +177,7 @@ html[data-ddi-mode="OFF"] .ddi-emissive {
   --in-x: 0;
   --in-y: 1;
   left: calc(50% + var(--pb-x) * var(--k));
-  top: calc((var(--band-top) - var(--band-side) / 2) * var(--k));
+  top: calc(var(--cap-centre) * var(--k));
 }
 
 .ddi-osb[data-edge="bottom"],
@@ -192,7 +185,7 @@ html[data-ddi-mode="OFF"] .ddi-emissive {
   --in-x: 0;
   --in-y: -1;
   left: calc(50% + var(--pb-x) * var(--k));
-  top: calc(100% - var(--band-bottom) * var(--k) / 2);
+  top: calc(100% - var(--cap-centre) * var(--k));
 }
 
 /* A blank cap in a shallow well: a dark line along its upper edge and a highlight along its lower edge [bzl §3]. */
@@ -200,13 +193,13 @@ html[data-ddi-mode="OFF"] .ddi-emissive {
   display: block;
   border-radius: calc(var(--cap-radius) * var(--k));
   background:
-    linear-gradient(rgb(255 255 255 / 0.025), rgb(0 0 0 / 0.06)),
-    var(--color-cap);
+    linear-gradient(var(--osb-cap-sheen), rgb(0 0 0 / 0.06)),
+    var(--osb-cap);
   box-shadow:
-    inset 0 calc(1.5 * var(--k)) calc(1 * var(--k)) rgb(0 0 0 / 0.5),
-    inset 0 calc(-1.5 * var(--k)) calc(1 * var(--k)) rgb(255 255 255 / 0.09),
-    0 0 0 calc(2.5 * var(--k)) rgb(0 0 0 / 0.22),
-    0 calc(2 * var(--k)) calc(4 * var(--k)) rgb(0 0 0 / 0.35);
+    inset 0 calc(1 * var(--k)) calc(1 * var(--k)) rgb(0 0 0 / 0.5),
+    inset 0 calc(-1 * var(--k)) calc(1 * var(--k)) var(--osb-cap-highlight),
+    0 0 0 calc(1.5 * var(--k)) rgb(0 0 0 / 0.22),
+    0 calc(1.5 * var(--k)) calc(3 * var(--k)) rgb(0 0 0 / 0.35);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -216,11 +209,11 @@ html[data-ddi-mode="OFF"] .ddi-emissive {
 .ddi-osb[data-pressed] {
   translate: calc(var(--in-x) * var(--press) * var(--k))
     calc(var(--in-y) * var(--press) * var(--k));
-  background: var(--color-cap-pressed);
+  background: var(--osb-cap-pressed);
   box-shadow:
-    inset 0 calc(1.5 * var(--k)) calc(1.5 * var(--k)) rgb(0 0 0 / 0.6),
-    inset 0 calc(-1 * var(--k)) calc(1 * var(--k)) rgb(255 255 255 / 0.05),
-    0 0 0 calc(2.5 * var(--k)) rgb(0 0 0 / 0.3);
+    inset 0 calc(1 * var(--k)) calc(1.5 * var(--k)) rgb(0 0 0 / 0.6),
+    inset 0 calc(-0.5 * var(--k)) calc(1 * var(--k)) var(--osb-cap-sheen),
+    0 0 0 calc(1.5 * var(--k)) rgb(0 0 0 / 0.3);
 }
 
 .ddi-osb[aria-disabled="true"] {
@@ -228,29 +221,20 @@ html[data-ddi-mode="OFF"] .ddi-emissive {
 }
 
 .ddi-osb:focus-visible,
-.ddi-half:focus-visible,
 .ddi-knob:focus-visible {
-  outline: max(2px, calc(3 * var(--k))) solid #f2f2f2;
+  outline: max(2px, calc(3 * var(--k))) solid var(--focus-ring);
   outline-offset: max(2px, calc(3 * var(--k)));
 }
 
 /* ---- Bezel controls (sections 4.4, 4.5 and 5) ----------------------------------------------------------------- */
 
-.ddi-selector,
 .ddi-knob {
   position: absolute;
   translate: -50% -50%;
 }
 
-.ddi-selector {
-  left: 50%;
-  top: calc(var(--selector-strip) * var(--k) / 2);
-  width: calc(var(--selector-width) * var(--k));
-  height: calc(var(--selector-height) * var(--k));
-}
-
 .ddi-knob {
-  top: calc(100% - var(--band-bottom) * var(--k) / 2);
+  top: calc(100% - var(--band) * var(--k) / 2);
   width: calc(var(--knob) * var(--k));
   height: calc(var(--knob) * var(--k));
   border-radius: 50%;
@@ -270,11 +254,11 @@ html[data-ddi-mode="OFF"] .ddi-emissive {
 }
 
 .ddi-knob-left {
-  left: calc(var(--band-side) * var(--k) / 2);
+  left: calc(var(--band) * var(--k) / 2);
 }
 
 .ddi-knob-right {
-  left: calc(100% - var(--band-side) * var(--k) / 2);
+  left: calc(100% - var(--band) * var(--k) / 2);
 }
 
 .ddi-control-art {
@@ -286,66 +270,53 @@ html[data-ddi-mode="OFF"] .ddi-emissive {
   pointer-events: none;
 }
 
-.ddi-plate {
-  stroke: rgb(255 255 255 / 0.07);
-  stroke-width: 1.2;
-  filter: drop-shadow(0 1.5px 1.5px rgb(0 0 0 / 0.45));
-}
-
 .ddi-placard circle,
 .ddi-placard rect {
-  fill: var(--color-placard);
+  fill: var(--placard);
 }
 
 .ddi-placard {
   filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5));
 }
 
-.ddi-placard-ink {
-  fill: #ecedeb;
-  stroke: #ecedeb;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-}
-
-.ddi-placard-ink text {
-  stroke: none;
-}
-
-.ddi-selector-label,
+/* Barlow Condensed caps are about 0.7 em, so 12 DI caps need a 17.1 DI font. */
 .ddi-placard-label {
   font-family: var(--font-placard), "Arial Narrow", sans-serif;
   font-weight: 500;
-}
-
-/* Barlow Condensed caps are about 0.7 em, so 18 DI caps need a 25.7 DI font. */
-.ddi-selector-label {
-  font-size: 20px;
-}
-
-.ddi-placard-label {
-  font-size: 25.7px;
-  fill: #ecedeb;
+  font-size: 17.1px;
+  fill: var(--placard-ink);
 }
 
 .ddi-knob-shadow {
   fill: rgb(0 0 0 / 0.5);
-  filter: blur(1.5px);
+  filter: blur(1px);
 }
 
 .ddi-knob-skirt {
-  fill: var(--color-knob);
+  fill: var(--knob-skirt);
 }
 
 .ddi-knob-ring {
   fill: none;
-  stroke: #e4e6e6;
-  stroke-width: 2.2;
+  stroke: var(--knob-ring);
+  stroke-width: 1.5;
 }
 
 .ddi-knob-knurl {
-  stroke: rgb(255 255 255 / 0.09);
-  stroke-width: 1.3;
+  stroke: var(--knob-knurl);
+  stroke-width: 1;
+}
+
+.ddi-knob-face-light {
+  stop-color: var(--knob-face-light);
+}
+
+.ddi-knob-face-mid {
+  stop-color: var(--knob-face-mid);
+}
+
+.ddi-knob-face-dark {
+  stop-color: var(--knob-face-dark);
 }
 
 .ddi-knob-face {
@@ -354,31 +325,11 @@ html[data-ddi-mode="OFF"] .ddi-emissive {
 }
 
 .ddi-knob-pointer {
-  stroke: #f2f2f2;
-  stroke-width: 3.5;
+  stroke: var(--knob-pointer);
+  stroke-width: 2.4;
   stroke-linecap: round;
   /* DCS anim speed 16, about 60 ms [bzl §7]. */
   transition: transform 60ms linear;
-}
-
-.ddi-half {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 50%;
-  cursor: pointer;
-}
-
-.ddi-half-left {
-  left: 0;
-}
-
-.ddi-half-right {
-  right: 0;
-}
-
-.ddi-half[aria-disabled="true"] {
-  cursor: default;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -426,8 +377,12 @@ html[data-view="plain"] .ddi-skip-to-plain {
 }
 
 html[data-view="plain"] {
-  background: #111410;
-  color: #dfe5db;
+  background: var(--plain-background);
+  color: var(--plain-text);
+}
+
+html[data-view="plain"][data-theme="day"] {
+  color-scheme: light;
 }
 
 html[data-view="plain"] .ddi-skip-to-ddi {
@@ -437,7 +392,7 @@ html[data-view="plain"] .ddi-skip-to-ddi {
   margin: 0 auto;
   padding: 24px 16px 0;
   background: none;
-  color: #8fdc6a;
+  color: var(--plain-link);
   font-weight: 400;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -475,7 +430,8 @@ html[data-view="plain"] .ddi-frame {
 html[data-view="plain"] .ddi-frame::before,
 html[data-view="plain"] .ddi-screen,
 html[data-view="plain"] .ddi-controls,
-html[data-view="plain"] .ddi-osb[aria-hidden="true"] {
+html[data-view="plain"] .ddi-osb[aria-hidden="true"],
+html[data-view="plain"] .ddi-osb[data-action="state"] {
   display: none;
 }
 
@@ -496,7 +452,7 @@ html[data-view="plain"] .ddi-osb {
   border-radius: 0;
   background: none;
   box-shadow: none;
-  color: #8fdc6a;
+  color: var(--plain-link);
   text-decoration: underline;
   text-underline-offset: 3px;
 }

@@ -11,43 +11,42 @@ test("the controls change the display and persist across a reload", async ({
   page,
 }) => {
   await page.goto("/");
-  expect(await drawnControls(page)).toMatchObject({
-    mode: "DAY",
-    gain: "1",
-    halo: "0.5",
-  });
+  expect(await drawnControls(page)).toMatchObject({ gain: "1", halo: "0.5" });
   const brightness = page.getByRole("slider", { name: "Brightness" });
   const contrast = page.getByRole("slider", { name: "Contrast" });
   await expect(brightness).toHaveAttribute("aria-valuetext", "50%");
 
   // A click on the left half steps down 0.1 and on the right half up 0.1.
-  await brightness.click({ position: { x: 5, y: 30 } });
+  await brightness.click({ position: { x: 3, y: 20 } });
   const contrastBox = await contrast.boundingBox();
   await contrast.click({
-    position: { x: (contrastBox?.width ?? 0) - 5, y: 30 },
+    position: { x: (contrastBox?.width ?? 0) - 3, y: 20 },
   });
-  await page.getByRole("button", { name: "Turn toward OFF" }).click();
   expect(await drawnControls(page)).toMatchObject({
-    mode: "NIGHT",
-    gain: "0.1021",
+    gain: "0.81",
     halo: "0.45",
-    selectorAngle: "-25deg",
+    emissiveOpacity: "0.81",
   });
-  expect(await storedControls(page)).toEqual({
-    mode: "NIGHT",
-    brt: 0.4,
-    cont: 0.6,
-  });
+  expect(await storedControls(page)).toEqual({ brt: 0.4, cont: 0.6 });
 
   await page.reload();
   expect(await drawnControls(page)).toMatchObject({
-    mode: "NIGHT",
-    gain: "0.1021",
+    gain: "0.81",
     halo: "0.45",
   });
   await expect(brightness).toHaveAttribute("aria-valuenow", "40");
   await expect(contrast).toHaveAttribute("aria-valuetext", "60%");
-  await expect(page.getByTestId("ddi-mode")).toHaveText("NIGHT");
+});
+
+test("the OFF/NIGHT/DAY selector is gone", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("group", { name: "Display mode" })).toHaveCount(
+    0,
+  );
+  await expect(page.locator("html")).not.toHaveAttribute("data-ddi-mode");
+  await expect(
+    page.getByRole("region", { name: "Display controls" }).getByRole("slider"),
+  ).toHaveCount(2);
 });
 
 test("dragging a knob sideways turns it, stops at the end stops and reverses at once", async ({
@@ -81,6 +80,25 @@ test("dragging a knob sideways turns it, stops at the end stops and reverses at 
   expect((await drawnControls(page)).gain).toBe("0.43");
 });
 
+test("a drag snaps to 12 o'clock and must travel through the notch to leave it", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const contrast = page.getByRole("slider", { name: "Contrast" });
+  const drag = await pressKnob(page, contrast);
+  // 8 px is 0.032: still inside the ±0.04 window, so the knob holds at 50 %.
+  await dragBy(drag, 8);
+  await expect(contrast).toHaveAttribute("aria-valuenow", "50");
+  // 20 px in all is 0.08: out of the notch.
+  await dragBy(drag, 12);
+  await expect(contrast).toHaveAttribute("aria-valuenow", "58");
+  // Coming back to 3 px right of centre snaps again.
+  await dragBy(drag, -17);
+  await expect(contrast).toHaveAttribute("aria-valuenow", "50");
+  await page.mouse.up();
+  expect(await storedControls(page)).toMatchObject({ cont: 0.5 });
+});
+
 test("a dragged value persists across a reload, pointer included", async ({
   page,
 }) => {
@@ -100,72 +118,41 @@ test("a dragged value persists across a reload, pointer included", async ({
   expect(angle).toBe("-45deg");
 });
 
-test("the wheel steps the selector and BRT", async ({ page }) => {
+test("the wheel steps BRT", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("slider", { name: "Brightness" }).hover();
   await page.mouse.wheel(0, 150);
   await expect(
     page.getByRole("slider", { name: "Brightness" }),
   ).toHaveAttribute("aria-valuenow", "20");
-  await page.getByRole("group", { name: "Display mode" }).hover();
-  await page.mouse.wheel(0, 100);
-  await expect(page.getByTestId("ddi-mode")).toHaveText("NIGHT");
-  await page.mouse.wheel(0, 100);
-  await page.mouse.wheel(0, 100);
-  await expect(page.getByTestId("ddi-mode")).toHaveText("OFF");
-  await page.mouse.wheel(0, -100);
-  await expect(page.getByTestId("ddi-mode")).toHaveText("NIGHT");
 });
 
-test("the selector stops at OFF and removes the emissive layer", async ({
-  page,
-}) => {
-  await page.goto("/");
-  const toOff = page.getByRole("button", { name: "Turn toward OFF" });
-  await toOff.click();
-  await toOff.click();
-  await expect(toOff).toHaveAttribute("aria-disabled", "true");
-  // Playwright refuses to click an aria-disabled element; the press must still do nothing.
-  await toOff.click({ force: true });
-  expect(await drawnControls(page)).toMatchObject({
-    mode: "OFF",
-    emissiveDisplay: "none",
-  });
-});
-
-test("a stored OFF is drawn before any app JavaScript runs, so it never flashes lit", async ({
+test("stored knobs are drawn before any app JavaScript runs, so they never flash", async ({
   page,
 }) => {
   await page.addInitScript((key) => {
-    localStorage.setItem(
-      key,
-      JSON.stringify({ mode: "OFF", brt: 1, cont: 0.5 }),
-    );
+    localStorage.setItem(key, JSON.stringify({ brt: 0, cont: 0.5 }));
   }, STORAGE_KEY);
   // Block every app and framework script: only the inline pre-paint script in <head> can run.
   await page.route("**/_next/static/**/*.js", (route) => route.abort());
   await page.goto("/");
   expect(await drawnControls(page)).toMatchObject({
-    mode: "OFF",
-    emissiveDisplay: "none",
+    gain: "0.05",
+    emissiveOpacity: "0.05",
   });
 });
 
-test("a v1 value (integer tenths) is ignored and reads as the defaults", async ({
+test("an older stored value (v2, with a mode) is ignored and reads as the defaults", async ({
   page,
 }) => {
   await page.addInitScript(() =>
     localStorage.setItem(
-      "ddi:controls:v1",
-      JSON.stringify({ mode: "OFF", brt: 3, cont: 9 }),
+      "ddi:controls:v2",
+      JSON.stringify({ mode: "OFF", brt: 0.1, cont: 0.9 }),
     ),
   );
   await page.goto("/");
-  expect(await drawnControls(page)).toMatchObject({
-    mode: "DAY",
-    gain: "1",
-    halo: "0.5",
-  });
+  expect(await drawnControls(page)).toMatchObject({ gain: "1", halo: "0.5" });
   await expect(
     page.getByRole("slider", { name: "Brightness" }),
   ).toHaveAttribute("aria-valuenow", "50");
@@ -173,15 +160,11 @@ test("a v1 value (integer tenths) is ignored and reads as the defaults", async (
 
 test("invalid stored state reads as the defaults", async ({ page }) => {
   await page.addInitScript(
-    (key) => localStorage.setItem(key, '{"mode":"ON","brt":"x"}'),
+    (key) => localStorage.setItem(key, '{"brt":"x","cont":null}'),
     STORAGE_KEY,
   );
   await page.goto("/");
-  expect(await drawnControls(page)).toMatchObject({
-    mode: "DAY",
-    gain: "1",
-    halo: "0.5",
-  });
+  expect(await drawnControls(page)).toMatchObject({ gain: "1", halo: "0.5" });
 });
 
 test("the plain view is set by ?view=plain, persists, and is left by ?view=ddi", async ({
@@ -192,7 +175,7 @@ test("the plain view is set by ?view=plain, persists, and is left by ?view=ddi",
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.locator(".ddi-screen")).toBeHidden();
 
-  await page.goto("/supt");
+  await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("data-view", "plain");
   await page.getByRole("link", { name: "Display view" }).click();
   await expect(page.locator("html")).not.toHaveAttribute("data-view", "plain");

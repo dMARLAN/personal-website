@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Barlow_Condensed } from "next/font/google";
 import { PREPAINT_SCRIPT } from "@/ddi/controls/prepaint";
 import { DEFAULT_CONTROLS, controlsStyle } from "@/ddi/controls/state";
-import { COLORS } from "@/ddi/constants";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { ThemeToggle } from "@/theme/ThemeToggle";
 import "./globals.css";
 
 // The bezel placards' condensed sans (design section 4.5). The DDI text itself is stroke paths and needs no font.
@@ -19,8 +19,12 @@ export const metadata: Metadata = {
   description: `The personal website of ${SITE_NAME}.`,
 };
 
+// The bezel's lower face colour per theme (theme.css). It follows the OS, not the visitor's override.
 export const viewport: Viewport = {
-  themeColor: COLORS.faceBottom,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#2b2d2e" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0c0c" },
+  ],
   colorScheme: "dark",
 };
 
@@ -29,20 +33,22 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): React.JSX.Element {
-  // The server renders the default controls. The pre-paint script replaces them with the stored ones before first
-  // paint, so <html> differs from the server HTML by design.
+  // The server renders the default controls and no theme. The pre-paint script sets the stored controls and the theme
+  // before first paint, so <html> differs from the server HTML by design.
   return (
     <html
       lang="en"
       className={placardFont.variable}
-      data-ddi-mode={DEFAULT_CONTROLS.mode}
       style={controlsStyle(DEFAULT_CONTROLS)}
       suppressHydrationWarning
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: PREPAINT_SCRIPT }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <ThemeToggle />
+      </body>
     </html>
   );
 }

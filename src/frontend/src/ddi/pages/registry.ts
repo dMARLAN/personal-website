@@ -2,50 +2,46 @@ import type { LegendSpec } from "../frame/types";
 import type { Pb } from "../geometry";
 
 export type PageId =
-  | "tac"
-  | "supt"
+  | "menu"
   | "about"
   | "resume"
   | "work"
-  | "workEmployer"
   | "projects"
-  | "projectData"
   | "contact"
   | "links"
   | "radar"
   | "server";
 
-export type MenuName = "TAC" | "SUPT";
+/** The two menus. Both live at `/`: they are in-section state, not URLs (docs/design.md section 9.4). */
+export const MENU_NAMES = ["TAC", "SUPT"] as const;
+export type MenuName = (typeof MENU_NAMES)[number];
+
+/** Each menu's accessible name: the label of the PB18 legend that switches to it. */
+export const MENU_LABELS: Readonly<Record<MenuName, string>> = {
+  TAC: "Tactical menu",
+  SUPT: "Support menu",
+};
 
 export interface PageDef {
   id: PageId;
-  /** The route, for example "/work/[employer]". */
+  /** The section's URL. In-section state (sublevels, STEP, PAGE) has none (docs/design.md section 9.4). */
   path: string;
   kind: "menu" | "section" | "showcase";
   /** The page's legend on a menu: lines outermost first, for example ["RDR", "ATTK"]. */
   menu?: { on: MenuName; pb: Pb; legend: readonly string[] };
   /** The accessible name of OSBs that open the page, and the page's `<h1>`. */
   label: string;
-  /** Used for the return legend. */
-  parent?: PageId;
   /** False hides the menu legend until the page ships, as DCS hides unavailable formats (`FormatLabelShow`). */
   available: boolean;
 }
 
-/** The single source for routes, menus, the sitemap and parent links (docs/design.md sections 9.3 and 12). */
+/** The single source for routes, menus and the sitemap (docs/design.md sections 9.3 and 12). */
 export const PAGES: Readonly<Record<PageId, PageDef>> = {
-  tac: {
-    id: "tac",
+  menu: {
+    id: "menu",
     path: "/",
     kind: "menu",
-    label: "Tactical menu",
-    available: true,
-  },
-  supt: {
-    id: "supt",
-    path: "/supt",
-    kind: "menu",
-    label: "Support menu",
+    label: "Menu",
     available: true,
   },
   about: {
@@ -72,28 +68,12 @@ export const PAGES: Readonly<Record<PageId, PageDef>> = {
     label: "Work history",
     available: false,
   },
-  workEmployer: {
-    id: "workEmployer",
-    path: "/work/[employer]",
-    kind: "section",
-    label: "Employer",
-    parent: "work",
-    available: false,
-  },
   projects: {
     id: "projects",
-    path: "/projects/[slug]",
+    path: "/projects",
     kind: "section",
     menu: { on: "TAC", pb: 5, legend: ["PROJECTS"] },
     label: "Projects",
-    available: false,
-  },
-  projectData: {
-    id: "projectData",
-    path: "/projects/[slug]/data",
-    kind: "section",
-    label: "Project details",
-    parent: "projects",
     available: false,
   },
   contact: {
@@ -130,28 +110,10 @@ export const PAGES: Readonly<Record<PageId, PageDef>> = {
   },
 };
 
-export const MENU_PAGES: Readonly<Record<MenuName, PageDef>> = {
-  TAC: PAGES.tac,
-  SUPT: PAGES.supt,
-};
-
 export const ALL_PAGES: readonly PageDef[] = Object.values(PAGES);
 
-/** PB18 is `MENU` on every page [fnd §5.5]. On a menu it toggles TAC and SUPT; elsewhere it opens TAC. */
+/** PB18 is `MENU` on every page [fnd §5.5]. On the menu it toggles TAC and SUPT in place; elsewhere it opens `/` (TAC). */
 export const MENU_PB: Pb = 18;
-
-export function isStaticPath(path: string): boolean {
-  return !path.includes("[");
-}
-
-/**
- * Where a link to `page` goes: its path, or for a dynamic route the static part before the first parameter
- * (`/projects/[slug]` → `/projects`, which redirects to the first project, design section 9.1).
- */
-export function pageHref(page: PageDef): string {
-  const dynamicStart = page.path.indexOf("/[");
-  return dynamicStart === -1 ? page.path : page.path.slice(0, dynamicStart);
-}
 
 function linkLegend(
   page: PageDef,
@@ -162,25 +124,36 @@ function linkLegend(
     pb,
     lines,
     label: page.label,
-    action: { kind: "link", href: pageHref(page) },
+    action: { kind: "link", href: page.path },
   };
 }
 
+/** The pages a menu lists. Only available pages by default; tests pass every page to check the full layout. */
+export function menuPages(
+  menu: MenuName,
+  pages: readonly PageDef[] = ALL_PAGES.filter((page) => page.available),
+): PageDef[] {
+  return pages.filter((page) => page.menu?.on === menu);
+}
+
 /**
- * A menu's legends: one per page on this menu, and `MENU` at PB18 to the other menu (docs/design.md section 9.3).
- * Only available pages get a legend by default; tests pass every page to check the full layout.
+ * A menu's legends: one link per page on this menu, and `MENU` at PB18, which switches to the other menu without
+ * changing the URL (docs/design.md sections 9.3 and 9.4).
  */
 export function menuLegends(
   menu: MenuName,
-  pages: readonly PageDef[] = ALL_PAGES.filter((page) => page.available),
+  pages?: readonly PageDef[],
 ): LegendSpec[] {
-  const other = menu === "TAC" ? MENU_PAGES.SUPT : MENU_PAGES.TAC;
+  const other: MenuName = menu === "TAC" ? "SUPT" : "TAC";
   return [
-    ...pages.flatMap((page) =>
-      page.menu?.on === menu
-        ? [linkLegend(page, page.menu.pb, page.menu.legend)]
-        : [],
+    ...menuPages(menu, pages).flatMap((page) =>
+      page.menu ? [linkLegend(page, page.menu.pb, page.menu.legend)] : [],
     ),
-    linkLegend(other, MENU_PB, ["MENU"]),
+    {
+      pb: MENU_PB,
+      lines: ["MENU"],
+      label: MENU_LABELS[other],
+      action: { kind: "state", state: other },
+    },
   ];
 }

@@ -3,8 +3,8 @@
 Status: draft for review. Date: 2026-10-02. Owner: Chad.
 
 The site is one F/A-18C DDI that fills the browser viewport, drawn to match the DCS World module. Visitors
-navigate only with the 20 bezel OSBs and the three bezel controls. Every DDI page is a real URL that is
-server-rendered as static SVG. A hidden semantic HTML copy of each page serves crawlers and screen readers.
+navigate only with the 20 bezel OSBs and the two bezel knobs. Every site section is a real URL that is
+server-rendered as static SVG; state inside a section, such as TAC versus SUPT, is local and has no URL (ours). A hidden semantic HTML copy of each page serves crawlers and screen readers.
 Each site section is drawn in the real DDI format that fits it best. Showcase pages (radar, home-server
 stats) keep their real formats and legends.
 
@@ -35,8 +35,10 @@ Goals:
 
 - One DDI fills the viewport. Its geometry is never stretched.
 - Symbology, legends, font, colour and stroke model match DCS. Nothing is invented where a DCS reference exists.
-- The bezel controls behave as DCS models them: momentary OSBs, a 3-detent selector, and BRT and CONT knobs.
-- Every page has its own URL. Content is server-rendered and readable without JavaScript.
+- The bezel controls behave as DCS models them: momentary OSBs and BRT and CONT knobs. The OFF/NIGHT/DAY
+  selector is left out (ours, section 5.2).
+- A day and a night appearance for the whole site, following the OS by default (ours, section 4.8).
+- Every section has its own URL. Content is server-rendered and readable without JavaScript.
 - Content lives in typed data files.
 - Static pages ship no per-frame work. Only the radar page animates.
 
@@ -56,16 +58,14 @@ Non-goals:
 |---|---|---|
 | Side legends | [gsys] says the letters are rotated 90°. | Upright letters, one per line [fnd §5.3]. |
 | Green | [hog] estimates `#5EE020`. [web] measures `#6CD214`. | `#1E8C00` [fnd §2.1]. [hdisp] measured the same value in a DCS screenshot. |
-| Screen black | [web] `#0A1B13`. [hog] `#0A140C`. [bzl] `#1b2319`/`#161714`. | `#1a2218` centre, `#151915` edge [fnd §0, §4.2]. |
-| OFF | [bzl] lists a slate "glass off" texture (`#20262B`–`#272F33`). | OFF draws nothing over the unchanged screen tint [fnd §2.2, §4.5]. Which mesh uses the slate texture is unknown. |
+| Screen black | [web] `#0A1B13`. [hog] `#0A140C`. [bzl] `#1b2319`/`#161714`. [fnd §0, §4.2]: `#1a2218` centre, `#151915` edge. | (ours) Near-black with a trace of green: `#0a0d0a` centre, `#050605` edge by day; `#070907`/`#030403` at night (section 6.1). The DCS tint read as grey-green on a monitor. |
 | OSB timing | [bzl §7] suggests firing on press. | Fire on press, as DCS does (Chad's decision). |
 | Font | [hdisp] and [web] recommend the Hornet Display web font. | DCS `stroke_font.svg` glyphs (Chad's decision). One web font cannot match the per-size inter-character gaps [fnd §3.3]. |
 | OSB caps | [bzl] says blank dark caps (`#282829`). DCS screenshots in [gsys]/[hog] show grey caps with a white index line, and ribs between buttons. | Blank dark caps per [bzl] (Chad's decision). |
 | MENU from a page | [gsys] guesses "the last menu". [gsys] p120 and [hog] say TAC. | MENU from any page opens TAC. Lua is silent: the state machine is C++ [fnd §7]. |
 | MENU legend | [gsys] reads the boxed page name and the number as one legend. | The title box at (0, −446) and the PB18 legend are separate elements [fnd §5.5]. |
 | TAC PB10 | [gsys] reads "IMRV DSPLY". | `IMAV`/`MAV` over `DSPLY` [fnd §6.1]. |
-| Selector angles | Helios: OFF 270°, NIGHT 330°, DAY 30° [web §2.4]. | Measured from the fan lines in `dcs-tex-ddi-bezel.png`: OFF −70°, NIGHT −25°, DAY +25° (clockwise from up). |
-| Glow | [web] suggests an `feGaussianBlur` glow of 0.6–1.2 units. | A two-stroke soft edge derived from thickness 0.8 and fuzziness 0.5 [fnd §4.1]. Bloom is optional and off by default. |
+| Glow | [web] suggests an `feGaussianBlur` glow of 0.6–1.2 units. | A two-stroke soft edge derived from thickness 0.8 and fuzziness 0.5 [fnd §4.1]. Bloom is off by day and on in the night theme (ours, section 6.3). |
 
 ---
 
@@ -83,9 +83,9 @@ Non-goals:
   rest of the viewport.
 
 ```css
-:root {
-  /* 1089.6 glass + 2 × 104 side bands; 1089.6 glass + 180 top band + 104 bottom band */
-  --k: min(calc(100vw / 1297.6), calc(100dvh / 1373.6));
+.ddi-frame {
+  /* 1089.6 glass + 2 × 64 bands, on both axes */
+  --k: min(calc(100vw / 1217.6), calc(100dvh / 1217.6));
 }
 ```
 
@@ -98,22 +98,20 @@ The frame is a full-viewport element with `overflow: hidden`. The page never scr
 | `GLASS_SHORT` | 1089.6 | MDI mask ±544.8 [fnd §1.2] |
 | `SYMBOLOGY_HALF` | 512 | drawable square [fnd §0] |
 | `SCREEN_RADIUS` | 174 | MDI corner radius [fnd §1.2] |
-| `BAND_SIDE`, `BAND_BOTTOM` | 104 | (ours) one 80 DI cap plus 12 DI each side. "Slim": the real side border is 22.5 mm ≈ 185 DI [bzl §3]. |
-| `BAND_TOP` | 180 | (ours) a 76 DI selector strip at the outer edge plus a 104 DI OSB row. The selector stays in its real place, above PB8 [bzl §3]. |
-| `OSB_CAP` | 80, corner radius 11 | (ours) the cap:pitch ratio is 0.48. The real ratio is 0.56 and the radius is 14 % of the side [bzl §3]. |
-| `LIP_RING` | 8 wide, `#252626` | recessed ring around the glass [bzl §3] |
-| `KNOB_DIA` (BRT, CONT) | 84 | (ours) sized to the 104 × 104 corner cell |
-| `SELECTOR_DIA` | 56, on a 300 × 68 plate | (ours). The plate layout is real: NIGHT upper left, OFF lower left, DAY upper right, and a V fan of index lines [bzl §3]. |
+| `BAND` | 64, on all four edges | (ours) was 104 at the sides and bottom and 180 at the top, which held the selector strip. Now 7 + 42 + 7 + 8: outer margin, cap, gap, lip ring. "Slim": the real side border is 22.5 mm ≈ 185 DI [bzl §3]. |
+| `OSB_CAP` | 42, corner radius 6 | (ours) was 80. The cap:pitch ratio is 0.25; the real ratio is 0.56 and the radius is 14 % of the side [bzl §3]. |
+| `OSB_LIP_GAP` | 7 | (ours) the clear gap between a cap and the lip ring. A cap is centred between the viewport edge and the ring, (64 − 8) / 2 = 28 DI from the edge. It was about 1 DI. |
+| `LIP_RING` | 8 wide | recessed ring around the glass [bzl §3]. Colour per theme (section 4.8). |
+| `KNOB_DIA` (BRT, CONT) | 50 | (ours) was 84. Sized to the 64 × 64 corner cell, centred 32 DI from both edges. |
 | `EDGE_STRIP_DEPTH` | 260 | (ours) holds the deepest edge-attached element, the BIT group rule (x −503 to −303) [pgB §3] |
 
-The screen box sits inside the bands: top `180·k`, left and right `104·k`, bottom `104·k`. It has
-`border-radius: calc(174 * var(--k))`. Examples:
+The screen box sits `64·k` inside every edge. It has `border-radius: calc(174 * var(--k))`. Examples:
 
-| Viewport | k (px/DI) | Screen (px) | ±512 drawable area (px) | OSB cap (px) |
-|---|---|---|---|---|
-| 1920 × 1080 | 0.786 | 1756 × 857 | 805 | 63 |
-| 2560 × 1440 | 1.048 | 2342 × 1142 | 1073 | 84 |
-| 390 × 844 (phone) | 0.301 | 328 × 759 | 308 | 24 |
+| Viewport | k (px/DI) | Screen (px) | ±512 drawable area (px) | OSB cap (px) | Cap-to-lip gap (px) |
+|---|---|---|---|---|---|
+| 1920 × 1080 | 0.887 | 1806 × 967 | 908 | 37 | 6.2 |
+| 2560 × 1440 | 1.183 | 2409 × 1289 | 1211 | 50 | 8.3 |
+| 390 × 844 (phone) | 0.320 | 349 × 803 | 328 | 13.5 | 2.2 |
 
 ### 4.3 Screen regions
 
@@ -136,7 +134,7 @@ JavaScript measures the layout and nothing flashes on hydration.
 - **Prose tiers.** `@media (min-aspect-ratio: 1648/1000)` switches to the wide tier. At that aspect the
   screen is at least 1536 + 2 × 260 DI wide, so prose never overlaps a side strip. 16:9 gets the wide tier.
   16:10, 4:3 and portrait get the square tier. Both variants are pre-wrapped on the server and CSS shows one.
-  Pagination always uses the square tier's row budget, so a URL shows the same content at every size. Wide
+  Pagination always uses the square tier's row budget, so a page state shows the same content at every size. Wide
   screens just wrap less.
 
 ### 4.4 OSB placement
@@ -153,8 +151,8 @@ PB anchors come from `MPD_PB_defs.lua` [fnd §5.2]:
 - **Along an edge**, a button sits at its PB anchor, measured from the screen centre at the fixed DCS pitch.
   It does not spread out on long edges. The legend centre and the button centre therefore always line up. The
   DCS offsets (+2 DI on rows, −27 DI on columns) are kept: they match the physical buttons [bzl §1].
-- **Across an edge**, a button is centred in its band. The top row is centred in the OSB part of the top
-  band, 128 DI below the viewport top.
+- **Across an edge**, a button is centred between the viewport edge and the lip ring, 28 DI from the edge
+  (ours). It clears the ring by 7 DI.
 - On a wide viewport the top and bottom rows cluster over the symbology square, and the side columns sit at
   the viewport edges. This keeps a row legend over the symbology it labels (for example STORES weapon names).
   Spreading the rows would break that.
@@ -165,17 +163,19 @@ PB anchors come from `MPD_PB_defs.lua` [fnd §5.2]:
     at x = −500 and the right column is `RightCenter` at x = +500. Each extra word is a new column 25 DI
     inward.
   - Boxes: horizontal `22n × 36`, vertical `26 × 32n`, offset 6 DI outward. They use the same stroke [fnd §5.4].
-- **Controls.** The selector is centred at x = 0, 38 DI below the viewport top. BRT is centred 52 DI from the
-  viewport's left and bottom edges. CONT mirrors it on the right. Each knob has a placard (rounded rect
-  72 × 32 DI, `#404242`, white condensed caps 18 DI high) that points inward along the bottom band:
-  "BRT" to the right of its knob and "CONT" to the left of its knob [bzl §3].
+- **Controls.** BRT is centred 32 DI from the viewport's left and bottom edges. CONT mirrors it on the right.
+  Each knob has a placard (a collar plus a rounded tab 46 × 22 DI, white condensed caps 12 DI high; ours, was
+  72 × 32 and 18) that points inward along the bottom band: "BRT" to the right of its knob and "CONT" to the
+  left of its knob [bzl §3].
 
 ### 4.5 Bezel appearance
+
+These are the day values. Section 4.8 gives the night values; every colour is a theme token.
 
 | Element | Value | Source |
 |---|---|---|
 | Face | `#2F302F`, satin, a subtle top-light gradient from `#383a3b` to `#2b2d2e` | [bzl §3] |
-| OSB cap | `#282829`, blank. Pressed: offset 4 DI inward and `#222223`, with no transition. | [bzl §3, §1] (the pressed values are ours) |
+| OSB cap | `#282829`, blank. Pressed: offset 2 DI inward and `#222223`, with no transition. | [bzl §3, §1] (the pressed values are ours) |
 | Knobs | `#222427`, with a white ring on the skirt | [bzl §3] |
 | Placards | `#404242` with white upper-case text in a condensed sans (Barlow Condensed 500, OFL, through `next/font`) | [bzl §3] (font ours) |
 | Screws | none (ours: they would only clutter a slim band) | |
@@ -192,25 +192,68 @@ export interface DdiScreen {
   edges?: Partial<Record<Edge, React.ReactNode>>; // DCS coordinates, PB-anchored content
   prose?: { square: React.ReactNode; wide: React.ReactNode };
 }
-export type DdiFrame = (props: { screen: DdiScreen }) => React.ReactNode;
+// (ours) One screen per in-section state, for example { TAC, SUPT } on `/` (section 9.4)
+export interface DdiScreens { initial: string; screens: Readonly<Record<string, DdiScreen>> }
+export type DdiFrame = (props: { screens: DdiScreens }) => React.ReactNode;
 ```
+
+The frame server-renders every state's screen and OSBs. A small client provider holds the current state and
+shows that state's nodes, so switching state re-renders no SVG on the server and changes no URL. The state
+starts at `initial` each time the page mounts.
 
 `FullViewportFrame` is the frame we ship. A later `BezelSquareFrame` would place the same four strips on the
 square's own borders, which is exactly DCS. The root layout picks the frame with one import.
 
 ### 4.7 Mobile
 
-Mobile reuses the same frame. On a phone in portrait the width sets `k` (about 0.30). The square sits in the
+Mobile reuses the same frame. On a phone in portrait the width sets `k` (about 0.32). The square sits in the
 middle of a tall screen. The top and bottom strips follow the screen's top and bottom edges. OSB caps are
-24 px, which meets the WCAG 2.2 minimum target size, and every cap fills its band cell. Text is too small to
+about 13.5 px. That is under 24 px, but WCAG 2.2 target size (2.5.8) passes through its spacing exception: the
+OSB pitch is 167 DI, about 53 px, so 24 px circles round the caps never meet (ours). Text is too small to
 read at 100 % (about 6 px). A visually hidden "Text view" skip link is the first focusable element and opens
 the plain view (section 10.2). Open question 5 asks whether to make it visible.
+
+### 4.8 Day and night appearance (ours)
+
+The whole site has two themes, `day` and `night`. They replace the cockpit's OFF/NIGHT/DAY selector as the way
+to dim the scene.
+
+- **Default.** The theme follows the OS `prefers-color-scheme`: `dark` gives night. It tracks OS changes live
+  while there is no override.
+- **Override.** A small icon button sits in the viewport's top-right corner, centred in the bezel's corner cell
+  and at least 4 px from the edges. It is outside the DDI concept: 28 px, no background, a 1 px circular border.
+  It shows the current theme: a sun by day and a moon at night. It is a real `<button>` named "Night mode" with
+  `aria-pressed`, inside an `<aside aria-label="Appearance">`, and last in the tab order.
+- **Persistence.** A press stores the new theme in `localStorage["site:theme:v1"]` as `"day"` or `"night"`.
+  The value is untrusted input: anything else means no override. The pre-paint script (section 5.5) resolves
+  the theme and sets `data-theme` on `<html>` before first paint, and CSS picks the icon from that attribute,
+  so a reload never flashes. Without JavaScript there is no attribute and the day tokens apply.
+- **Tokens.** `src/theme/theme.css` holds one block per theme (`:root[data-theme="day"]`,
+  `:root[data-theme="night"]`), split into groups: bezel (`--bezel-*`, including `--bezel-texture`), lip ring
+  (`--lip-*`), OSB (`--osb-*`), knob and placard (`--knob-*`, `--placard*`), screen (`--screen-*`), emissive
+  (`--ddi-halo-spread`, `--ddi-bloom-*`), toggle and focus (`--theme-toggle-ink`, `--focus-ring`) and plain view
+  (`--plain-*`). A later theme change, such as textures or night panel lighting, edits one group.
+- **Toggle contrast.** The ink is a light neutral on each bezel, not a black/white flip: `#d0d2d0` on the day
+  face top `#383a3b` (7.5:1) and a mid grey `#8f9290` on the night face top `#141516` (5.8:1), so it does not
+  glare in a dark room. In plain view it uses `--plain-toggle-ink`.
+
+| Token group | Day | Night |
+|---|---|---|
+| Bezel face | `#383a3b` → `#2b2d2e`, grain 0.16 | `#141516` → `#0b0c0c`, grain 0.07 |
+| Lip ring | `#252626` | `#070808` |
+| OSB cap / pressed | `#282829` / `#222223` | `#161718` / `#0c0c0d` |
+| Knob skirt / ring / pointer | `#222427` / `#e4e6e6` / `#f2f2f2` | `#0e0f11` / `#8b8e8e` / `#a9acab` |
+| Placard / ink | `#404242` / `#ecedeb` | `#1c1d1d` / `#a2a5a3` |
+| Screen centre / edge | `#0a0d0a` / `#050605` | `#070907` / `#030403` |
+| Halo spread, bloom | 1, off | 2.2, on at opacity 0.6 |
+| Plain view background / text | `#f5f6f4` / `#1c1f1c` | `#0f120f` / `#dfe5db` |
 
 ---
 
 ## 5. Bezel controls
 
 All controls are real `<a>` or `<button>` elements in the bezel, except BRT and CONT, which are sliders. Clicks on the glass do nothing.
+The bezel has no OFF/NIGHT/DAY selector (section 5.2).
 
 ### 5.1 OSBs
 
@@ -227,18 +270,15 @@ All controls are real `<a>` or `<button>` elements in the bezel, except BRT and 
   blank OSB does in DCS.
 - An inert legend on a showcase page is a `<button aria-disabled="true">` and is left out of the tab order.
 - Accessible name: the legend's `label` from the registry, for example "Projects" or "Radar, simulated".
-- OSBs keep working at OFF. The dark glass hides the legends, but keyboard and screen-reader users do not
-  depend on the glass.
+- A state OSB (ours) switches the page's in-section state, for example PB18 on the menu. It is a `<button>`
+  that fires on press like the others, and also on a plain `click`, since it has no native action. The plain
+  view hides it (section 10.2).
 
-### 5.2 OFF/NIGHT/DAY selector
+### 5.2 No OFF/NIGHT/DAY selector (ours)
 
-- 3 detents (DCS arg 0, 0.1, 0.2), not cyclic [bzl §1]. Default DAY, which is the autostart position [fnd §2.2].
-- Two `<button>` halves cover the knob, matching DCS left and right click. The left half steps toward OFF and
-  the right half toward DAY. A button is `disabled` at its end stop, so the selector cannot wrap.
-- Mouse wheel over the knob: up steps toward DAY and down toward OFF.
-- The pointer rotates to −70° (OFF), −25° (NIGHT) or +25° (DAY) with a 60 ms transition (DCS anim speed 16
-  [bzl §7]). The transition is removed under `prefers-reduced-motion`.
-- The intensity changes instantly. DCS has no fade [fnd §2.2].
+The DCS bezel has a 3-detent OFF/NIGHT/DAY selector above PB8 [bzl §3]. We removed it, with its strip in the
+top band, so the top band is as slim as the others. NIGHT drew the symbology at ×0.126 [fnd §2.2], which is
+almost invisible on a monitor, and OFF only hid it. The site-wide night theme (section 4.8) replaces both.
 
 ### 5.3 BRT
 
@@ -254,16 +294,20 @@ All controls are real `<a>` or `<button>` elements in the bezel, except BRT and 
   stops and never wraps. Travel past an end stop is dropped, so reversing moves the knob at once. A press must
   move 4 px before it becomes a drag; less is a click. The knob captures the pointer, sets `touch-action: none`
   and `user-select: none`, and shows a `grab` cursor (`grabbing` while dragging).
+- **Centre detent (ours).** A drag keeps an unsnapped value that accumulates the pointer travel. While that value
+  is within 0.04 of 0.5, the knob commits exactly 0.5; outside the window it commits the unsnapped value. A drag
+  must travel through the window (10 px each side) to leave it, which feels like a notch. Clicks, the wheel and
+  the keys already land on exact tenths, so the detent does not apply to them.
 - The pointer sweeps 300° (ours): −150° (about 7 o'clock) at 0, 0° (12 o'clock) at 0.5 and +150° (about
   5 o'clock) at 1, clockwise from up. The 60° at the bottom is a dead zone the pointer never enters.
 - **Curve (ours):**
-  - At and below 0.5: `f(b) = 0.05 + 0.95 · 2b`, and `gain = modeScale × f`. So f(0.5) = 1: the default draws
+  - At and below 0.5: `f(b) = 0.05 + 0.95 · 2b`, and `gain = f`. So f(0.5) = 1: the default draws
     the material green at unit gain, the look DCS shows by default [fnd §2.1]. The DCS curve itself is C++
     [fnd §2.2].
   - The ramp is a straight line. Chrome composites `opacity` on sRGB-encoded values, not in linear light: we
     measured opacity 0.5 of `#1E8C00` over black at G = 70, not 102. Encoded values are close to perceptual, so
     a straight line dims in even-looking steps. The old `b^2.2` exponent made the bottom half far too dark.
-  - The 0.05 floor keeps BRT 0 visibly different from OFF: it adds about 7 to the tint's green channel.
+  - The 0.05 floor keeps the symbology faintly visible at BRT 0.
   - Above 0.5 the gain stays at 1. Opacity cannot exceed 1, and an additive layer of `#1E8C00` cannot draw
     brighter than `#1E8C00`. A `brightness()` filter could, but it would draw a colour that is not the material.
     Instead BRT lights more of each stroke's falloff,
@@ -284,21 +328,20 @@ recommends.
 ### 5.5 Intensity and persistence
 
 ```
-gain = modeScale × f(BRT)        modeScale: DAY 1.0, NIGHT 0.126, OFF → emissive layer not rendered
+gain = f(BRT)
 halo = h(CONT) + (1 − h(CONT)) · 0.5 · max(0, 2·BRT − 1)
 ```
 
-- NIGHT is ×0.126, the MDI cockpit value [fnd §2.2]. At NIGHT the symbology is very dim on a monitor. That is
-  faithful to DCS.
-- State is stored per viewer in `localStorage["ddi:controls:v2"]` as
-  `{"mode":"OFF"|"NIGHT"|"DAY","brt":0..1,"cont":0..1}`. The knob values are floats rounded to thousandths, so
-  0.1 steps never drift. v1 stored integer tenths (0–10). The key changed with the format, so a v1 value is
-  ignored and the controls start at the defaults.
+- The theme does not change the gain. Night draws more glow instead (sections 4.8 and 6.3).
+- State is stored per viewer in `localStorage["ddi:controls:v3"]` as `{"brt":0..1,"cont":0..1}`. The knob
+  values are floats rounded to thousandths, so 0.1 steps never drift. v1 stored integer tenths and v2 also
+  stored the selector's mode. The key changes with the format, so an older value is ignored and the controls
+  start at the defaults.
 - Stored state is untrusted input, not an internal invariant. A missing or invalid field reads as its default
-  (DAY, 0.5, 0.5). A knob value must be a finite number; one outside 0–1 is clamped.
+  (0.5, 0.5). A knob value must be a finite number; one outside 0–1 is clamped.
 - A small inline script in `<head>` runs before first paint. It reads the stored state and sets
-  `data-ddi-mode`, `--ddi-gain`, `--ddi-halo` and the pointer angles on `<html>`, so a stored OFF never
-  flashes lit. The knobs are continuous, so the script repeats the parse and curve maths instead of looking
+  `--ddi-gain`, `--ddi-halo` and the pointer angles on `<html>`, so stored knobs never flash. It also resolves
+  the theme and sets `data-theme` (section 4.8). The knobs are continuous, so the script repeats the parse and curve maths instead of looking
   values up; a unit test checks it against the app's code across the whole range. The same
   script reads `?view=plain` (section 10.2).
 - The controls island reads the same values through `useSyncExternalStore`. The server snapshot is the
@@ -312,16 +355,17 @@ halo = h(CONT) + (1 − h(CONT)) · 0.5 · max(0, 2·BRT − 1)
 
 | Layer | What | Source |
 |---|---|---|
-| Screen tint | `#1a2218` fill with an inset vignette to `#151915` (`box-shadow: inset 0 0 calc(120 * var(--k)) calc(20 * var(--k)) #151915`). It never changes with BRT, CONT or the mode. | [fnd §4.2] (the vignette size is ours) |
-| Emissive layer | The square, the edge strips and the prose layer, in one container with `mix-blend-mode: plus-lighter` and `opacity: var(--ddi-gain)`. It is `display: none` at OFF. | [fnd §4.2]: additive bake |
+| Screen tint | `var(--screen-tint)` fill with an inset vignette to `var(--screen-edge)` (`box-shadow: inset 0 0 calc(120 * var(--k)) calc(20 * var(--k))`). Day `#0a0d0a` → `#050605`, night `#070907` → `#030403`. It never changes with BRT or CONT. | (ours) near-black; DCS uses `#1a2218` → `#151915` [fnd §4.2] |
+| Emissive layer | The square, the edge strips and the prose layer, in one container with `mix-blend-mode: plus-lighter` and `opacity: var(--ddi-gain)`. | [fnd §4.2]: additive bake |
 | Bloom (optional) | See 6.3 | |
 | Glass smudge (optional) | See 6.3 | |
 
 - **Additive look.** `plus-lighter` adds the green to the tint, as the DCS bake does with
-  `additive_alpha = true`. At DAY and BRT 0.5 or above a stroke core shows `#1a2218 + #1E8C00 = #38AE18`.
+  `additive_alpha = true`. At BRT 0.5 or above a stroke core shows `#0a0d0a + #1E8C00 = #289908` by day. The
+  darker base raises the contrast of the strokes and the halo; the default halo needed no retune.
   `@supports not (mix-blend-mode: plus-lighter)` falls back to `screen`, which looks almost the same on a dark
   base.
-- Changing BRT or the mode changes only `opacity`. That is compositor-only work and causes no re-raster.
+- Changing BRT changes only `opacity`. That is compositor-only work and causes no re-raster.
 - Overlapping strokes inside the layer use normal alpha, not additive blending. That is a small deviation
   from DCS, and it avoids a blend per element.
 - Colour: every stroke is `#1E8C00` [fnd §2.1]. No page we build needs red or yellow. If one does, use the
@@ -331,7 +375,7 @@ halo = h(CONT) + (1 − h(CONT)) · 0.5 · max(0, 2·BRT − 1)
 ### 6.2 Stroke model
 
 DCS draws every line, box, circle and glyph with one shader: thickness 0.8 (the solid core) and fuzziness
-0.5 (the soft falloff). Both are constant: BRT, CONT and the mode do not change them [fnd §4.1, §4.5]. The
+0.5 (the soft falloff). Both are constant: BRT and CONT do not change them [fnd §4.1, §4.5]. The
 units are pixels of the C++ bake target. We convert them with one inferred reference: the DCS screenshot in
 [hdisp] shows the 1089.6 DI glass at about 600 px. So 1 reference px = 1.816 DI.
 
@@ -354,9 +398,13 @@ The soft edge is two strokes of the same geometry and needs no filter:
 .ddi-core, .ddi-halo { fill: none; stroke: #1E8C00; stroke-linecap: round; stroke-linejoin: round;
                        vector-effect: non-scaling-stroke; }
 .ddi-core { stroke-width: max(1px, calc(1.45 * var(--k))); }
-.ddi-halo { stroke-width: calc(max(1px, calc(1.45 * var(--k))) + max(0.6px, calc(0.91 * var(--k))));
+.ddi-halo { stroke-width: calc(max(1px, calc(1.45 * var(--k)))
+                               + var(--ddi-halo-spread) * max(0.6px, calc(0.91 * var(--k))));
             opacity: var(--ddi-halo); }
 ```
+
+- `--ddi-halo-spread` is 1 by day, which is the DCS falloff, and 2.2 at night (ours): the halo widens to
+  about 3.5 DI so the symbology glows.
 
 - The halo at half opacity, ending halfway along the falloff, approximates the shader's linear falloff.
 - The primitives never set `stroke-width`, so the two `<use>` instances can style it.
@@ -365,13 +413,15 @@ The soft edge is two strokes of the same geometry and needs no filter:
 
 ### 6.3 Optional effects
 
-Both effects are off by default. Each is one constant in `ddi/constants.ts`.
+Both effects are off by day.
 
-- **Bloom (`BLOOM_ENABLED`, tunable).** This imitates DCS's engine-wide post-process bloom, which is not part
-  of the module [fnd §4.3]. It adds a third `<use>` behind the halo with `feGaussianBlur` (stdDeviation 8 DI)
-  at opacity `0.2 × gain`. The filter sits on a static group, so it rasterizes only when the page changes. The
-  radar page leaves its moving contacts out of it.
-- **Glass smudge (`SMUDGE_ENABLED`).** This is our own procedural texture, not ED's. Its alpha is at most
+- **Bloom (on in the night theme, ours).** This imitates DCS's engine-wide post-process bloom, which is not part
+  of the module [fnd §4.3]. `EmissiveLayer` always renders a third `<use>` behind the halo, 4 DI wide, filtered
+  by one shared `feGaussianBlur` (`BLOOM_BLUR`, stdDeviation 8 DI). The theme tokens `--ddi-bloom-display` and
+  `--ddi-bloom-opacity` hide it by day and show it at opacity 0.6 at night; the emissive layer's opacity scales
+  it with the gain. The filter sits on static groups, so it rasterizes only when the page changes. The radar
+  page leaves its moving contacts out of it.
+- **Glass smudge (`SMUDGE_ENABLED`, not built).** This is our own procedural texture, not ED's. Its alpha is at most
   40/255 with a mean near 7/255, and it is masked by a fixed top-left reflection gradient. It sits above the
   emissive layer with normal blending and does not change with any control. Smudges in DCS only show in
   reflections and never blur the symbology [fnd §4.2].
@@ -458,12 +508,13 @@ src/frontend/src/
     generated/                 # strokeFont.ts, strokeSymbols.ts (committed)
     font/extraGlyphs.ts
     primitives/                # server components (see table)
-    frame/                     # FullViewportFrame, Osb, Band, types.ts
-    controls/                  # client island: Selector, Knob, useDisplayControls, prepaint.ts
+    frame/                     # FullViewportFrame, Osb, screenState (in-section state), types.ts
+    controls/                  # client island: Knob, useDisplayControls, useKnobDrag, prepaint.ts
     formats/                   # real DCS layouts, parameterised by content (one file per format)
     pages/                     # registry.ts and one module per page: content + format + legends
   content/                     # typed data (section 11)
   semantic/                    # SemanticPage and the per-page semantic components
+  theme/                       # day/night: theme.ts, store.ts, ThemeToggle, theme.css (section 4.8)
 ```
 
 **Primitives.** These are server components that mirror the DCS helpers in `symbology_defs.lua` and
@@ -485,7 +536,8 @@ src/frontend/src/
   They hold the Lua constants with citations and take content as props. They never import from `content/`.
 - **Pages** bind content to a format. Each returns a `DdiScreen` (section 4.6) and a semantic component.
 - **Client components**, and only these:
-  - the controls island;
+  - the controls island and the theme toggle;
+  - the screen-state provider, which shows the current in-section state's server-rendered nodes;
   - the page islands that own transient state: the Links keypad selection, the Contact COPY action, and the
     radar animation.
 
@@ -505,8 +557,8 @@ legend is on TAC, the section takes that OSB.
 |---|---|---|---|---|
 | About | TGT DATA OWNSHIP [pgB §11] | It is a profile card: label/value rows, a 5-row list and IFF lines. None of its values has a controller, so every slot is free content. The bottom-left quadrant is empty in DCS and holds the bio. | `/about` | TAC PB20 `ABOUT` (TGT DATA's position) |
 | Resume | S/W CONFIGURATION [pgB §3] | A 2 × 12 name/value table suits skills and qualifications. Its only action OSB, PB20 (`OVRD`), becomes the PDF download. | `/resume` | TAC PB6 `RESUME` |
-| Work history | BIT FAILURES plus sublevels [pgB §3] | It has eight OSB-anchored group blocks (label, rule, status) that lead to sublevels. These become employers. The 17-row name/status list becomes the role timeline. `PAGE` (PB16) is a real pager. | `/work`, `/work/[employer]`, `/work/[employer]/[page]` | TAC PB7 `WORK` |
-| Projects | STORES [pgA §1] | The exact wingform with 9 stations. Each station is a project. The top row (PB6–10) is a category tab bar that boxes the selection. `STEP` (PB13) cycles stations. `DATA` (PB17) opens the description. | `/projects/[slug]`, `/projects/[slug]/data` (`/projects` redirects to the first) | TAC PB5 `PROJECTS` (STORES' position) |
+| Work history | BIT FAILURES plus sublevels [pgB §3] | It has eight OSB-anchored group blocks (label, rule, status) that lead to sublevels. These become employers. The 17-row name/status list becomes the role timeline. `PAGE` (PB16) is a real pager. | `/work` (employer sublevels and pages are in-section state, ours) | TAC PB7 `WORK` |
+| Projects | STORES [pgA §1] | The exact wingform with 9 stations. Each station is a project. The top row (PB6–10) is a category tab bar that boxes the selection. `STEP` (PB13) cycles stations. `DATA` (PB17) opens the description. | `/projects` (the selected station and DATA are in-section state, ours) | TAC PB5 `PROJECTS` (STORES' position) |
 | Contact | MIDS [pgB §6] | Label/value rows with colon alignment, and an empty cautions slot for feedback. Its `XMIT` OSB becomes "send mail". | `/contact` | TAC PB8 `CONTACT` |
 | Links | UFC BU [pgB §12] | A 12-row channel table with a selection box. The keypad digits on the OSBs select a row. `ENT` opens it. | `/links` | TAC PB9 `LINKS` |
 | Radar (showcase) | RDR ATTK, RWS [hog §4], [gpg §16] | The real format, with fake moving contacts. | `/radar` | TAC PB4 `RDR`/`ATTK` (real) |
@@ -533,12 +585,13 @@ S/W CONFIG, which has 24 rows. HSI DATA WYPT fits too few characters per row for
   title, the selected STORES category, `DATA` while the data sublevel is open, the selected role on a work
   sublevel, and `RECORD` on ENG (always boxed in DCS). Menu legends are never boxed, because pressing one
   leaves the menu.
-- `MENU` is the PB18 legend on every page except TAC and SUPT. DCS shows "MENU" on the ground and a time when
+- `MENU` is the PB18 legend on every page, TAC and SUPT included. DCS shows "MENU" on the ground and a time when
   airborne. We always show "MENU" [fnd §5.5].
 
 ### 9.3 TAC and SUPT
 
-Both menus have an empty body, a boxed title at (0, −446) [fnd §5.5] and the PB18 legend `MENU`. Legends are
+Both menus live at `/` (ours, section 9.4). Each has an empty body, a boxed title at (0, −446) [fnd §5.5] and
+the PB18 legend `MENU`, which switches to the other menu in place. Legends are
 generated from the registry. A page's legend appears only after the page ships. This is the DCS rule: a
 format that is unavailable has no legend (`MPD_MENU_FormatLabelShow` [fnd §6.1]). Real legends for formats
 we never build stay hidden.
@@ -556,41 +609,50 @@ we never build stay hidden.
 | 12 | — | `ENG` |
 | 13 | `SA` (later) | — |
 | 17 | `EW` (later) | — |
-| 18 | `MENU` (title `TAC`, boxed) | `MENU` (title `SUPT`, boxed) |
+| 18 | `MENU` → SUPT, in place (title `TAC`, boxed) | `MENU` → TAC, in place (title `SUPT`, boxed) |
 | 20 | `ABOUT` | — |
 
 Row legends fit their pitch. The longest, `CONTACT`, is 134 DI wide on a 169 DI pitch.
 
 ### 9.4 Navigation state machine
 
-The state is the URL. Every transition is a link, so the browser's back and forward buttons work.
+**Rule (ours, Chad's decision): sections are URLs; in-section state is not.** Entering a section changes the
+URL. Everything that happens inside a section is local client state with no URL change: TAC versus SUPT on
+`/`, `STEP`, `PAGE`, sublevels, the Links selection and the knobs. That state starts fresh each time the page
+mounts. The browser's back and forward buttons move between sections, not between in-section states.
 
 ```mermaid
 stateDiagram-v2
   [*] --> TAC
-  TAC --> SUPT: PB18
-  SUPT --> TAC: PB18
-  TAC --> Page: legend PB
-  SUPT --> Page: legend PB
-  Page --> Sublevel: sublevel PB
-  Sublevel --> Page: return PB (parent name)
-  Page --> TAC: PB18 MENU
-  Sublevel --> TAC: PB18 MENU
+  state "/" as Menu {
+    TAC --> SUPT: PB18
+    SUPT --> TAC: PB18
+  }
+  TAC --> Section: legend PB
+  SUPT --> Section: legend PB
+  state "/section" as Section {
+    Page --> Sublevel: sublevel PB
+    Sublevel --> Page: return PB (parent name)
+  }
+  Section --> TAC: PB18 MENU
 ```
 
-| State | Input | Next state |
-|---|---|---|
-| `/` (TAC) | PB18 | `/supt` |
-| `/supt` | PB18 | `/` |
-| a menu | a legend OSB | that page |
-| any page or sublevel | PB18 `MENU` | `/` (TAC) [gsys §4.1 p120], [hog §1] |
-| `/work` | an employer block's OSB | `/work/[employer]` |
-| `/work/[employer]` | PB8 `WORK` | `/work` |
-| a paged page | PB16 `PAGE` | the next page. It wraps to page 1, because PAGE is a cycle, not the selector. |
-| `/projects/[slug]` | PB6–10 category | the first project in that category (the category is boxed) |
-| `/projects/[slug]` | PB13 `STEP` | the next project in the same category. It wraps, as AIM-120 STEP does [gpg §3]. |
-| `/projects/[slug]` | PB17 `DATA` | `/projects/[slug]/data` (`DATA` boxed). Pressing again returns. |
-| any | a blank or inert OSB | no change |
+| State | Input | Next state | URL change |
+|---|---|---|---|
+| `/` (TAC) | PB18 | SUPT, in place | no |
+| `/` (SUPT) | PB18 | TAC, in place | no |
+| a menu | a legend OSB | that section | yes |
+| any section page or sublevel | PB18 `MENU` | `/`, showing TAC [gsys §4.1 p120], [hog §1] | yes |
+| Work | an employer block's OSB | that employer's sublevel | no |
+| Work sublevel | PB8 `WORK` | Work | no |
+| a paged page | PB16 `PAGE` | the next page. It wraps to page 1, because PAGE is a cycle. | no |
+| Projects | PB6–10 category | the first project in that category (the category is boxed) | no |
+| Projects | PB13 `STEP` | the next project in the same category. It wraps, as AIM-120 STEP does [gpg §3]. | no |
+| Projects | PB17 `DATA` | the DATA sublevel (`DATA` boxed). Pressing again returns. | no |
+| any | a blank or inert OSB | no change | no |
+
+Because in-section state has no URL, the semantic layer of each section lists the content of every state
+(section 10.2). In-section OSBs are state OSBs (section 5.1): they work only with JavaScript.
 
 ---
 
@@ -598,11 +660,12 @@ stateDiagram-v2
 
 ### 10.1 Routes
 
-- The App Router has one `page.tsx` per URL. Dynamic segments use `generateStaticParams` with
-  `dynamicParams = false`, so every page is static HTML at build time.
+- The App Router has one `page.tsx` per section URL (section 9.4), with no dynamic segments, so every page is
+  static HTML at build time. `/supt` no longer exists: SUPT is in-section state of `/`. Sublevel URLs such as
+  `/work/[employer]` and `/projects/[slug]/data` were dropped for the same reason.
 - `generateMetadata` gives each route a title, a description and a canonical URL. The title is built from
   `SITE_NAME`.
-- `sitemap.ts` and `robots.ts` are generated from the registry.
+- `sitemap.ts` and `robots.ts` are generated from the registry. Today the sitemap lists only `/`.
 - `SITE_NAME` and `SITE_URL` (`https://chad.hambley.org`) stay the only identity constants, in
   `src/lib/site.ts`. The DDI renders the name from `SITE_NAME`. A test fails if the surname literal appears
   anywhere else.
@@ -613,11 +676,15 @@ stateDiagram-v2
   links. It is visually hidden in DDI mode. The SVG is `aria-hidden="true"`. The hidden text matches what the
   glass shows, so it is an accessible equivalent, not cloaking.
 - The OSBs are `<a href>` elements, so crawlers find every route from the menus.
+- In-section state has no URL, so a section's `<main>` carries every state's content. `/` has an `<h2>` for
+  each of the Tactical and Support menus, each listing its shipped pages as links. The plain view hides the
+  state OSBs (`data-action="state"`), since the semantic layer already shows every state.
+- The plain view follows the theme: light page by day, dark at night (section 4.8).
 - **Plain view** is the same DOM with a CSS switch. `html[data-view="plain"]` hides the frame and shows
   `<main>` styled as a plain readable page. The pre-paint script sets it from `?view=plain`, and it persists in
   `localStorage`. This adds no routes.
-- DOM order: skip link ("Text view"), `<main>`, the OSBs in PB order (only enabled ones are focusable), then
-  the controls. Next's route announcer reads the new `<h1>` after each navigation.
+- DOM order: skip link ("Text view"), `<main>`, the OSBs in PB order (only enabled ones are focusable), the
+  knobs, then the theme toggle. Next's route announcer reads the new `<h1>` after each navigation.
 - `prefers-reduced-motion` stops the radar animation and the knob transitions.
 
 ## 11. Content schema
@@ -684,18 +751,19 @@ export interface ServerStats {        // /server → ENG [pgA §2]; fake data
 
 ## 12. Page registry
 
-`ddi/pages/registry.ts` is the single source for routes, menus, the sitemap and the parent links.
+`ddi/pages/registry.ts` is the single source for routes, menus and the sitemap. It lists sections only: a
+sublevel is in-section state with no route (section 9.4), so its return legend comes from its section's page
+module.
 
 ```ts
-export type PageId = "tac" | "supt" | "about" | "resume" | "work" | "workEmployer" | "projects"
-  | "projectData" | "contact" | "links" | "radar" | "server";
+export type PageId = "menu" | "about" | "resume" | "work" | "projects" | "contact" | "links"
+  | "radar" | "server";                         // "menu" is `/`, holding TAC and SUPT
 export interface PageDef {
   id: PageId;
-  path: string;                                 // e.g. "/work/[employer]"
+  path: string;                                 // e.g. "/work"; no dynamic segments
   kind: "menu" | "section" | "showcase";
   menu?: { on: "TAC" | "SUPT"; pb: Pb; legend: readonly string[] }; // legend lines, e.g. ["RDR", "ATTK"]
   label: string;                                // accessible name and <h1>, e.g. "Work history"
-  parent?: PageId;                              // used for the return legend
   available: boolean;                           // false hides the menu legend (DCS FormatLabelShow)
 }
 export const PAGES: Readonly<Record<PageId, PageDef>>;
@@ -703,6 +771,7 @@ export type LegendSpec = {
   pb: Pb; lines: readonly string[]; boxed?: boolean; label: string;
   action: { kind: "link"; href: string } | { kind: "download"; href: string }
         | { kind: "external"; href: string } | { kind: "island"; render: React.ReactNode }
+        | { kind: "state"; state: string }    // (ours) switches in-section state, no URL
         | { kind: "inert" };
 };
 ```
@@ -811,8 +880,9 @@ All positions are DCS DI. "Edge" means the element goes in an edge strip.
 
 - Every page is a statically generated RSC tree: inline SVG and no images.
 - Client JavaScript is the controls island, the page islands (Links, Contact COPY) and the radar loop.
-- No filter by default. The soft edge is two strokes (section 6.2).
-- BRT, NIGHT/DAY and CONT change CSS custom properties: opacity is compositor-only, and halo opacity triggers
+- No filter by day. The soft edge is two strokes (section 6.2). At night one shared blur filter draws the
+  bloom over static groups.
+- BRT, CONT and the theme change CSS custom properties: opacity is compositor-only, and halo opacity triggers
   one repaint per click.
 - One `<path>` per text string. Each page's symbology exists once in the DOM and is painted twice through
   `<use>`.
@@ -837,8 +907,12 @@ Unit tests (Vitest):
   `site.ts`.
 - **Registry:** no two legends share an OSB on a menu or a page. Every route has a page module. Side legends
   on adjacent PBs do not overlap. Row legends fit the 169 DI pitch.
-- **Controls:** the selector never wraps and disables its end stops. BRT and CONT clamp to 0–1, steps do not drift, and the drag clamps at the end stops. The
-  NIGHT gain is 0.126 × f. OFF removes the emissive layer. Invalid stored state reads as the defaults.
+- **Controls:** BRT and CONT clamp to 0–1, steps do not drift, and the drag clamps at the end stops. The centre
+  detent holds a drag at 0.5 inside ±0.04 and releases it outside. Invalid stored state reads as the defaults.
+  The pre-paint script matches the app's maths for the knobs and the theme.
+- **Theme:** only exact theme names count as an override; the override beats the OS; the toggle flips and
+  stores it.
+- **Registry:** PB18 on each menu is a state action to the other menu, and only `/` is a menu route.
 
 Component tests (Testing Library):
 
@@ -848,10 +922,16 @@ Component tests (Testing Library):
 
 Browser tests (Playwright, added in Phase 1):
 
-- Screenshots of every route at 1920 × 1080, 1080 × 1080 and 390 × 844.
+- Screenshots of every route at 1920 × 1080, 1080 × 1080 and 390 × 844, in both themes.
+- The four bands are equal, and every OSB clears the lip ring by 6–8 DI at 1920 × 1080, 2560 × 1440 and
+  390 × 844.
+- PB18 toggles TAC and SUPT and the URL stays `/`. `/supt` is a 404.
+- The theme follows the emulated OS colour scheme, the override persists across a reload, and with app scripts
+  blocked a stored override is drawn by the pre-paint script alone (no flash). The toggle ink has at least
+  4.5:1 contrast with the bezel behind it in both themes.
 - At 1080 × 1080 the square and the strips coincide. Those screenshots are compared by overlay with the
   research renders (`dcs-*.svg`).
-- An axe check on every route.
+- An axe check on every route, in both themes and on both menus.
 - A JavaScript-disabled fetch of every route asserts that the semantic content and the OSB `href`s are in the
   HTML.
 
@@ -864,13 +944,13 @@ Each phase ships on its own. A page's menu legend appears only when that page sh
 
 | Phase | Delivers | Done when |
 |---|---|---|
-| 1. Frame, font, controls, menus | The extraction script and generated modules. The primitives, `EmissiveLayer`, `FullViewportFrame`, the OSBs, the selector, BRT and CONT, the pre-paint script, persistence. The TAC and SUPT menus, the registry, the semantic layer, plain view, metadata, the sitemap. Playwright and axe. | `/` and `/supt` toggle with PB18. The controls behave as in section 5 and persist across reloads. A 1080 × 1080 render matches the DCS menu layout. The menus show only titles and `MENU` until Phase 2. |
+| 1. Frame, font, controls, menus | The extraction script and generated modules. The primitives, `EmissiveLayer`, `FullViewportFrame`, the OSBs, BRT and CONT, the pre-paint script, persistence, the day/night theme. The TAC and SUPT menus at `/`, the registry, the semantic layer, plain view, metadata, the sitemap. Playwright and axe. | PB18 toggles TAC and SUPT in place at `/`. The controls behave as in section 5 and persist across reloads. A 1080 × 1080 render matches the DCS menu layout. The menus show only titles and `MENU` until Phase 2. |
 | 2. About, Contact, Links | Three text pages (TGT DATA, MIDS, UFC BU) and their content files. The `@` glyph. | The pages pass content-fit and axe tests. Mail, copy and the link keypad work. |
 | 3. Resume and Work | S/W CONFIG with the PDF download. BIT main, sublevels and paging. The prose layer and its wide tier. | Paging and return work. The prose wraps per tier. The PDF downloads. |
 | 4. Projects | The STORES wingform, stations, categories, STEP, and the DATA sublevel. | The wingform goldens pass. STEP wraps within a category. |
 | 5. Radar | The RDR Lua transcription, then RDR ATTK with animated contacts. | The animation is 20 Hz, pauses when hidden, and is static under reduced motion. |
 | 6. Home server | ENG with fake stats. | The SUPT `ENG` legend is live. |
-| 7. Optional | SA, EW (with the BIT easter egg), HSI, AZ/EL, bloom, smudge. | Each ships alone. |
+| 7. Optional | SA, EW (with the BIT easter egg), HSI, AZ/EL, daytime bloom, smudge. | Each ships alone. |
 
 ## 17. Alternatives considered
 

@@ -1,33 +1,28 @@
 import {
   BRIGHTNESS_CURVE,
-  DISPLAY_MODES,
   HALO_OPACITY,
   HALO_BOOST,
+  KNOB_DETENT,
   KNOB_DIVISIONS,
   KNOB_DRAG_RANGE_PX,
   KNOB_STEP,
   KNOB_SWEEP,
-  MODE_SCALE,
-  SELECTOR_ANGLES,
-  type DisplayMode,
 } from "../constants";
 
 /** The bezel controls. BRT and CONT run 0 to 1, rounded to whole thousandths (see `clampKnob`). */
 export interface ControlsState {
-  mode: DisplayMode;
   brt: number;
   cont: number;
 }
 
-/** DAY is the autostart position [fnd §2.2]. Both knobs start at 12 o'clock; BRT 0.5 draws the material green at unit gain. */
+/** Both knobs start at 12 o'clock; BRT 0.5 draws the material green at unit gain. */
 export const DEFAULT_CONTROLS: ControlsState = {
-  mode: "DAY",
   brt: 0.5,
   cont: 0.5,
 };
 
-/** v1 stored integer tenths. A v1 value is ignored, so it reads as the defaults. */
-export const CONTROLS_STORAGE_KEY = "ddi:controls:v2";
+/** v1 stored integer tenths. v3 dropped the OFF/NIGHT/DAY mode. An older value is ignored and reads as the defaults. */
+export const CONTROLS_STORAGE_KEY = "ddi:controls:v3";
 
 export const VIEW_STORAGE_KEY = "ddi:view:v1";
 /** `?view=plain` turns the plain view on and `?view=ddi` turns it off (docs/design.md section 10.2). */
@@ -37,29 +32,14 @@ export type Knob = "brt" | "cont";
 export type Step = -1 | 1;
 
 export type ControlsAction =
-  | { type: "mode"; step: Step }
   | { type: "knob"; knob: Knob; step: Step }
   | { type: "setKnob"; knob: Knob; value: number };
-
-/** The selector has 3 detents and is not cyclic [bzl §1]: a step past an end stop does nothing. */
-export function canStepMode(mode: DisplayMode, step: Step): boolean {
-  const index = DISPLAY_MODES.indexOf(mode) + step;
-  return index >= 0 && index < DISPLAY_MODES.length;
-}
 
 export function controlsReducer(
   state: ControlsState,
   action: ControlsAction,
 ): ControlsState {
   switch (action.type) {
-    case "mode": {
-      if (!canStepMode(state.mode, action.step)) {
-        return state;
-      }
-      const mode =
-        DISPLAY_MODES[DISPLAY_MODES.indexOf(state.mode) + action.step];
-      return { ...state, mode };
-    }
     case "knob":
       return setKnob(
         state,
@@ -86,10 +66,6 @@ export function clampKnob(value: number): number {
   return Math.min(1, Math.max(0, rounded));
 }
 
-function isDisplayMode(value: unknown): value is DisplayMode {
-  return DISPLAY_MODES.some((mode) => mode === value);
-}
-
 function parseKnob(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value)
     ? clampKnob(value)
@@ -110,9 +86,8 @@ export function parseControls(raw: string | null): ControlsState {
   if (typeof stored !== "object" || stored === null) {
     return DEFAULT_CONTROLS;
   }
-  const { mode, brt, cont } = stored as Record<string, unknown>;
+  const { brt, cont } = stored as Record<string, unknown>;
   return {
-    mode: isDisplayMode(mode) ? mode : DEFAULT_CONTROLS.mode,
     brt: parseKnob(brt, DEFAULT_CONTROLS.brt),
     cont: parseKnob(cont, DEFAULT_CONTROLS.cont),
   };
@@ -128,9 +103,9 @@ export function brightnessCurve(brt: number): number {
   return Math.min(1, floor + (1 - floor) * 2 * brt);
 }
 
-/** gain = modeScale × f(BRT) (docs/design.md section 5.5). */
-export function displayGain({ mode, brt }: ControlsState): number {
-  return MODE_SCALE[mode] * brightnessCurve(brt);
+/** gain = f(BRT) (docs/design.md section 5.5). */
+export function displayGain({ brt }: ControlsState): number {
+  return brightnessCurve(brt);
 }
 
 /** (ours) CONT sets the stroke edge: 0.75 − 0.5·c. */
@@ -161,6 +136,16 @@ export function dragKnob(value: number, deltaX: number): number {
   return Math.min(1, Math.max(0, value + deltaX / KNOB_DRAG_RANGE_PX));
 }
 
+/**
+ * (ours) The centre detent: a drag's unsnapped value within `KNOB_DETENT.window` of 12 o'clock commits exactly 0.5.
+ * The drag keeps accumulating the unsnapped value, so it must travel through the window to leave it.
+ */
+export function snapKnob(raw: number): number {
+  return Math.abs(raw - KNOB_DETENT.centre) <= KNOB_DETENT.window
+    ? KNOB_DETENT.centre
+    : raw;
+}
+
 function cssNumber(value: number): string {
   return String(Math.round(value * 10000) / 10000);
 }
@@ -172,7 +157,6 @@ export function controlsStyle(
   return {
     "--ddi-gain": cssNumber(displayGain(state)),
     "--ddi-halo": cssNumber(haloOpacity(state)),
-    "--ddi-selector-angle": `${SELECTOR_ANGLES[state.mode]}deg`,
     "--ddi-brt-angle": `${cssNumber(knobAngle(state.brt))}deg`,
     "--ddi-cont-angle": `${cssNumber(knobAngle(state.cont))}deg`,
   };
@@ -183,7 +167,6 @@ export function applyControls(
   element: HTMLElement,
   state: ControlsState,
 ): void {
-  element.dataset.ddiMode = state.mode;
   for (const [property, value] of Object.entries(controlsStyle(state))) {
     element.style.setProperty(property, value);
   }

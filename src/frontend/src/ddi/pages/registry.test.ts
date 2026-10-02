@@ -1,4 +1,6 @@
 import { existsSync } from "node:fs";
+import sitemap from "@/app/sitemap";
+import { SITE_URL } from "@/lib/site";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { measure, pbEdge } from "../geometry";
@@ -11,13 +13,14 @@ import {
 import type { Rect } from "../geometry";
 import {
   ALL_PAGES,
+  MENU_NAMES,
   MENU_PB,
   PAGES,
   menuLegends,
   type MenuName,
 } from "./registry";
 
-const MENUS: readonly MenuName[] = ["TAC", "SUPT"];
+const MENUS = MENU_NAMES;
 const APP_DIR = path.resolve(import.meta.dirname, "../../app");
 
 function overlaps(a: Rect, b: Rect): boolean {
@@ -96,14 +99,24 @@ describe("the page registry", () => {
     }
   });
 
-  it("toggles TAC and SUPT with PB18", () => {
+  it("toggles TAC and SUPT in place with PB18: in-section state, not a URL", () => {
     const [tacMenu] = menuLegends("TAC");
     const [suptMenu] = menuLegends("SUPT");
-    expect(tacMenu.action).toEqual({ kind: "link", href: "/supt" });
-    expect(suptMenu.action).toEqual({ kind: "link", href: "/" });
+    expect(tacMenu.action).toEqual({ kind: "state", state: "SUPT" });
+    expect(suptMenu.action).toEqual({ kind: "state", state: "TAC" });
     expect([tacMenu.label, suptMenu.label]).toEqual([
       "Support menu",
       "Tactical menu",
     ]);
+  });
+
+  it("serves both menus from one URL, /", () => {
+    const menuRoutes = ALL_PAGES.filter((page) => page.kind === "menu");
+    expect(menuRoutes.map((page) => page.path)).toEqual(["/"]);
+    expect(ALL_PAGES.some((page) => page.path === "/supt")).toBe(false);
+  });
+
+  it("lists only / in the sitemap: SUPT has no URL of its own", () => {
+    expect(sitemap()).toEqual([{ url: `${SITE_URL}/` }]);
   });
 });

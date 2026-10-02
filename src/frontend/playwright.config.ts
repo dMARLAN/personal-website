@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 3100;
+// Override with E2E_PORT when several checkouts run e2e at once, so none reuses another's server.
+const PORT = Number(process.env.E2E_PORT ?? 3100);
 
 // Runs against a production build: static pages, no dev-only remounts. `make e2e` runs it.
 export default defineConfig({

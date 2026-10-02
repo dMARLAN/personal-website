@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { pbAnchor, pbEdge, type Pb } from "../geometry";
+import { useScreenState } from "./screenState";
 import type { LegendAction, LegendSpec } from "./types";
 
 type PressableAction = Extract<
   LegendAction,
-  { kind: "link" | "download" | "external" }
+  { kind: "link" | "download" | "external" | "state" }
 >;
 
 function placement(pb: Pb): React.CSSProperties {
@@ -26,16 +27,18 @@ function startDownload(href: string): void {
 /**
  * Fires the action on press, as DCS does (docs/design.md section 5.1): primary-button `pointerdown`, or Enter/Space
  * `keydown`. The `click` that follows a pointer press is suppressed so the action never fires twice. A `click` with
- * no press before it (no JavaScript yet, or an assistive technology's synthetic click) keeps its native behaviour.
+ * no press before it (no JavaScript yet, or an assistive technology's synthetic click) keeps its native behaviour, or
+ * fires a state action, which has none.
  */
 function usePress(action: PressableAction): {
   pressed: boolean;
   handlers: Pick<
-    React.DOMAttributes<HTMLAnchorElement>,
+    React.DOMAttributes<HTMLElement>,
     "onPointerDown" | "onKeyDown" | "onKeyUp" | "onBlur" | "onClick"
   >;
 } {
   const router = useRouter();
+  const { setState } = useScreenState();
   const suppressClick = useRef(false);
   const [pressed, setPressed] = useState(false);
 
@@ -49,6 +52,9 @@ function usePress(action: PressableAction): {
         return;
       case "download":
         startDownload(action.href);
+        return;
+      case "state":
+        setState(action.state);
         return;
     }
   };
@@ -79,6 +85,9 @@ function usePress(action: PressableAction): {
         if (suppressClick.current) {
           suppressClick.current = false;
           event.preventDefault();
+        } else if (action.kind === "state") {
+          // A state button has no native action, so a click with no press before it must fire it.
+          fire();
         }
       },
     },
@@ -129,6 +138,13 @@ function PressableOsb({
         <a href={action.href} download {...props}>
           {name}
         </a>
+      );
+    case "state":
+      // Local state only: no URL, so the plain view hides it and the semantic layer carries every state's content.
+      return (
+        <button type="button" data-action="state" {...props}>
+          {name}
+        </button>
       );
   }
 }

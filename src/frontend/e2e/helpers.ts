@@ -1,20 +1,18 @@
 import type { Locator, Page } from "@playwright/test";
 
-export const STORAGE_KEY = "ddi:controls:v2";
+export const STORAGE_KEY = "ddi:controls:v3";
+export const THEME_KEY = "site:theme:v1";
 
 export interface StoredControls {
-  mode: "OFF" | "NIGHT" | "DAY";
   brt: number;
   cont: number;
 }
 
-/** What the page draws: the mode on <html> and the custom properties the controls set. */
+/** What the page draws: the custom properties the controls set on <html>, and the emissive layer's opacity. */
 export async function drawnControls(page: Page): Promise<{
-  mode: string | undefined;
   gain: string;
   halo: string;
-  selectorAngle: string;
-  emissiveDisplay: string;
+  emissiveOpacity: string;
 }> {
   return page.evaluate(() => {
     const root = document.documentElement;
@@ -23,11 +21,9 @@ export async function drawnControls(page: Page): Promise<{
       throw new Error("no emissive layer");
     }
     return {
-      mode: root.dataset.ddiMode,
       gain: root.style.getPropertyValue("--ddi-gain"),
       halo: root.style.getPropertyValue("--ddi-halo"),
-      selectorAngle: root.style.getPropertyValue("--ddi-selector-angle"),
-      emissiveDisplay: getComputedStyle(emissive).display,
+      emissiveOpacity: getComputedStyle(emissive).opacity,
     };
   });
 }

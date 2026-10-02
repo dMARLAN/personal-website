@@ -1,17 +1,66 @@
 "use client";
 
+import { useId } from "react";
 import { KNOB_DIAMETER, KNOB_WHEEL_STEP_PX, PLACARD } from "../constants";
-import { KnobBody } from "./Selector";
 import { type Knob as KnobName, type Step } from "./state";
 import { dispatchControls } from "./store";
 import { useKnobDrag } from "./useKnobDrag";
 import { useWheelSteps } from "./useWheelSteps";
 
 const RADIUS = KNOB_DIAMETER / 2;
-// (ours) The placard is a collar round the knob with a 72 DI tab that points inward along the bottom band, the
-// teardrop shape of the DCS bezel [bzl §3].
-const PLACARD_COLLAR = RADIUS + 5;
+// (ours) The placard is a collar round the knob with a tab that points inward along the bottom band, the teardrop
+// shape of the DCS bezel [bzl §3].
+const PLACARD_COLLAR = RADIUS + 3;
 const PLACARD_END = PLACARD_COLLAR + PLACARD.width;
+
+/** A point `radius` from the knob centre at `degrees` clockwise from up, in SVG coordinates. */
+function polar(radius: number, degrees: number): [number, number] {
+  const radians = (degrees * Math.PI) / 180;
+  return [radius * Math.sin(radians), -radius * Math.cos(radians)];
+}
+
+/**
+ * A dark knurled knob with a white ring on the skirt and a pointer that rotates with `pointerVariable` [bzl §3]. Its
+ * colours are theme tokens (`--knob-*`).
+ */
+function KnobBody({
+  pointerVariable,
+}: {
+  pointerVariable: `--${string}`;
+}): React.JSX.Element {
+  const gradientId = `ddi-knob-face-${useId().replace(/[^\w-]/g, "")}`;
+  const knurl = Array.from({ length: 40 }, (_, index) => {
+    const [x1, y1] = polar(RADIUS * 0.78, index * 9);
+    const [x2, y2] = polar(RADIUS * 0.86, index * 9);
+    return `M${x1.toFixed(2)},${y1.toFixed(2)} L${x2.toFixed(2)},${y2.toFixed(2)}`;
+  }).join(" ");
+  return (
+    <g className="ddi-knob-body">
+      <defs>
+        <radialGradient id={gradientId} cx="0.38" cy="0.3" r="0.8">
+          <stop className="ddi-knob-face-light" offset="0" />
+          <stop className="ddi-knob-face-mid" offset="0.55" />
+          <stop className="ddi-knob-face-dark" offset="1" />
+        </radialGradient>
+      </defs>
+      <circle className="ddi-knob-shadow" r={RADIUS} cy={RADIUS * 0.08} />
+      <circle className="ddi-knob-skirt" r={RADIUS} />
+      <circle className="ddi-knob-ring" r={RADIUS * 0.9} />
+      <path className="ddi-knob-knurl" d={knurl} />
+      <circle
+        className="ddi-knob-face"
+        r={RADIUS * 0.74}
+        fill={`url(#${gradientId})`}
+      />
+      <g
+        className="ddi-knob-pointer"
+        style={{ transform: `rotate(var(${pointerVariable}))` }}
+      >
+        <line x1={0} y1={-RADIUS * 0.2} x2={0} y2={-RADIUS * 0.92} />
+      </g>
+    </g>
+  );
+}
 
 interface KnobProps {
   knob: KnobName;
@@ -33,8 +82,8 @@ const END_STOPS: Readonly<Record<string, number>> = { Home: 0, End: 1 };
 
 /**
  * BRT or CONT (design sections 5.3 and 5.4): a slider from 0 to 1. Dragging right turns it up and left turns it
- * down, continuously between the end stops. A click on the left half steps down 0.1 and on the right half up 0.1; the wheel and the
- * arrow keys step 0.1 too, and Home and End go to the end stops.
+ * down, continuously between the end stops, with a detent at 12 o'clock. A click on the left half steps down 0.1 and
+ * on the right half up 0.1; the wheel and the arrow keys step 0.1 too, and Home and End go to the end stops.
  */
 export function Knob({
   knob,
@@ -110,11 +159,7 @@ export function Knob({
         >
           {placard}
         </text>
-        <KnobBody
-          radius={RADIUS}
-          pointerVariable={`--ddi-${knob}-angle`}
-          ring
-        />
+        <KnobBody pointerVariable={`--ddi-${knob}-angle`} />
       </svg>
     </div>
   );
