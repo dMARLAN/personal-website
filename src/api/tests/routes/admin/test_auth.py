@@ -30,8 +30,43 @@ def test_login_sets_a_locked_down_session_cookie(client: TestClient, admin_passw
     assert attributes["name"] == "pw_admin_session"
     assert {"httponly", "secure"} <= attributes.keys()
     assert attributes["samesite"] == "strict"
-    assert attributes["path"] == "/api/admin"
+    assert attributes["path"] == "/"
     assert attributes["max-age"] == str(12 * 60 * 60)
+
+
+def test_a_forwarded_session_cookie_reads_the_session_and_drafts(
+    container: Container, client: TestClient, admin_password: str
+) -> None:
+    # Arrange: the browser sends the site-wide cookie with a page request, and the Next server forwards it as a
+    # plain Cookie header from a client of its own.
+    login = client.post("/api/admin/login", json={"password": admin_password})
+    token = cookie_attributes(login.headers["set-cookie"])["value"]
+    with TestClient(create_app(container), base_url="https://testserver") as next_server:
+        headers = {"Cookie": f"pw_admin_session={token}"}
+
+        # Act
+        session = next_server.get("/api/admin/session", headers=headers)
+        drafts = next_server.get("/api/admin/drafts", headers=headers)
+
+    # Assert
+    assert session.status_code == HTTPStatus.OK
+    assert session.json()["csrfToken"] == login.json()["csrfToken"]
+    assert drafts.status_code == HTTPStatus.OK
+
+
+def test_a_forwarded_session_cookie_alone_cannot_write(
+    container: Container, client: TestClient, admin_password: str
+) -> None:
+    # Arrange
+    login = client.post("/api/admin/login", json={"password": admin_password})
+    token = cookie_attributes(login.headers["set-cookie"])["value"]
+
+    # Act
+    with TestClient(create_app(container), base_url="https://testserver") as next_server:
+        response = next_server.delete("/api/admin/drafts/profile", headers={"Cookie": f"pw_admin_session={token}"})
+
+    # Assert
+    assert response.status_code == HTTPStatus.FORBIDDEN
 
 
 def test_login_with_a_wrong_password_is_401_without_a_cookie(client: TestClient) -> None:
@@ -94,7 +129,7 @@ def test_session_returns_the_csrf_token_after_login(client: TestClient, admin_pa
 
 
 def test_session_with_a_forged_cookie_is_401(client: TestClient) -> None:
-    client.cookies.set("pw_admin_session", "forged", domain="testserver", path="/api/admin")
+    client.cookies.set("pw_admin_session", "forged", domain="testserver", path="/")
 
     assert client.get("/api/admin/session").status_code == HTTPStatus.UNAUTHORIZED
 
@@ -120,5 +155,5 @@ def test_logout_ends_the_session_and_clears_the_cookie(client: TestClient, admin
     # Assert
     assert response.status_code == HTTPStatus.NO_CONTENT
     assert cookie_attributes(response.headers["set-cookie"])["max-age"] == "0"
-    client.cookies.set("pw_admin_session", str(token), domain="testserver", path="/api/admin")
+    client.cookies.set("pw_admin_session", str(token), domain="testserver", path="/")
     assert client.get("/api/admin/session").status_code == HTTPStatus.UNAUTHORIZED

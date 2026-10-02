@@ -11,8 +11,9 @@ from services.auth.service import AuthService
 
 SESSION_COOKIE: Final[str] = "pw_admin_session"
 CSRF_HEADER: Final[str] = "X-CSRF-Token"
-# The cookie goes only to admin API routes.
-SESSION_COOKIE_PATH: Final[str] = "/api/admin"
+# Site-wide, so the browser also sends it with page requests: the Next server forwards it to `/api/admin/session`
+# and `/api/admin/drafts` to render a page in draft mode for the signed-in admin (docs/design.md section 13.4).
+SESSION_COOKIE_PATH: Final[str] = "/"
 
 
 @inject
