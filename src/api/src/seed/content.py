@@ -428,7 +428,7 @@ _LINKS: Final[Links] = Links(
     links=[
         LinkEntry(name="GitHub", tag="CODE", url="https://example.com/github"),
         LinkEntry(name="LinkedIn", tag="WORK", url="https://example.com/linkedin"),
-        LinkEntry(name="Resume", tag="PDF", url="/resume.pdf"),
+        LinkEntry(name="Resume", tag="PDF", url="/api/resume.pdf"),
         LinkEntry(name="Blog", tag="TEXT", url="https://example.com/blog"),
         LinkEntry(name="Mastodon", tag="SOCIAL", url="https://example.com/mastodon"),
     ],

@@ -11,7 +11,7 @@ class LinkEntry(ContentModel):
     name: Annotated[str, Field(min_length=1, max_length=8), GLYPHS]
     # ≤ 6, so it stays inside the 480 DI selection box.
     tag: Annotated[str, Field(min_length=1, max_length=6), GLYPHS]
-    # An external https URL, or a path on this site such as `/resume.pdf`.
+    # An external https URL, or a path on this site such as `/api/resume.pdf`.
     url: Annotated[str, Field(pattern=r"^(https://|/)\S*$")]
 
 

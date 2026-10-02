@@ -10,6 +10,7 @@ from alembic.migration import MigrationContext
 from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine
 
+from content.links import Links
 from content.radar import RadarScene
 from db.database import DatabaseContext
 from db.migrate import alembic_config, upgrade
@@ -111,3 +112,32 @@ def test_radar_contacts_gain_the_ownship_altitude(tmp_path: Path) -> None:
     RadarScene.model_validate_json(document)
     assert [contact["altitude"] for contact in json.loads(document)["contacts"]] == [20480, 20480, 20480]
     assert etag == hashlib.sha256(document.encode()).hexdigest()
+
+
+def test_the_resume_link_moves_to_the_api(tmp_path: Path) -> None:
+    # Arrange: links stored while the PDF was in the frontend's public/ folder.
+    db_path = tmp_path / "site.db"
+    config = alembic_config(db_path)
+    command.upgrade(config, "0002")
+    old_links = {
+        "links": [
+            {"name": "GitHub", "tag": "CODE", "url": "https://example.com/github"},
+            {"name": "Resume", "tag": "PDF", "url": "/resume.pdf"},
+        ]
+    }
+    with closing(sqlite3.connect(db_path)) as connection, connection:
+        connection.execute(
+            "INSERT INTO content_section VALUES ('links', ?, 'old-etag', '2026-10-02T00:00:00+00:00')",
+            (json.dumps(old_links),),
+        )
+
+    # Act
+    command.upgrade(config, "head")
+
+    # Assert
+    with closing(sqlite3.connect(db_path)) as connection:
+        (document,) = connection.execute("SELECT document FROM content_section WHERE section = 'links'").fetchone()
+    assert [link["url"] for link in Links.model_validate_json(document).model_dump()["links"]] == [
+        "https://example.com/github",
+        "/api/resume.pdf",
+    ]

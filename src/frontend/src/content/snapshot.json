@@ -702,7 +702,7 @@
       {
         "name": "Resume",
         "tag": "PDF",
-        "url": "/resume.pdf"
+        "url": "/api/resume.pdf"
       },
       {
         "name": "Blog",

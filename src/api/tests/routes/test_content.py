@@ -15,7 +15,7 @@ def test_get_site_content_returns_every_section_from_the_seed(client: TestClient
     body = response.json()
     assert list(body) == [section.value for section in ContentSection]
     assert body["profile"] == SEED_DOCUMENTS[ContentSection.PROFILE].model_dump(mode="json")
-    assert body["links"]["links"][2] == {"name": "Resume", "tag": "PDF", "url": "/resume.pdf"}
+    assert body["links"]["links"][2] == {"name": "Resume", "tag": "PDF", "url": "/api/resume.pdf"}
 
 
 def test_get_site_content_sends_an_etag_and_no_cache(client: TestClient) -> None:
